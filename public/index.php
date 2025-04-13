@@ -1,5 +1,4 @@
 <?php
-
 // Check PHP version.
 $minPhpVersion = '7.4'; // If you update this, don't forget to update `spark`.
 if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
@@ -11,6 +10,9 @@ if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
 
     exit($message);
 }
+
+// Define the environment constant
+define('CI_ENVIRONMENT', getenv('CI_ENVIRONMENT') ? getenv('CI_ENVIRONMENT') : 'production');
 
 // Path to the front controller (this file)
 define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
@@ -28,7 +30,6 @@ chdir(FCPATH);
  */
 
 // Load our paths config file
-// This is the line that might need to be changed, depending on your folder structure.
 require FCPATH . '../app/Config/Paths.php';
 // ^^^ Change this line if you move your application folder
 
