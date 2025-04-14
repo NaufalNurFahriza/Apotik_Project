@@ -97,15 +97,15 @@
             padding: 0.5rem 1rem;
             margin: 0 0.5rem;
             display: block;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(0, 0, 0, 0.8);
             text-decoration: none;
             border-radius: 0.35rem;
             white-space: nowrap;
         }
         
         .sidebar .nav-item .collapse .collapse-inner .collapse-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            background-color: rgba(172, 172, 172, 0.1);
+            color: black;
         }
         
         .sidebar-toggled .sidebar {
@@ -494,9 +494,9 @@
     <div class="sidebar sidebar-dark">
         <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('dashboard'); ?>">
             <div class="sidebar-brand-icon">
-                <i class="fas fa-clinic-medical"></i>
+                <img src="<?= base_url('assets/img/logo_apotek_text_only.png'); ?>" alt="Logo" width="40">
             </div>
-            <div class="sidebar-brand-text mx-3">Apotek</div>
+            <div class="sidebar-brand-text mx-3">Kita Farma</div>
         </a>
         
         <hr class="sidebar-divider my-0">
@@ -608,7 +608,7 @@
         <footer class="footer mt-auto">
             <div class="container-fluid">
                 <div class="copyright text-center my-auto">
-                    <span>Copyright &copy; Apotek Sederhana <?= date('Y'); ?></span>
+                    <span>Copyright &copy; Apotek Kita Farma <?= date('Y'); ?></span>
                 </div>
             </div>
         </footer>
