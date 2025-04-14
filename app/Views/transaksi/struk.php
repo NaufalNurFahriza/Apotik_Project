@@ -16,7 +16,7 @@
 <div class="card shadow mb-4">
     <div class="card-body">
         <div class="text-center mb-4">
-            <h3>APOTEK SEDERHANA</h3>
+            <h3>APOTEK KITA FARMA</h3>
             <p>Jl. Contoh No. 123, Kota Contoh<br>Telp: 021-1234567</p>
             <hr>
         </div>
@@ -70,7 +70,7 @@
         </div>
         
         <div class="text-center mt-4">
-            <p>Terima kasih telah berbelanja di Apotek Sederhana</p>
+            <p>Terima kasih telah berbelanja di Apotek Kita Farma</p>
             <p>Semoga lekas sembuh</p>
         </div>
     </div>
