@@ -42,6 +42,8 @@ $routes->group('auth', function ($routes) {
     $routes->get('', 'Auth::index');
     $routes->post('login', 'Auth::login');
     $routes->get('logout', 'Auth::logout');
+    $routes->get('register', 'Auth::register');
+    $routes->post('doRegister', 'Auth::doRegister');
 });
 
 // Dashboard Routes

@@ -111,6 +111,9 @@
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-login">Login</button>
                 </div>
+                <div class="text-center mt-3">
+                    <p>Belum punya akun? <a href="<?= base_url('auth/register'); ?>">Daftar</a></p>
+                </div>
             </form>
         </div>
     </div>
