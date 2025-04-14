@@ -15,14 +15,17 @@
         :root {
             --primary-color: #37b24d;
             --secondary-color: #0c8599;
+            --background-color: #f5f5f5;
         }
         
         body {
-            background: linear-gradient(180deg, var(--primary-color) 10%, #2b9e3f 100%);
+            background-color: var(--background-color);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
+            padding: 0;
         }
         
         .login-container {
@@ -33,6 +36,7 @@
             overflow: hidden;
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
             padding: 2rem;
+            margin: 0 auto;
         }
         
         .login-logo {
@@ -71,6 +75,16 @@
         .btn-login:hover {
             background-color: #2b9e3f;
             border-color: #2b9e3f;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            padding: 0;
+            max-width: 100%;
         }
     </style>
 </head>
