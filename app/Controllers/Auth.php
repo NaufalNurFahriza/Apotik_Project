@@ -28,6 +28,19 @@ class Auth extends BaseController
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
 
+        // Hanya untuk development! - Letakkan di awal method login
+        if (ENVIRONMENT === 'development') {
+            if ($username === 'admin' && $password === 'admin123') {
+                session()->set([
+                    'id' => 1,
+                    'nama_admin' => 'Admin Dev',
+                    'username' => 'admin',
+                    'logged_in' => true
+                ]);
+                return redirect()->to(base_url('dashboard'));
+            }
+        }
+
         $admin = $this->adminModel->cekLogin($username, $password);
 
         if ($admin) {
