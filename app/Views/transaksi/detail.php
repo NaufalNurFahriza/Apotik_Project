@@ -61,7 +61,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Kode Obat</th>
+                        <th>BPOM</th>
                         <th>Nama Obat</th>
                         <th>Harga</th>
                         <th>Jumlah</th>

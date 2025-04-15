@@ -25,7 +25,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Kode Obat</th>
+                        <th>bpom</th>
                         <th>Nama Obat</th>
                         <th>Harga</th>
                         <th>Produsen</th>
@@ -40,7 +40,7 @@
                     <?php foreach ($obat as $o) : ?>
                         <tr>
                             <td><?= $i++; ?></td>
-                            <td><?= $o['bpom']; ?></td>
+                            <td><?= $o['BPOM']; ?></td>
                             <td><?= $o['nama_obat']; ?></td>
                             <td>Rp <?= number_format($o['harga'], 0, ',', '.'); ?></td>
                             <td><?= $o['produsen']; ?></td>

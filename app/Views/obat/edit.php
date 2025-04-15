@@ -17,7 +17,7 @@
             <?= csrf_field(); ?>
             <input type="hidden" name="id" value="<?= $obat['id']; ?>">
             <div class="row mb-3">
-                <label for="bpom" class="col-sm-2 col-form-label">Kode Obat</label>
+                <label for="bpom" class="col-sm-2 col-form-label">BPOM</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control <?= ($validation->hasError('bpom')) ? 'is-invalid' : ''; ?>" id="bpom" name="bpom" value="<?= (old('bpom')) ? old('bpom') : $obat['bpom']; ?>" required>
                     <div class="invalid-feedback">
