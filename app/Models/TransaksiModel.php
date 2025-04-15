@@ -38,7 +38,7 @@ class TransaksiModel extends Model
     {
         $db = \Config\Database::connect();
         $builder = $db->table('detail_transaksi');
-        $builder->select('detail_transaksi.*, obat.nama_obat, obat.kode_obat');
+        $builder->select('detail_transaksi.*, obat.nama_obat, obat.bpom');
         $builder->join('obat', 'obat.id = detail_transaksi.obat_id');
         $builder->where('detail_transaksi.transaksi_id', $transaksiId);
         return $builder->get()->getResultArray();

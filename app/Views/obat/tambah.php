@@ -16,11 +16,11 @@
         <form action="<?= base_url('obat/simpan'); ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field(); ?>
             <div class="row mb-3">
-                <label for="kode_obat" class="col-sm-2 col-form-label">Kode Obat</label>
+                <label for="bpom" class="col-sm-2 col-form-label">Kode Obat</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control <?= ($validation->hasError('kode_obat')) ? 'is-invalid' : ''; ?>" id="kode_obat" name="kode_obat" value="<?= old('kode_obat'); ?>" required>
+                    <input type="text" class="form-control <?= ($validation->hasError('bpom')) ? 'is-invalid' : ''; ?>" id="bpom" name="bpom" value="<?= old('bpom'); ?>" required>
                     <div class="invalid-feedback">
-                        <?= $validation->getError('kode_obat'); ?>
+                        <?= $validation->getError('bpom'); ?>
                     </div>
                 </div>
             </div>

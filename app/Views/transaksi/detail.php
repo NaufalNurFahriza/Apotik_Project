@@ -73,7 +73,7 @@
                     <?php foreach ($detail as $d) : ?>
                         <tr>
                             <td><?= $i++; ?></td>
-                            <td><?= $d['kode_obat']; ?></td>
+                            <td><?= $d['bpom']; ?></td>
                             <td><?= $d['nama_obat']; ?></td>
                             <td>Rp <?= number_format($d['harga_saat_ini'], 0, ',', '.'); ?></td>
                             <td><?= $d['qty']; ?></td>

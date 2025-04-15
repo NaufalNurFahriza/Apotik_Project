@@ -40,7 +40,7 @@
                     <?php foreach ($obat as $o) : ?>
                         <tr>
                             <td><?= $i++; ?></td>
-                            <td><?= $o['kode_obat']; ?></td>
+                            <td><?= $o['bpom']; ?></td>
                             <td><?= $o['nama_obat']; ?></td>
                             <td>Rp <?= number_format($o['harga'], 0, ',', '.'); ?></td>
                             <td><?= $o['produsen']; ?></td>

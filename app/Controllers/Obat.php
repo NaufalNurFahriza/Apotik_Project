@@ -65,7 +65,7 @@ class Obat extends BaseController
 
         // Simpan data
         $data = [
-            'kode_obat' => $this->request->getPost('kode_obat'),
+            'bpom' => $this->request->getPost('bpom'),
             'nama_obat' => $this->request->getPost('nama_obat'),
             'harga' => $this->request->getPost('harga'),
             'produsen' => $this->request->getPost('produsen'),
@@ -121,7 +121,7 @@ class Obat extends BaseController
 
         // Update data
         $data = [
-            'kode_obat' => $this->request->getPost('kode_obat'),
+            'bpom' => $this->request->getPost('bpom'),
             'nama_obat' => $this->request->getPost('nama_obat'),
             'harga' => $this->request->getPost('harga'),
             'produsen' => $this->request->getPost('produsen'),

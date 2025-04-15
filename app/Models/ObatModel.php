@@ -11,11 +11,11 @@ class ObatModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['kode_obat', 'nama_obat', 'harga', 'produsen', 'supplier_id', 'stok', 'gambar'];
+    protected $allowedFields = ['bpom', 'nama_obat', 'harga', 'produsen', 'supplier_id', 'stok', 'gambar'];
 
     // Validasi
     protected $validationRules = [
-        'kode_obat' => 'required|is_unique[obat.kode_obat,id,{id}]',
+        'bpom' => 'required|is_unique[obat.bpom,id,{id}]',
         'nama_obat' => 'required',
         'harga'     => 'required|numeric',
         'produsen'  => 'required',

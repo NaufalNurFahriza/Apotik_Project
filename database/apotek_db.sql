@@ -34,7 +34,7 @@ INSERT INTO `supplier` (`nama_supplier`, `alamat`, `kota`, `telepon`) VALUES
 -- 4. Tabel Obat
 CREATE TABLE IF NOT EXISTS `obat` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `kode_obat` varchar(10) NOT NULL,
+  `bpom` varchar(10) NOT NULL,
   `nama_obat` varchar(100) NOT NULL,
   `harga` int(11) NOT NULL,
   `produsen` varchar(100) NOT NULL,
@@ -42,13 +42,13 @@ CREATE TABLE IF NOT EXISTS `obat` (
   `stok` int(11) NOT NULL,
   `gambar` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `kode_obat` (`kode_obat`),
+  UNIQUE KEY `bpom` (`bpom`),
   KEY `supplier_id` (`supplier_id`),
   CONSTRAINT `obat_ibfk_1` FOREIGN KEY (`supplier_id`) REFERENCES `supplier` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Contoh data obat
-INSERT INTO `obat` (`kode_obat`, `nama_obat`, `harga`, `produsen`, `supplier_id`, `stok`, `gambar`) VALUES
+INSERT INTO `obat` (`bpom`, `nama_obat`, `harga`, `produsen`, `supplier_id`, `stok`, `gambar`) VALUES
 ('PCT500', 'Paracetamol 500mg', 15000, 'PT. Bintang Farmasi', 1, 100, 'paracetamol.jpg'),
 ('VITC', 'Vitamin C 500mg', 30000, 'PT. Sehat Abadi', 2, 50, 'vitamin_c.jpg');
 
