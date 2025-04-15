@@ -25,7 +25,7 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>bpom</th>
+                        <th>BPOM</th>
                         <th>Nama Obat</th>
                         <th>Harga</th>
                         <th>Produsen</th>
