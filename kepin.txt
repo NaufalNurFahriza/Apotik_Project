@@ -1,4 +1,5 @@
-ini kepin
+
 
 1. tambahin daftar member ditempat transaksi
 2. tambahin fitur untuk pakek point
+3. pindahin beli dari Supplier ke pemilik aja dan penambahan admin cuman bisa dari pemilik
