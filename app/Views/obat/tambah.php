@@ -16,7 +16,7 @@
         <form action="<?= base_url('obat/simpan'); ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field(); ?>
             <div class="row mb-3">
-                <label for="BPOM" class="col-sm-2 col-form-label">bpom</label>
+                <label for="BPOM" class="col-sm-2 col-form-label">BPOM</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control <?= ($validation->hasError('bpom')) ? 'is-invalid' : ''; ?>" id="bpom" name="bpom" value="<?= old('bpom'); ?>" required>
                     <div class="invalid-feedback">
