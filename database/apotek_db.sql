@@ -65,7 +65,6 @@ CREATE TABLE IF NOT EXISTS `member` (
 INSERT INTO `member` (`nama`, `no_hp`, `poin`) VALUES
 ('Budi Santoso', '08123456789', 0),
 ('Ani Wijaya', '08234567890', 5);
-('Hermawan Julianto', '082906789120', 2);
 
 -- 6. Tabel Transaksi
 CREATE TABLE IF NOT EXISTS `transaksi` (

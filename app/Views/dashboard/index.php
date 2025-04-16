@@ -106,15 +106,21 @@
                 <h6 class="m-0 font-weight-bold text-primary">Selamat Datang</h6>
             </div>
             <div class="card-body">
-                <p>Selamat datang di Sistem Informasi Apotek Sederhana.</p>
-                <p>Sistem ini memiliki fitur-fitur sebagai berikut:</p>
-                <ul>
-                    <li>Manajemen data obat (input, edit, hapus, lihat)</li>
-                    <li>Manajemen data supplier</li>
-                    <li>Manajemen data member</li>
-                    <li>Transaksi penjualan obat</li>
-                    <li>Pembelian obat dari supplier</li>
-                    <li>Cetak struk transaksi</li>
+                <p>Selamat Datang di Dashboard Admin Apotek Kita Firma.</p>
+                    <p>Terima kasih telah masuk ke sistem administrasi Apotek Kita Firma.</p>
+                    <p>Melalui platform ini, Anda dapat mengelola berbagai data penting yang mendukung operasional apotek secara efisien dan tertata. Sistem ini menyediakan fitur-fitur sebagai berikut:</p>
+                    <ul>
+                        <li>Manajemen data obat (input, edit, hapus, lihat)</li>
+                        <li>Manajemen data supplier</li>
+                        <li>Manajemen data member</li>
+                        <li>Transaksi penjualan obat</li>
+                        <li>Pembelian obat dari supplier</li>
+                        <li>Cetak struk transaksi</li>
+                    </ul>
+                    <p>Kami berkomitmen mendukung kelancaran kerja Anda melalui sistem yang responsif dan mudah digunakan.</p>
+                    <p>Segera mulai pengelolaan data, dan pastikan setiap informasi tercatat dengan baik demi menjaga mutu pelayanan apotek.</p>
+                    <p>Selamat bekerja, dan tetap semangat menjaga layanan apotek yang profesional.</p>
+    
                 </ul>
             </div>
         </div>
