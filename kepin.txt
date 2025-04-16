@@ -1,4 +1,4 @@
 ini kepin
 
-1. tabahin daftar member ditempat transaksi
-2. tambah fitur untuk pakek point
+1. tambahin daftar member ditempat transaksi
+2. tambahin fitur untuk pakek point
