@@ -31,7 +31,6 @@
                         <th>Produsen</th>
                         <th>Supplier</th>
                         <th>Stok</th>
-                        <th>Gambar</th>
                         <th>Opsi</th>
                     </tr>
                 </thead>
@@ -46,9 +45,6 @@
                             <td><?= $o['produsen']; ?></td>
                             <td><?= $o['nama_supplier']; ?></td>
                             <td><?= $o['stok']; ?></td>
-                            <td>
-                                <img src="<?= base_url('uploads/obat/' . $o['gambar']); ?>" alt="<?= $o['nama_obat']; ?>" width="50">
-                            </td>
                             <td>
                                 <a href="<?= base_url('obat/edit/' . $o['id']); ?>" class="btn btn-info btn-sm">
                                     <i class="fas fa-edit"></i>

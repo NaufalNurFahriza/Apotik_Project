@@ -76,23 +76,6 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="gambar" class="col-sm-2 col-form-label">Gambar</label>
-                <div class="col-sm-10">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <img src="<?= base_url('uploads/obat/' . $obat['gambar']); ?>" class="img-thumbnail img-preview" alt="<?= $obat['nama_obat']; ?>">
-                        </div>
-                        <div class="col-sm-9">
-                            <input type="file" class="form-control <?= ($validation->hasError('gambar')) ? 'is-invalid' : ''; ?>" id="gambar" name="gambar">
-                            <div class="invalid-feedback">
-                                <?= $validation->getError('gambar'); ?>
-                            </div>
-                            <div class="form-text">Upload gambar obat (opsional). Format: jpg, jpeg, png. Maks: 2MB</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-3">
                 <div class="col-sm-10 offset-sm-2">
                     <button type="submit" class="btn btn-primary">Update</button>
                     <button type="reset" class="btn btn-secondary">Reset</button>

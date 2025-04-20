@@ -54,15 +54,6 @@ class Obat extends BaseController
             return redirect()->to(base_url('obat/tambah'))->withInput()->with('validation', $this->validator);
         }
 
-        // Upload gambar
-        $gambar = $this->request->getFile('gambar');
-        $namaGambar = 'default.jpg';
-
-        if ($gambar->isValid() && !$gambar->hasMoved()) {
-            $namaGambar = $gambar->getRandomName();
-            $gambar->move('uploads/obat', $namaGambar);
-        }
-
         // Simpan data
         $data = [
             'bpom' => $this->request->getPost('bpom'),
@@ -71,7 +62,6 @@ class Obat extends BaseController
             'produsen' => $this->request->getPost('produsen'),
             'supplier_id' => $this->request->getPost('supplier_id'),
             'stok' => $this->request->getPost('stok'),
-            'gambar' => $namaGambar
         ];
 
         $this->obatModel->insert($data);
@@ -103,22 +93,6 @@ class Obat extends BaseController
             return redirect()->to(base_url('obat/edit/' . $id))->withInput()->with('validation', $this->validator);
         }
 
-        // Data lama
-        $obatLama = $this->obatModel->find($id);
-        $namaGambar = $obatLama['gambar'];
-
-        // Upload gambar baru jika ada
-        $gambar = $this->request->getFile('gambar');
-        if ($gambar->isValid() && !$gambar->hasMoved()) {
-            // Hapus gambar lama jika bukan default
-            if ($namaGambar != 'default.jpg' && file_exists('uploads/obat/' . $namaGambar)) {
-                unlink('uploads/obat/' . $namaGambar);
-            }
-            
-            $namaGambar = $gambar->getRandomName();
-            $gambar->move('uploads/obat', $namaGambar);
-        }
-
         // Update data
         $data = [
             'bpom' => $this->request->getPost('bpom'),
@@ -127,7 +101,6 @@ class Obat extends BaseController
             'produsen' => $this->request->getPost('produsen'),
             'supplier_id' => $this->request->getPost('supplier_id'),
             'stok' => $this->request->getPost('stok'),
-            'gambar' => $namaGambar
         ];
 
         $this->obatModel->update($id, $data);
@@ -139,11 +112,6 @@ class Obat extends BaseController
     {
         // Ambil data obat
         $obat = $this->obatModel->find($id);
-        
-        // Hapus gambar jika bukan default
-        if ($obat['gambar'] != 'default.jpg' && file_exists('uploads/obat/' . $obat['gambar'])) {
-            unlink('uploads/obat/' . $obat['gambar']);
-        }
 
         // Hapus data
         $this->obatModel->delete($id);
