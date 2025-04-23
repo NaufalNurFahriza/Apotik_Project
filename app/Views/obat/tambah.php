@@ -74,16 +74,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row mb-3">
-                <label for="gambar" class="col-sm-2 col-form-label">Gambar</label>
-                <div class="col-sm-10">
-                    <input type="file" class="form-control <?= ($validation->hasError('gambar')) ? 'is-invalid' : ''; ?>" id="gambar" name="gambar">
-                    <div class="invalid-feedback">
-                        <?= $validation->getError('gambar'); ?>
-                    </div>
-                    <div class="form-text">Upload gambar obat (opsional). Format: jpg, jpeg, png. Maks: 2MB</div>
-                </div>
-            </div>
+
             <div class="row mb-3">
                 <div class="col-sm-10 offset-sm-2">
                     <button type="submit" class="btn btn-primary">Simpan</button>

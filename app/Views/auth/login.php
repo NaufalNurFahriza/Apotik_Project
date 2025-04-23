@@ -109,7 +109,7 @@
                     <input type="password" class="form-control" name="password" placeholder="Password" required>
                 </div>
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-login">Login</button>
+                    <button type="submit" class="btn btn-primary btn-login">Masuk</button>
                 </div>
                 <div class="text-center mt-3">
                     <p>Belum punya akun? <a href="<?= base_url('auth/register'); ?>">Daftar</a></p>
