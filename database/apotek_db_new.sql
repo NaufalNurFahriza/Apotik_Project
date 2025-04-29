@@ -1,36 +1,38 @@
 -- 1. Buat database
-CREATE DATABASE IF NOT EXISTS `apotek_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `apotek_db`;
+CREATE DATABASE IF NOT EXISTS `apotek_database` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `apotek_database`;
 
 -- 2. Tabel Admin
 CREATE TABLE IF NOT EXISTS `admin` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `nama_admin` VARCHAR(100) NOT NULL,
-  `username` VARCHAR(50) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_admin` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
   `role` ENUM('pemilik', 'admin') NOT NULL DEFAULT 'admin',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Contoh data admin (password: admin123)
 INSERT INTO `admin` (`nama_admin`, `username`, `password`, `role`) VALUES
 ('Kevin Bimo', 'kevin_bimo', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'pemilik'),
-('Admin Satu', 'admin1', '$2y$10$D3iwNM2QGgWUZRoRMQJ8lud4sFIMyM9xrONfHYIoNSgGk5OROoMeK', 'admin'),
-('Admin Dua', 'admin2', '$2y$10$X/s.n/RD8Z23f7S2Y/26wu38f94PMnG7EUQZkaBj1zlUT3fjQlvV6W', 'admin');
+('Admin Satu', 'admin1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
+('Admin Dua', 'admin2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
 
 -- 3. Tabel Supplier
 CREATE TABLE IF NOT EXISTS `supplier` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `nama_supplier` VARCHAR(100) NOT NULL,
-  `alamat` TEXT NOT NULL,
-  `kota` VARCHAR(50) NOT NULL,
-  `telepon` VARCHAR(15) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_supplier` varchar(100) NOT NULL,
+  `alamat` text NOT NULL,
+  `kota` varchar(50) NOT NULL,
+  `telepon` varchar(15) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Contoh data supplier
 INSERT INTO `supplier` (`nama_supplier`, `alamat`, `kota`, `telepon`) VALUES
 ('Kimia Farma', 'Jl. Sudirman No.1', 'Jakarta', '021123456'),
-('Dexa Medica', 'Jl. Gatot Subroto No.2', 'Bandung', '022654321'),
+('Dexa Medica', 'Jl. Gatot Subroto No.2', 'Bandung', '022654321');
 ('Phapros', 'Jl. Imam Bonjol No.3', 'Semarang', '024789654');
 
 -- 4. Tabel Obat
@@ -55,13 +57,14 @@ INSERT INTO `obat` (`bpom`, `nama_obat`, `harga`, `produsen`, `supplier_id`, `st
 
 -- 5. Tabel Member
 CREATE TABLE IF NOT EXISTS `member` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `nama` VARCHAR(100) NOT NULL,
-  `no_hp` VARCHAR(15) NOT NULL,
-  `poin` INT(11) DEFAULT 0,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nama` varchar(100) NOT NULL,
+  `no_hp` varchar(15) NOT NULL,
+  `poin` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Contoh data member
 INSERT INTO `member` (`nama`, `no_hp`, `poin`) VALUES
 ('Budi Santoso', '08123456789', 0),
 ('Ani Wijaya', '08234567890', 5),
@@ -69,38 +72,39 @@ INSERT INTO `member` (`nama`, `no_hp`, `poin`) VALUES
 
 -- 6. Tabel Transaksi
 CREATE TABLE IF NOT EXISTS `transaksi` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `tanggal_transaksi` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `admin_id` INT(11) NOT NULL,
-  `nama_pembeli` VARCHAR(100) NOT NULL,
-  `member_id` INT(11) DEFAULT NULL,
-  `total` INT(11) NOT NULL,
-  `poin_didapat` INT(11) DEFAULT 0,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tanggal_transaksi` datetime NOT NULL DEFAULT current_timestamp(),
+  `admin_id` int(11) NOT NULL,
+  `nama_pembeli` varchar(100) NOT NULL,
+  `member_id` int(11) DEFAULT NULL,
+  `total` int(11) NOT NULL,
+  `poin_didapat` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `admin_id` (`admin_id`),
   KEY `member_id` (`member_id`),
-  CONSTRAINT `transaksi_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`member_id`) REFERENCES `member` (`id`) ON DELETE SET NULL
+  CONSTRAINT `transaksi_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `admin` (`id`),
+  CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`member_id`) REFERENCES `member` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO `transaksi` (`tanggal_transaksi`, `admin_id`, `nama_pembeli`, `member_id`, `total`, `poin_didapat`) VALUES
-('2024-04-15 10:30:00', 2, 'Budi Santoso', 1, 105000, 2),
-('2024-04-16 11:00:00', 2, 'Ani Wijaya', 2, 60000, 1),
-('2024-04-17 12:00:00', 3, 'Joko Prabowo', 3, 120000, 2);
 
 -- 7. Tabel Detail Transaksi
 CREATE TABLE IF NOT EXISTS `detail_transaksi` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `transaksi_id` INT(11) NOT NULL,
-  `obat_id` INT(11) NOT NULL,
-  `qty` INT(11) NOT NULL,
-  `harga_saat_ini` INT(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `transaksi_id` int(11) NOT NULL,
+  `obat_id` int(11) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `harga_saat_ini` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `transaksi_id` (`transaksi_id`),
   KEY `obat_id` (`obat_id`),
-  CONSTRAINT `detail_transaksi_ibfk_1` FOREIGN KEY (`transaksi_id`) REFERENCES `transaksi` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `detail_transaksi_ibfk_2` FOREIGN KEY (`obat_id`) REFERENCES `obat` (`id`) ON DELETE CASCADE
+  CONSTRAINT `detail_transaksi_ibfk_1` FOREIGN KEY (`transaksi_id`) REFERENCES `transaksi` (`id`),
+  CONSTRAINT `detail_transaksi_ibfk_2` FOREIGN KEY (`obat_id`) REFERENCES `obat` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Contoh data transaksi (opsional)
+INSERT INTO `transaksi` (`tanggal_transaksi`, `admin_id`, `nama_pembeli`, `member_id`, `total`, `poin_didapat`) VALUES
+('2024-04-15 10:30:00', 1, 'Budi Santoso', 1, 105000, 2);
+('2024-04-16 11:00:00', 2, 'Ani Wijaya', 2, 60000, 1),
+('2024-04-17 12:00:00', 3, 'Joko Prabowo', 3, 120000, 2);
 
 INSERT INTO `detail_transaksi` (`transaksi_id`, `obat_id`, `qty`, `harga_saat_ini`) VALUES
 (1, 1, 2, 15000),
