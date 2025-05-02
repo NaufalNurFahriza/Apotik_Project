@@ -1,6 +1,6 @@
 -- 1. Buat database
-CREATE DATABASE IF NOT EXISTS `apotek_database` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `apotek_database`;
+CREATE DATABASE IF NOT EXISTS `apotek_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `apotek_db`;
 
 -- 2. Tabel Admin
 CREATE TABLE IF NOT EXISTS `admin` (
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `supplier` (
 -- Contoh data supplier
 INSERT INTO `supplier` (`nama_supplier`, `alamat`, `kota`, `telepon`) VALUES
 ('Kimia Farma', 'Jl. Sudirman No.1', 'Jakarta', '021123456'),
-('Dexa Medica', 'Jl. Gatot Subroto No.2', 'Bandung', '022654321');
+('Dexa Medica', 'Jl. Gatot Subroto No.2', 'Bandung', '022654321'),
 ('Phapros', 'Jl. Imam Bonjol No.3', 'Semarang', '024789654');
 
 -- 4. Tabel Obat
@@ -103,10 +103,7 @@ CREATE TABLE IF NOT EXISTS `detail_transaksi` (
 -- Contoh data transaksi (opsional)
 INSERT INTO `transaksi` (`tanggal_transaksi`, `admin_id`, `nama_pembeli`, `member_id`, `total`, `poin_didapat`) VALUES
 ('2024-04-15 10:30:00', 1, 'Budi Santoso', 1, 105000, 2);
-('2024-04-16 11:00:00', 2, 'Ani Wijaya', 2, 60000, 1),
-('2024-04-17 12:00:00', 3, 'Joko Prabowo', 3, 120000, 2);
 
 INSERT INTO `detail_transaksi` (`transaksi_id`, `obat_id`, `qty`, `harga_saat_ini`) VALUES
 (1, 1, 2, 15000),
-(1, 2, 1, 30000),
-(2, 3, 2, 25000);
+(1, 2, 3, 30000);

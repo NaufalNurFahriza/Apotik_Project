@@ -502,6 +502,7 @@
         <hr class="sidebar-divider my-0">
         
         <ul class="nav flex-column">
+            <!-- Dashboard - Visible to all -->
             <li class="nav-item <?= uri_string() == 'dashboard' ? 'active' : ''; ?>">
                 <a class="nav-link" href="<?= base_url('dashboard'); ?>">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -511,6 +512,8 @@
             
             <hr class="sidebar-divider">
             
+            <!-- Obat - Only visible to pemilik -->
+            <?php if (session()->get('role') === 'pemilik'): ?>
             <li class="nav-item <?= strpos(uri_string(), 'obat') !== false ? 'active' : ''; ?>">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseObat">
                     <i class="fas fa-fw fa-pills"></i>
@@ -524,13 +527,16 @@
                 </div>
             </li>
             
+            <!-- Supplier - Only visible to pemilik -->
             <li class="nav-item <?= strpos(uri_string(), 'supplier') !== false ? 'active' : ''; ?>">
                 <a class="nav-link" href="<?= base_url('supplier'); ?>">
                     <i class="fas fa-fw fa-truck"></i>
                     <span>Data Supplier</span>
                 </a>
             </li>
+            <?php endif; ?>
             
+            <!-- Member - Visible to all -->
             <li class="nav-item <?= strpos(uri_string(), 'member') !== false ? 'active' : ''; ?>">
                 <a class="nav-link" href="<?= base_url('member'); ?>">
                     <i class="fas fa-fw fa-users"></i>
@@ -538,13 +544,7 @@
                 </a>
             </li>
             
-            <li class="nav-item <?= strpos(uri_string(), 'admin') !== false ? 'active' : ''; ?>">
-                <a class="nav-link" href="<?= base_url('admin'); ?>">
-                    <i class="fas fa-fw fa-user-shield"></i>
-                    <span>Data Admin</span>
-                </a>
-            </li>
-            
+            <!-- Transaksi - Visible to all but with different options -->
             <li class="nav-item <?= strpos(uri_string(), 'transaksi') !== false ? 'active' : ''; ?>">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTransaksi">
                     <i class="fas fa-fw fa-cash-register"></i>
@@ -554,7 +554,9 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="<?= base_url('transaksi'); ?>">Data Transaksi</a>
                         <a class="collapse-item" href="<?= base_url('transaksi/tambah'); ?>">Tambah Transaksi</a>
+                        <?php if (session()->get('role') === 'pemilik'): ?>
                         <a class="collapse-item" href="<?= base_url('transaksi/beliDariSupplier'); ?>">Beli dari Supplier</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </li>
@@ -585,7 +587,10 @@
                 <!-- Nav Item - User Information -->
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?= session()->get('nama_admin'); ?></span>
+                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                            <?= session()->get('nama_admin'); ?> 
+                            <span class="badge bg-primary"><?= ucfirst(session()->get('role')); ?></span>
+                        </span>
                         <i class="fas fa-user-circle fa-fw"></i>
                     </a>
                     <!-- Dropdown - User Information -->
@@ -621,8 +626,6 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Yakin ingin keluar?</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">  aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     Pilih "Logout" di bawah jika Anda siap untuk mengakhiri sesi Anda saat ini.
