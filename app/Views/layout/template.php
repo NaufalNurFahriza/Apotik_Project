@@ -40,6 +40,8 @@
             width: 250px;
             z-index: 1;
         }
+
+        
         
         .sidebar .sidebar-brand {
             height: 4.375rem;
@@ -492,7 +494,7 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar sidebar-dark">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= base_url('dashboard'); ?>">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="javascript:void(0);" id="sidebarBrandToggle">
             <div class="sidebar-brand-icon">
                 <img src="<?= base_url('assets/img/logo_apotek_text_only.png'); ?>" alt="Logo" width="40">
             </div>
@@ -561,13 +563,6 @@
                 </div>
             </li>
             
-            <hr class="sidebar-divider d-none d-md-block">
-            
-            <div class="text-center d-none d-md-inline">
-                <button class="btn-toggle-sidebar rounded-circle border-0" id="sidebarToggle">
-                    <i class="fas fa-angle-left"></i>
-                </button>
-            </div>
         </ul>
     </div>
     
@@ -650,15 +645,16 @@
     
     <!-- Custom scripts -->
     <script>
-        // Toggle sidebar
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.body.classList.toggle('sidebar-toggled');
-        });
-        
-        // Initialize DataTables
-        $(document).ready(function() {
-            $('.dataTable').DataTable();
-        });
+            // Toggle sidebar via klik logo Apotek
+    document.getElementById('sidebarBrandToggle').addEventListener('click', function () {
+        document.body.classList.toggle('sidebar-toggled');
+    });
+
+
+    // DataTables
+    $(document).ready(function () {
+        $('.dataTable').DataTable();
+    });
     </script>
     
     <?= $this->renderSection('scripts'); ?>

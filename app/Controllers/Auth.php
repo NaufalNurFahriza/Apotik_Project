@@ -20,7 +20,10 @@ class Auth extends BaseController
             return redirect()->to(base_url('dashboard'));
         }
 
-        return view('auth/login');
+        return view('auth/login', [
+            'validation_errors' => session()->getFlashdata('validation_errors'),
+            'error' => session()->getFlashdata('error')
+        ]);
     }
 
     public function login()
@@ -30,31 +33,52 @@ class Auth extends BaseController
 
         // Hanya untuk development! - Letakkan di awal method login
         if (ENVIRONMENT === 'development') {
+            if ($username === 'pemilik' && $password === 'pemilik123') {
+                session()->set([
+                    'id' => 0,
+                    'nama_admin' => 'Pemilik Dev',
+                    'username' => 'pemilik',
+                    'role' => 'pemilik',
+                    'logged_in' => true
+                ]);
+                return redirect()->to(base_url('dashboard'));
+            }
+            
             if ($username === 'admin' && $password === 'admin123') {
                 session()->set([
                     'id' => 1,
                     'nama_admin' => 'Admin Dev',
                     'username' => 'admin',
+                    'role' => 'admin',
                     'logged_in' => true
                 ]);
                 return redirect()->to(base_url('dashboard'));
             }
         }
 
-        $admin = $this->adminModel->cekLogin($username, $password);
+        // Cek login untuk production
+        $admin = $this->adminModel->where('username', $username)->first();
 
         if ($admin) {
-            // Set session
-            $data = [
-                'id' => $admin['id'],
-                'nama_admin' => $admin['nama_admin'],
-                'username' => $admin['username'],
-                'logged_in' => TRUE
-            ];
-            session()->set($data);
-            return redirect()->to(base_url('dashboard'));
+            // Verifikasi password
+            if (password_verify($password, $admin['password'])) {
+                // Set session
+                $data = [
+                    'id' => $admin['id'],
+                    'nama_admin' => $admin['nama_admin'],
+                    'username' => $admin['username'],
+                    'role' => $admin['role'],
+                    'logged_in' => TRUE
+                ];
+                session()->set($data);
+                
+                return redirect()->to(base_url('dashboard'));
+            } else {
+                session()->setFlashdata('error', 'Username atau password salah');
+                return redirect()->to(base_url('auth'));
+            }
         } else {
-            session()->setFlashdata('error', 'Username atau Password salah');
+            session()->setFlashdata('error', 'Username atau password salah');
             return redirect()->to(base_url('auth'));
         }
     }
@@ -65,7 +89,6 @@ class Auth extends BaseController
         return redirect()->to(base_url('auth'));
     }
 
-    // Method untuk menampilkan halaman register
     public function register()
     {
         // Jika sudah login, redirect ke dashboard
@@ -74,45 +97,38 @@ class Auth extends BaseController
         }
 
         $data = [
-            'validation_errors' => session()->getFlashdata('validation_errors')
+            'validation_errors' => session()->getFlashdata('validation_errors'),
+            'error' => session()->getFlashdata('error'),
+            'old' => session()->getFlashdata('old')
         ];
 
         return view('auth/register', $data);
     }
 
-    // Method untuk memproses registrasi
     public function doRegister()
     {
         // Validasi input
         $rules = [
-            'nama_admin' => 'required',
-            'username' => 'required|is_unique[admin.username]',
+            'nama_admin' => 'required|min_length[3]|max_length[100]',
+            'username' => 'required|min_length[3]|max_length[20]|is_unique[admin.username]',
             'password' => 'required|min_length[6]',
             'confirm_password' => 'required|matches[password]',
-            'registration_code' => 'required'
+            'registration_code' => 'required|exact[APOTEK2025]'
         ];
 
         if (!$this->validate($rules)) {
-            // Langsung kembalikan dengan validation object
             return redirect()->to(base_url('auth/register'))
                 ->withInput()
-                ->with('error', 'Validasi gagal. Silakan periksa form Anda.')
                 ->with('validation_errors', $this->validator->getErrors());
         }
 
-        // Verifikasi kode registrasi (ganti 'APOTEK2025' dengan kode yang Anda inginkan)
-        $registrationCode = $this->request->getPost('registration_code');
-        if ($registrationCode !== 'APOTEK2025') {
-            return redirect()->to(base_url('auth/register'))
-                ->withInput()
-                ->with('error', 'Kode registrasi tidak valid');
-        }
-
-        // Simpan data admin baru
+        // Simpan data admin baru dengan role default 'admin'
         $data = [
-            'nama_admin' => $this->request->getPost('nama_admin'),
-            'username' => $this->request->getPost('username'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
+            'nama_admin' => esc($this->request->getPost('nama_admin')),
+            'username' => esc($this->request->getPost('username')),
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'role' => 'admin', // Default role admin untuk registrasi baru
+            'created_at' => date('Y-m-d H:i:s')
         ];
 
         $this->adminModel->insert($data);
