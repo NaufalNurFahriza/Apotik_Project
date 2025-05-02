@@ -496,7 +496,7 @@
     <div class="sidebar sidebar-dark">
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="javascript:void(0);" id="sidebarBrandToggle">
             <div class="sidebar-brand-icon">
-                <img src="<?= base_url('assets/img/logo_apotek_text_only.png'); ?>" alt="Logo" width="40">
+                <img src="<?= base_url('assets/img/logo_apotek_gray.png'); ?>" alt="Logo" width="40">
             </div>
             <div class="sidebar-brand-text mx-3">Kita Farma</div>
         </a>
