@@ -27,8 +27,9 @@
                     <select class="form-select" id="member_id" name="member_id">
                         <option value="" selected>Pilih Member (Opsional)</option>
                         <?php foreach ($member as $m) : ?>
-                            <option value="<?= $m['id']; ?>"><?= $m['nama']; ?> - <?= $m['no_hp']; ?></option>
+                            <option value="<?= $m['id']; ?>" data-nama="<?= $m['nama']; ?>"><?= $m['nama']; ?> - <?= $m['no_hp']; ?></option>
                         <?php endforeach; ?>
+                        <option value="tambah_baru">+ Tambah Member baru</option>
                     </select>
                 </div>
             </div>
@@ -107,6 +108,34 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Modal Tambah Member -->
+<div class="modal fade" id="modalTambahMember" tabindex="-1" aria-labelledby="modalTambahMemberLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahMemberLabel">Tambah Member Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formTambahMember">
+                    <div class="mb-3">
+                        <label for="nama_member" class="form-label">Nama</label>
+                        <input type="text" class="form-control" id="nama_member" name="nama_member" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="no_hp_member" class="form-label">No. HP</label>
+                        <input type="text" class="form-control" id="no_hp_member" name="no_hp_member" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnSimpanMember">Simpan</button>
+            </div>
+        </div>
     </div>
 </div>
 <?= $this->endSection(); ?>
@@ -224,6 +253,66 @@
             }
             
             return true;
+        });
+        
+        // Event ketika memilih member
+        $('#member_id').change(function() {
+            const selectedOption = $(this).val();
+            
+            if (selectedOption === 'tambah_baru') {
+                // Tampilkan modal tambah member
+                $('#modalTambahMember').modal('show');
+                $(this).val(''); // Reset pilihan
+            } else if (selectedOption !== '') {
+                // Auto-fill nama pembeli dengan nama member
+                const namaMember = $('option:selected', this).data('nama');
+                $('#nama_pembeli').val(namaMember);
+            }
+        });
+        
+        // Simpan member baru via AJAX
+        $('#btnSimpanMember').click(function() {
+            const nama = $('#nama_member').val();
+            const no_hp = $('#no_hp_member').val();
+            
+            if (!nama || !no_hp) {
+                alert('Nama dan No. HP harus diisi!');
+                return;
+            }
+            
+            $.ajax({
+                url: '<?= base_url('member/simpanAjax'); ?>',
+                type: 'POST',
+                data: {
+                    nama: nama,
+                    no_hp: no_hp,
+                    <?= csrf_token(); ?>: '<?= csrf_hash(); ?>'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Tambahkan member baru ke dropdown
+                        $('#member_id').append(`<option value="${response.id}" data-nama="${nama}" selected>${nama} - ${no_hp}</option>`);
+                        
+                        // Auto-fill nama pembeli
+                        $('#nama_pembeli').val(nama);
+                        
+                        // Tutup modal
+                        $('#modalTambahMember').modal('hide');
+                        
+                        // Reset form
+                        $('#formTambahMember')[0].reset();
+                        
+                        // Tampilkan pesan sukses
+                        alert('Member baru berhasil ditambahkan!');
+                    } else {
+                        alert('Gagal menambahkan member: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan. Silakan coba lagi.');
+                }
+            });
         });
     });
 </script>

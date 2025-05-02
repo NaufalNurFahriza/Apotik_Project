@@ -74,6 +74,7 @@ $routes->group('member', function ($routes) {
     $routes->get('', 'Member::index');
     $routes->get('tambah', 'Member::tambah');
     $routes->post('simpan', 'Member::simpan');
+    $routes->post('simpanAjax', 'Member::simpanAjax');
     $routes->get('edit/(:num)', 'Member::edit/$1');
     $routes->post('update/(:num)', 'Member::update/$1');
     $routes->get('hapus/(:num)', 'Member::hapus/$1');
