@@ -27,10 +27,38 @@
                     <select class="form-select" id="member_id" name="member_id">
                         <option value="" selected>Pilih Member (Opsional)</option>
                         <?php foreach ($member as $m) : ?>
-                            <option value="<?= $m['id']; ?>" data-nama="<?= $m['nama']; ?>"><?= $m['nama']; ?> - <?= $m['no_hp']; ?></option>
+                            <option value="<?= $m['id']; ?>" data-nama="<?= $m['nama']; ?>" data-poin="<?= $m['poin']; ?>"><?= $m['nama']; ?> - <?= $m['no_hp']; ?> (Poin: <?= $m['poin']; ?>)</option>
                         <?php endforeach; ?>
                         <option value="tambah_baru">+ Tambah Member baru</option>
                     </select>
+                </div>
+            </div>
+            
+            <!-- Bagian Poin Member - Awalnya disembunyikan -->
+            <div class="row mb-3" id="poinMemberSection" style="display: none;">
+                <label for="poin_member" class="col-sm-2 col-form-label">Poin Member</label>
+                <div class="col-sm-10">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="poin_tersedia" readonly>
+                                <span class="input-group-text">Poin Tersedia</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="poin_digunakan" name="poin_digunakan" value="0" min="0">
+                                <span class="input-group-text">Poin Digunakan</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="potongan_harga" name="potongan_harga" value="0" readonly>
+                                <span class="input-group-text">Potongan (Rp)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">1 poin = Rp 1.000. Maksimal penggunaan poin 50% dari total belanja.</small>
                 </div>
             </div>
             
@@ -95,7 +123,14 @@
             </div>
             
             <div class="row mb-3">
-                <label for="total" class="col-sm-2 col-form-label">Total</label>
+                <label for="subtotal" class="col-sm-2 col-form-label">Subtotal</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" id="subtotal" name="subtotal" readonly>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <label for="total" class="col-sm-2 col-form-label">Total Bayar</label>
                 <div class="col-sm-10">
                     <input type="number" class="form-control" id="total" name="total" readonly>
                 </div>
@@ -156,11 +191,49 @@
         
         // Fungsi untuk menghitung total
         function hitungTotal() {
-            let total = 0;
+            let subtotal = 0;
             $('.subtotal').each(function() {
-                total += parseFloat($(this).val()) || 0;
+                subtotal += parseFloat($(this).val()) || 0;
             });
+            
+            // Set subtotal
+            $('#subtotal').val(subtotal);
+            
+            // Hitung potongan dari poin
+            const potonganHarga = parseInt($('#potongan_harga').val()) || 0;
+            
+            // Hitung total setelah potongan
+            const total = Math.max(0, subtotal - potonganHarga);
             $('#total').val(total);
+            
+            // Update maksimal poin yang bisa digunakan (50% dari subtotal)
+            updateMaksimalPoin(subtotal);
+        }
+        
+        // Fungsi untuk update maksimal poin yang bisa digunakan
+        function updateMaksimalPoin(subtotal) {
+            if ($('#poinMemberSection').is(':visible')) {
+                const poinTersedia = parseInt($('#poin_tersedia').val()) || 0;
+                const maksPotongan = Math.floor(subtotal * 0.5); // 50% dari subtotal
+                const maksimalPoin = Math.min(poinTersedia, Math.floor(maksPotongan / 1000)); // 1 poin = Rp 1.000
+                
+                // Update atribut max pada input poin_digunakan
+                $('#poin_digunakan').attr('max', maksimalPoin);
+                
+                // Jika poin yang digunakan melebihi maksimal, sesuaikan
+                const poinDigunakan = parseInt($('#poin_digunakan').val()) || 0;
+                if (poinDigunakan > maksimalPoin) {
+                    $('#poin_digunakan').val(maksimalPoin);
+                    // Update potongan harga
+                    const potonganBaru = maksimalPoin * 1000;
+                    $('#potongan_harga').val(potonganBaru);
+                }
+                
+                // Hitung ulang total
+                const potonganHarga = parseInt($('#potongan_harga').val()) || 0;
+                const total = Math.max(0, subtotal - potonganHarga);
+                $('#total').val(total);
+            }
         }
         
         // Event ketika memilih obat
@@ -242,11 +315,41 @@
             }
         });
         
+        // Event ketika mengubah poin yang digunakan
+        $('#poin_digunakan').on('change', function() {
+            const poinDigunakan = parseInt($(this).val()) || 0;
+            const poinTersedia = parseInt($('#poin_tersedia').val()) || 0;
+            const subtotal = parseInt($('#subtotal').val()) || 0;
+            
+            // Validasi poin tidak melebihi yang tersedia
+            if (poinDigunakan > poinTersedia) {
+                alert('Poin yang digunakan tidak boleh melebihi poin tersedia!');
+                $(this).val(poinTersedia);
+            }
+            
+            // Validasi poin tidak melebihi maksimal (50% dari subtotal)
+            const maksPotongan = Math.floor(subtotal * 0.5); // 50% dari subtotal
+            const maksimalPoin = Math.min(poinTersedia, Math.floor(maksPotongan / 1000)); // 1 poin = Rp 1.000
+            
+            if (poinDigunakan > maksimalPoin) {
+                alert('Maksimal penggunaan poin adalah 50% dari total belanja!');
+                $(this).val(maksimalPoin);
+            }
+            
+            // Hitung potongan harga
+            const potonganHarga = parseInt($(this).val()) * 1000; // 1 poin = Rp 1.000
+            $('#potongan_harga').val(potonganHarga);
+            
+            // Hitung ulang total
+            hitungTotal();
+        });
+        
         // Validasi form sebelum submit
         $('#formTransaksi').submit(function(e) {
+            const subtotal = parseFloat($('#subtotal').val()) || 0;
             const total = parseFloat($('#total').val()) || 0;
             
-            if (total <= 0) {
+            if (subtotal <= 0) {
                 e.preventDefault();
                 alert('Silakan pilih obat terlebih dahulu!');
                 return false;
@@ -263,10 +366,47 @@
                 // Tampilkan modal tambah member
                 $('#modalTambahMember').modal('show');
                 $(this).val(''); // Reset pilihan
+                
+                // Sembunyikan bagian poin
+                $('#poinMemberSection').hide();
+                $('#poin_tersedia').val(0);
+                $('#poin_digunakan').val(0);
+                $('#potongan_harga').val(0);
+                
             } else if (selectedOption !== '') {
                 // Auto-fill nama pembeli dengan nama member
                 const namaMember = $('option:selected', this).data('nama');
+                const poinMember = $('option:selected', this).data('poin');
                 $('#nama_pembeli').val(namaMember);
+                
+                // Tampilkan bagian poin jika member memiliki poin
+                if (poinMember > 0) {
+                    $('#poinMemberSection').show();
+                    $('#poin_tersedia').val(poinMember);
+                    $('#poin_digunakan').val(0);
+                    $('#potongan_harga').val(0);
+                    
+                    // Update maksimal poin yang bisa digunakan
+                    const subtotal = parseInt($('#subtotal').val()) || 0;
+                    updateMaksimalPoin(subtotal);
+                } else {
+                    $('#poinMemberSection').hide();
+                    $('#poin_tersedia').val(0);
+                    $('#poin_digunakan').val(0);
+                    $('#potongan_harga').val(0);
+                }
+                
+                // Hitung ulang total
+                hitungTotal();
+            } else {
+                // Sembunyikan bagian poin
+                $('#poinMemberSection').hide();
+                $('#poin_tersedia').val(0);
+                $('#poin_digunakan').val(0);
+                $('#potongan_harga').val(0);
+                
+                // Hitung ulang total
+                hitungTotal();
             }
         });
         
@@ -292,7 +432,7 @@
                 success: function(response) {
                     if (response.status === 'success') {
                         // Tambahkan member baru ke dropdown
-                        $('#member_id').append(`<option value="${response.id}" data-nama="${nama}" selected>${nama} - ${no_hp}</option>`);
+                        $('#member_id').append(`<option value="${response.id}" data-nama="${nama}" data-poin="0" selected>${nama} - ${no_hp} (Poin: 0)</option>`);
                         
                         // Auto-fill nama pembeli
                         $('#nama_pembeli').val(nama);
@@ -305,6 +445,15 @@
                         
                         // Tampilkan pesan sukses
                         alert('Member baru berhasil ditambahkan!');
+                        
+                        // Sembunyikan bagian poin (member baru poin = 0)
+                        $('#poinMemberSection').hide();
+                        $('#poin_tersedia').val(0);
+                        $('#poin_digunakan').val(0);
+                        $('#potongan_harga').val(0);
+                        
+                        // Hitung ulang total
+                        hitungTotal();
                     } else {
                         alert('Gagal menambahkan member: ' + response.message);
                     }

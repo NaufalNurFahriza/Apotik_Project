@@ -15,6 +15,37 @@
     </div>
 <?php endif; ?>
 
+&lt;!-- Filter Tanggal -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Filter Tanggal</h6>
+    </div>
+    <div class="card-body">
+        <form action="<?= base_url('transaksi'); ?>" method="get" id="formFilter">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="start_date">Tanggal Awal</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" value="<?= $start_date ?? date('Y-m-01'); ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="end_date">Tanggal Akhir</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" value="<?= $end_date ?? date('Y-m-d'); ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary btn-block">Filter</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">List Transaksi</h6>
@@ -61,4 +92,16 @@
         </div>
     </div>
 </div>
+<?= $this->endSection(); ?>
+
+<?= $this->section('scripts'); ?>
+<script>
+    $(document).ready(function() {
+        // Inisialisasi DataTable dengan opsi tambahan
+        $('.dataTable').DataTable({
+            "order": [[1, "desc"]], // Urutkan berdasarkan tanggal (kolom 1) secara descending
+            "pageLength": 25 // Tampilkan 25 data per halaman
+        });
+    });
+</script>
 <?= $this->endSection(); ?>

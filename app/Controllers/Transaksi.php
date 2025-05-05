@@ -32,9 +32,18 @@ class Transaksi extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
+        // Ambil parameter filter tanggal
+        $start_date = $this->request->getGet('start_date') ?? date('Y-m-01'); // Default: awal bulan ini
+        $end_date = $this->request->getGet('end_date') ?? date('Y-m-d'); // Default: hari ini
+
+        // Ambil data transaksi berdasarkan filter tanggal
+        $transaksi = $this->transaksiModel->getTransaksiByDateRange($start_date, $end_date);
+
         $data = [
             'title' => 'Data Transaksi',
-            'transaksi' => $this->transaksiModel->getAllTransaksi()
+            'transaksi' => $transaksi,
+            'start_date' => $start_date,
+            'end_date' => $end_date
         ];
 
         return view('transaksi/index', $data);
@@ -82,19 +91,24 @@ class Transaksi extends BaseController
         $obat_id = $this->request->getPost('obat_id');
         $harga = $this->request->getPost('harga');
         $qty = $this->request->getPost('qty');
+        $subtotal = $this->request->getPost('subtotal');
+        $poin_digunakan = $this->request->getPost('poin_digunakan') ? $this->request->getPost('poin_digunakan') : 0;
+        $potongan_harga = $this->request->getPost('potongan_harga') ? $this->request->getPost('potongan_harga') : 0;
         $total = $this->request->getPost('total');
 
         // Hitung poin yang didapat (1 poin untuk setiap Rp 50.000)
         $poin_didapat = floor($total / 50000);
 
-        /// Simpan data transaksi
+        // Simpan data transaksi
         $data_transaksi = [
             'tanggal_transaksi' => date('Y-m-d H:i:s'),
             'admin_id' => session()->get('id'),
             'nama_pembeli' => $nama_pembeli,
             'member_id' => $member_id ? $member_id : null,
             'total' => $total,
-            'poin_didapat' => $poin_didapat
+            'poin_didapat' => $poin_didapat,
+            'poin_digunakan' => $poin_digunakan,
+            'potongan_harga' => $potongan_harga
         ];
 
         $this->transaksiModel->insert($data_transaksi);
@@ -122,7 +136,9 @@ class Transaksi extends BaseController
         // Update poin member jika transaksi menggunakan member
         if ($member_id) {
             $member = $this->memberModel->find($member_id);
-            $poin_baru = $member['poin'] + $poin_didapat;
+
+            // Kurangi poin yang digunakan dan tambahkan poin baru
+            $poin_baru = $member['poin'] - $poin_digunakan + $poin_didapat;
             $this->memberModel->update($member_id, ['poin' => $poin_baru]);
         }
 

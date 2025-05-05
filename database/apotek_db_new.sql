@@ -86,6 +86,11 @@ CREATE TABLE IF NOT EXISTS `transaksi` (
   CONSTRAINT `transaksi_ibfk_2` FOREIGN KEY (`member_id`) REFERENCES `member` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Tambahkan kolom poin_digunakan dan potongan_harga
+ALTER TABLE `transaksi` 
+ADD COLUMN `poin_digunakan` int(11) DEFAULT 0 AFTER `poin_didapat`,
+ADD COLUMN `potongan_harga` int(11) DEFAULT 0 AFTER `poin_digunakan`;
+
 -- 7. Tabel Detail Transaksi
 CREATE TABLE IF NOT EXISTS `detail_transaksi` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -101,9 +106,13 @@ CREATE TABLE IF NOT EXISTS `detail_transaksi` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Contoh data transaksi (opsional)
-INSERT INTO `transaksi` (`tanggal_transaksi`, `admin_id`, `nama_pembeli`, `member_id`, `total`, `poin_didapat`) VALUES
-('2024-04-15 10:30:00', 1, 'Budi Santoso', 1, 105000, 2);
+INSERT INTO `transaksi` (
+  `tanggal_transaksi`, `admin_id`, `nama_pembeli`, `member_id`,
+  `total`, `poin_didapat`, `poin_digunakan`, `potongan_harga`
+) VALUES
+('2024-04-15 10:30:00', 1, 'Budi Santoso', 1, 105000, 2, 2, 2000);
 
+-- Detail transaksi
 INSERT INTO `detail_transaksi` (`transaksi_id`, `obat_id`, `qty`, `harga_saat_ini`) VALUES
 (1, 1, 2, 15000),
 (1, 2, 3, 30000);
