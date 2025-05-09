@@ -8,9 +8,16 @@
     </a>
 </div>
 
+<?php if (session()->getFlashdata('error')) : ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <?= session()->getFlashdata('error'); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Form Tambah Transaksi</h6>
+    <div class="card-header py-3 bg-primary text-white">
+        <h6 class="m-0 font-weight-bold">Form Tambah Transaksi</h6>
     </div>
     <div class="card-body">
         <form action="<?= base_url('transaksi/simpan'); ?>" method="post" id="formTransaksi">
@@ -34,88 +41,83 @@
                 </div>
             </div>
             
-            <!-- Bagian Poin Member - Awalnya disembunyikan -->
-            <div class="row mb-3" id="poinMemberSection" style="display: none;">
-                <label for="poin_member" class="col-sm-2 col-form-label">Poin Member</label>
-                <div class="col-sm-10">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="poin_tersedia" readonly>
-                                <span class="input-group-text">Poin Tersedia</span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="poin_digunakan" name="poin_digunakan" value="0" min="0">
-                                <span class="input-group-text">Poin Digunakan</span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="potongan_harga" name="potongan_harga" value="0" readonly>
-                                <span class="input-group-text">Potongan (Rp)</span>
-                            </div>
-                        </div>
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Detail Obat</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="detailObat">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Obat</th>
+                                    <th>Harga</th>
+                                    <th>Jumlah</th>
+                                    <th>Subtotal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="row1">
+                                    <td>
+                                        <select class="form-select obat-select" name="obat_id[]" required>
+                                            <option value="" selected disabled>Pilih Obat</option>
+                                            <?php foreach ($obat as $o) : ?>
+                                                <option value="<?= $o['id']; ?>" data-harga="<?= $o['harga']; ?>" data-stok="<?= $o['stok']; ?>"><?= $o['nama_obat']; ?> (Stok: <?= $o['stok']; ?>)</option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control harga" name="harga[]" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control subtotal" readonly>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm btn-hapus" disabled>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <button type="button" class="btn btn-success btn-sm" id="btnTambahObat">
+                                            <i class="fas fa-plus"></i> Tambah Obat
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-                    <small class="form-text text-muted">1 poin = Rp 1.000. Maksimal penggunaan poin 50% dari total belanja.</small>
                 </div>
             </div>
             
-            <div class="row mb-3">
-                <div class="col-12">
+            <!-- Bagian Poin Member - Awalnya disembunyikan -->
+            <div class="row mb-3" id="poinMemberSection" style="display: none;">
+                <div class="col-md-12">
                     <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="m-0 font-weight-bold">Detail Obat</h6>
-                        </div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="detailObat">
-                                    <thead>
-                                        <tr>
-                                            <th>Obat</th>
-                                            <th>Harga</th>
-                                            <th>Jumlah</th>
-                                            <th>Subtotal</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr id="row1">
-                                            <td>
-                                                <select class="form-select obat-select" name="obat_id[]" required>
-                                                    <option value="" selected disabled>Pilih Obat</option>
-                                                    <?php foreach ($obat as $o) : ?>
-                                                        <option value="<?= $o['id']; ?>" data-harga="<?= $o['harga']; ?>" data-stok="<?= $o['stok']; ?>"><?= $o['nama_obat']; ?> (Stok: <?= $o['stok']; ?>)</option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </td>
-                                            <td>
-                                                <input type="number" class="form-control harga" name="harga[]" readonly>
-                                            </td>
-                                            <td>
-                                                <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required>
-                                            </td>
-                                            <td>
-                                                <input type="number" class="form-control subtotal" readonly>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-danger btn-sm btn-hapus" disabled>
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="5">
-                                                <button type="button" class="btn btn-success btn-sm" id="btnTambahObat">
-                                                    <i class="fas fa-plus"></i> Tambah Obat
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="poin_tersedia" class="form-label">Poin Tersedia</label>
+                                    <input type="number" class="form-control" id="poin_tersedia" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="poin_digunakan" class="form-label">Poin Digunakan</label>
+                                    <input type="number" class="form-control" id="poin_digunakan" name="poin_digunakan" value="0" min="0">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="potongan_harga" class="form-label">Potongan (Rp)</label>
+                                    <input type="number" class="form-control" id="potongan_harga" name="potongan_harga" value="0" readonly>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">1 poin = Rp 1.000. Maksimal penggunaan poin 50% dari total belanja.</small>
                             </div>
                         </div>
                     </div>
@@ -130,9 +132,9 @@
             </div>
             
             <div class="row mb-3">
-                <label for="total" class="col-sm-2 col-form-label">Total Bayar</label>
+                <label for="total" class="col-sm-2 col-form-label fw-bold">Total Bayar</label>
                 <div class="col-sm-10">
-                    <input type="number" class="form-control" id="total" name="total" readonly>
+                    <input type="number" class="form-control form-control-lg bg-light fw-bold" id="total" name="total" readonly>
                 </div>
             </div>
             

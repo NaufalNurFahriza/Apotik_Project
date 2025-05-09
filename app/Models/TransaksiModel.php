@@ -61,7 +61,7 @@ class TransaksiModel extends Model
                     ->join('admin', 'admin.id = transaksi.admin_id')
                     ->join('member', 'member.id = transaksi.member_id', 'left')
                     ->where('DATE(transaksi.tanggal_transaksi) >=', $startDate)
-                    ->where('DATE(transaksi.tanggal_transaksi) &lt;=', $endDate)
+                    ->where('DATE(transaksi.tanggal_transaksi) <=', $endDate)
                     ->orderBy('transaksi.tanggal_transaksi', 'DESC')
                     ->findAll();
     }

@@ -92,17 +92,38 @@ class Transaksi extends BaseController
         $harga = $this->request->getPost('harga');
         $qty = $this->request->getPost('qty');
         $subtotal = $this->request->getPost('subtotal');
-        $poin_digunakan = $this->request->getPost('poin_digunakan') ? $this->request->getPost('poin_digunakan') : 0;
-        $potongan_harga = $this->request->getPost('potongan_harga') ? $this->request->getPost('potongan_harga') : 0;
+        $poin_digunakan = $this->request->getPost('poin_digunakan') ?? 0;
+        $potongan_harga = $this->request->getPost('potongan_harga') ?? 0;
         $total = $this->request->getPost('total');
 
+        // Pastikan admin_id valid
+        $admin_id = session()->get('id');
+        
+        // Jika menggunakan admin dev (id=0), gunakan admin id=1 untuk database
+        if ($admin_id == 0) {
+            // Cek apakah ada admin dengan id=1
+            $admin = $this->adminModel->find(1);
+            if ($admin) {
+                $admin_id = 1;
+            } else {
+                // Jika tidak ada, ambil admin pertama dari database
+                $firstAdmin = $this->adminModel->first();
+                if ($firstAdmin) {
+                    $admin_id = $firstAdmin['id'];
+                } else {
+                    session()->setFlashdata('error', 'Tidak ada admin yang tersedia di database.');
+                    return redirect()->to(base_url('transaksi/tambah'));
+                }
+            }
+        }
+
         // Hitung poin yang didapat (1 poin untuk setiap Rp 50.000)
-        $poin_didapat = floor($total / 50000);
+        $poin_didapat = floor($subtotal / 50000);
 
         // Simpan data transaksi
         $data_transaksi = [
             'tanggal_transaksi' => date('Y-m-d H:i:s'),
-            'admin_id' => session()->get('id'),
+            'admin_id' => $admin_id,
             'nama_pembeli' => $nama_pembeli,
             'member_id' => $member_id ? $member_id : null,
             'total' => $total,
@@ -136,10 +157,11 @@ class Transaksi extends BaseController
         // Update poin member jika transaksi menggunakan member
         if ($member_id) {
             $member = $this->memberModel->find($member_id);
-
-            // Kurangi poin yang digunakan dan tambahkan poin baru
-            $poin_baru = $member['poin'] - $poin_digunakan + $poin_didapat;
-            $this->memberModel->update($member_id, ['poin' => $poin_baru]);
+            
+            // Kurangi poin yang digunakan
+            $poin_akhir = $member['poin'] - $poin_digunakan + $poin_didapat;
+            
+            $this->memberModel->update($member_id, ['poin' => $poin_akhir]);
         }
 
         session()->setFlashdata('pesan', 'Transaksi berhasil ditambahkan.');
