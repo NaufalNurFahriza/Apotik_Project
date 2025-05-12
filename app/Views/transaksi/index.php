@@ -15,7 +15,7 @@
     </div>
 <?php endif; ?>
 
-<!-- Filter Tanggal -->
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Filter Tanggal</h6>
@@ -54,7 +54,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" id="transaksiTable" width="100%" cellspacing="0">
+            <table class="table table-bordered dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -99,7 +99,6 @@
 <?= $this->section('scripts'); ?>
 <script>
     $(document).ready(function() {
-<<<<<<< HEAD
         // Check if DataTable is already initialized
         if (!$.fn.DataTable.isDataTable('.dataTable')) {
             // Initialize DataTable only if not already initialized
@@ -109,14 +108,6 @@
                 "destroy": true // Allow table to be reinitialized
             });
         }
-=======
-        // Inisialisasi DataTable dengan ID yang spesifik
-        $('#transaksiTable').DataTable({
-            "order": [[1, "desc"]], // Urutkan berdasarkan tanggal (kolom 1) secara descending
-            "pageLength": 25, // Tampilkan 25 data per halaman
-            "destroy": true // Penting: memungkinkan reinisialisasi
-        });
->>>>>>> 0eb29c823936f1b2a698cf75a46d2973777222d1
     });
 </script>
 <?= $this->endSection(); ?>
