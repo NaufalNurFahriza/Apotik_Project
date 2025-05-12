@@ -61,7 +61,7 @@ class Auth extends BaseController
 
         if ($admin) {
             // Verifikasi password
-            if (password_verify($password, $admin['password'])) {
+            if ($password === $admin['password']) {
                 // Set session
                 $data = [
                     'id' => $admin['id'],
@@ -126,7 +126,7 @@ class Auth extends BaseController
         $data = [
             'nama_admin' => esc($this->request->getPost('nama_admin')),
             'username' => esc($this->request->getPost('username')),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+            'password' => $this->request->getPost('password'),
             'role' => 'admin', // Default role admin untuk registrasi baru
             'created_at' => date('Y-m-d H:i:s')
         ];

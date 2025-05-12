@@ -122,7 +122,7 @@
 
 ## 5. Update View Struk Transaksi
 
-```php project="Apotek Kita Farma" file="app/Views/transaksi/struk.php" type="code"
+\`\`\`php project="Apotek Kita Farma" file="app/Views/transaksi/struk.php" type="code"
 <?= $this->extend('layout/template'); ?>
 
 <?= $this->section('content'); ?>

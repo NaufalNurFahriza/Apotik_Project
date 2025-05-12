@@ -22,6 +22,11 @@ class Obat extends BaseController
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('auth'));
         }
+    
+        // Cek role (if this exists)
+        if (session()->get('role') != 'pemilik' && session()->get('role') != 'admin') {
+            return redirect()->to(base_url('dashboard'));
+        }
 
         $data = [
             'title' => 'Data Obat',

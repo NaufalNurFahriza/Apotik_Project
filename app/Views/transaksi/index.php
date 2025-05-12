@@ -37,8 +37,10 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>&nbsp;</label>
-                        <button type="submit" class="btn btn-primary btn-block">Filter</button>
+                        <label for="filter_button"></label>
+                        <div>
+                            <button type="submit" id="filter_button" class="btn btn-primary" style="height: 38px;">Filter</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -97,11 +99,15 @@
 <?= $this->section('scripts'); ?>
 <script>
     $(document).ready(function() {
-        // Inisialisasi DataTable dengan opsi tambahan
-        $('.dataTable').DataTable({
-            "order": [[1, "desc"]], // Urutkan berdasarkan tanggal (kolom 1) secara descending
-            "pageLength": 25 // Tampilkan 25 data per halaman
-        });
+        // Check if DataTable is already initialized
+        if (!$.fn.DataTable.isDataTable('.dataTable')) {
+            // Initialize DataTable only if not already initialized
+            $('.dataTable').DataTable({
+                "order": [[1, "desc"]], // Sort by date (column 1) in descending order
+                "pageLength": 25, // Show 25 entries per page
+                "destroy": true // Allow table to be reinitialized
+            });
+        }
     });
 </script>
 <?= $this->endSection(); ?>

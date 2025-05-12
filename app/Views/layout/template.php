@@ -515,7 +515,7 @@
             <hr class="sidebar-divider">
             
             <!-- Obat - Only visible to pemilik -->
-            <?php if (session()->get('role') === 'pemilik'): ?>
+            <?php if (session()->get('role') === 'pemilik' || session()->get('role') === 'admin'): ?>
             <li class="nav-item <?= strpos(uri_string(), 'obat') !== false ? 'active' : ''; ?>">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseObat">
                     <i class="fas fa-fw fa-pills"></i>
@@ -534,6 +534,16 @@
                 <a class="nav-link" href="<?= base_url('supplier'); ?>">
                     <i class="fas fa-fw fa-truck"></i>
                     <span>Data Supplier</span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <!-- Admin - Only visible to pemilik -->
+            <?php if (session()->get('role') === 'pemilik'): ?>
+            <li class="nav-item <?= strpos(uri_string(), 'admin') !== false ? 'active' : ''; ?>">
+                <a class="nav-link" href="<?= base_url('admin'); ?>">
+                    <i class="fas fa-fw fa-user-shield"></i>
+                    <span>Data Admin</span>
                 </a>
             </li>
             <?php endif; ?>

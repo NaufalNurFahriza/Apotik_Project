@@ -25,7 +25,7 @@ class AdminModel extends Model
     {
         $admin = $this->where('username', $username)->first();
         if ($admin) {
-            if (password_verify($password, $admin['password'])) {
+            if ($password === $admin['password']) {
                 return $admin;
             }
         }
