@@ -17,7 +17,7 @@
     <div class="card-body">
         <div class="text-center mb-4">
             <h3>APOTEK KITA FARMA</h3>
-            <p>Jl. Contoh No. 123, Kota Contoh<br>Telp: 021-1234567</p>
+            <p>Jl. Raya Purwogondo Guo Sobo Kerto KM 3, Cikal, Telukwetan, Kec. Welahan, Kabupaten Jepara, Jawa Tengah<br>Telp: 085292115588</p>
             <hr>
         </div>
         
@@ -62,7 +62,21 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="3" class="text-end">Total</th>
+                        <th colspan="3" class="text-end">Subtotal</th>
+                        <th class="text-end">Rp <?= number_format($transaksi['total'] + $transaksi['potongan_harga'], 0, ',', '.'); ?></th>
+                    </tr>
+                    <?php if ($transaksi['poin_digunakan'] > 0) : ?>
+                    <tr>
+                        <td colspan="3" class="text-end">Poin Digunakan</td>
+                        <td class="text-end"><?= $transaksi['poin_digunakan']; ?> poin</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-end">Potongan Harga</td>
+                        <td class="text-end">Rp <?= number_format($transaksi['potongan_harga'], 0, ',', '.'); ?></td>
+                    </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <th colspan="3" class="text-end">Total Bayar</th>
                         <th class="text-end">Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></th>
                     </tr>
                 </tfoot>
