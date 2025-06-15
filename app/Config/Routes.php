@@ -81,25 +81,77 @@ $routes->group('member', function ($routes) {
     $routes->get('riwayat/(:num)', 'Member::riwayat/$1');
 });
 
-// Admin Routes
-$routes->group('admin', function ($routes) {
-    $routes->get('', 'Admin::index');
-    $routes->get('tambah', 'Admin::tambah');
-    $routes->post('simpan', 'Admin::simpan');
-    $routes->get('edit/(:num)', 'Admin::edit/$1');
-    $routes->post('update/(:num)', 'Admin::update/$1');
-    $routes->get('hapus/(:num)', 'Admin::hapus/$1');
+// User/TTK Routes (ganti dari admin)
+$routes->group('user', function ($routes) {
+    $routes->get('', 'User::index');
+    $routes->get('tambah', 'User::tambah');
+    $routes->post('simpan', 'User::simpan');
+    $routes->get('edit/(:num)', 'User::edit/$1');
+    $routes->post('update/(:num)', 'User::update/$1');
+    $routes->get('hapus/(:num)', 'User::hapus/$1');
 });
 
-// Transaksi Routes
+// Untuk backward compatibility, redirect admin ke user
+$routes->group('admin', function ($routes) {
+    $routes->get('', 'User::index');
+    $routes->get('tambah', 'User::tambah');
+    $routes->post('simpan', 'User::simpan');
+    $routes->get('edit/(:num)', 'User::edit/$1');
+    $routes->post('update/(:num)', 'User::update/$1');
+    $routes->get('hapus/(:num)', 'User::hapus/$1');
+});
+
+// Transaksi Penjualan Routes
+$routes->group('transaksi-penjualan', function ($routes) {
+    $routes->get('', 'TransaksiPenjualan::index');
+    $routes->get('tambah', 'TransaksiPenjualan::tambah');
+    $routes->post('getObatById', 'TransaksiPenjualan::getObatById');
+    $routes->post('simpan', 'TransaksiPenjualan::simpan');
+    $routes->get('detail/(:num)', 'TransaksiPenjualan::detail/$1');
+    $routes->get('struk', 'TransaksiPenjualan::daftarStruk');
+    $routes->get('struk/(:num)', 'TransaksiPenjualan::struk/$1');
+    $routes->get('faktur/(:num)', 'TransaksiPenjualan::faktur/$1');
+    $routes->get('hapus/(:num)', 'TransaksiPenjualan::hapus/$1');
+    $routes->get('laporan', 'TransaksiPenjualan::laporan');
+});
+
+// Transaksi Pembelian Routes
+$routes->group('transaksi-pembelian', function ($routes) {
+    $routes->get('', 'TransaksiPembelian::index');
+    $routes->get('tambah', 'TransaksiPembelian::tambah');
+    $routes->post('getObatById', 'TransaksiPembelian::getObatById');
+    $routes->post('getObatBySupplier', 'TransaksiPembelian::getObatBySupplier');
+    $routes->post('simpan', 'TransaksiPembelian::simpan');
+    $routes->get('detail/(:num)', 'TransaksiPembelian::detail/$1');
+    $routes->get('faktur', 'TransaksiPembelian::daftarFaktur');
+    $routes->get('faktur/(:num)', 'TransaksiPembelian::faktur/$1');
+    $routes->get('struk/(:num)', 'TransaksiPembelian::struk/$1');
+    $routes->get('hapus/(:num)', 'TransaksiPembelian::hapus/$1');
+    $routes->get('laporan', 'TransaksiPembelian::laporan');
+    $routes->get('beliDariSupplier', 'TransaksiPembelian::beliDariSupplier');
+    $routes->post('simpanPembelian', 'TransaksiPembelian::simpanPembelian');
+});
+
+// Laporan Routes
+$routes->group('laporan', function ($routes) {
+    $routes->get('penjualan', 'Laporan::penjualan');
+    $routes->get('pembelian', 'Laporan::pembelian');
+    $routes->get('obat-terlaris', 'Laporan::obatTerlaris');
+    $routes->get('member', 'Laporan::member');
+    $routes->get('supplier', 'Laporan::supplier');
+    $routes->get('keuangan', 'Laporan::keuangan');
+    $routes->get('stok', 'Laporan::stok');
+});
+
+// Untuk backward compatibility, redirect transaksi ke transaksi-penjualan
 $routes->group('transaksi', function ($routes) {
-    $routes->get('', 'Transaksi::index');
-    $routes->get('tambah', 'Transaksi::tambah');
-    $routes->post('getObatById', 'Transaksi::getObatById');
-    $routes->post('simpan', 'Transaksi::simpan');
-    $routes->get('detail/(:num)', 'Transaksi::detail/$1');
-    $routes->get('struk/(:num)', 'Transaksi::struk/$1');
-    $routes->get('hapus/(:num)', 'Transaksi::hapus/$1');
-    $routes->get('beliDariSupplier', 'Transaksi::beliDariSupplier');
-    $routes->post('simpanPembelian', 'Transaksi::simpanPembelian');
+    $routes->get('', 'TransaksiPenjualan::index');
+    $routes->get('tambah', 'TransaksiPenjualan::tambah');
+    $routes->post('getObatById', 'TransaksiPenjualan::getObatById');
+    $routes->post('simpan', 'TransaksiPenjualan::simpan');
+    $routes->get('detail/(:num)', 'TransaksiPenjualan::detail/$1');
+    $routes->get('struk/(:num)', 'TransaksiPenjualan::struk/$1');
+    $routes->get('hapus/(:num)', 'TransaksiPenjualan::hapus/$1');
+    $routes->get('beliDariSupplier', 'TransaksiPembelian::beliDariSupplier');
+    $routes->post('simpanPembelian', 'TransaksiPembelian::simpanPembelian');
 });

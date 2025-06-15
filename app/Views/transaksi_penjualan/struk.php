@@ -2,9 +2,9 @@
 
 <?= $this->section('content'); ?>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Struk Transaksi</h1>
+    <h1 class="h3 mb-0 text-gray-800">Struk Penjualan</h1>
     <div>
-        <a href="<?= base_url('transaksi'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm no-print">
+        <a href="<?= base_url('transaksi-penjualan'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm no-print">
             <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
         </a>
         <button onclick="window.print()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm no-print">
@@ -24,9 +24,9 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <p>
-                    <strong>No. Transaksi:</strong> #<?= str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?><br>
+                    <strong>No. Transaksi:</strong> <?= $transaksi['nomor_faktur'] ?? 'PJ-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?><br>
                     <strong>Tanggal:</strong> <?= date('d-m-Y H:i', strtotime($transaksi['tanggal_transaksi'])); ?><br>
-                    <strong>Kasir:</strong> <?= $transaksi['nama_admin']; ?>
+                    <strong>Kasir:</strong> <?= $transaksi['nama_admin'] ?? $transaksi['nama_user']; ?>
                 </p>
             </div>
             <div class="col-md-6 text-md-end">
@@ -35,6 +35,9 @@
                     <?php if ($transaksi['nama_member']) : ?>
                         <strong>Member:</strong> <?= $transaksi['nama_member']; ?><br>
                         <strong>Poin Didapat:</strong> <?= $transaksi['poin_didapat']; ?>
+                        <?php if (isset($transaksi['poin_digunakan']) && $transaksi['poin_digunakan'] > 0): ?>
+                            <br><strong>Poin Digunakan:</strong> <?= $transaksi['poin_digunakan']; ?>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </p>
             </div>
@@ -54,26 +57,22 @@
                     <?php foreach ($detail as $d) : ?>
                         <tr>
                             <td><?= $d['nama_obat']; ?></td>
-                            <td class="text-center">Rp <?= number_format($d['harga_saat_ini'], 0, ',', '.'); ?></td>
+                            <td class="text-center">Rp <?= number_format($d['harga_saat_ini'] ?? $d['harga_jual'], 0, ',', '.'); ?></td>
                             <td class="text-center"><?= $d['qty']; ?></td>
-                            <td class="text-end">Rp <?= number_format($d['harga_saat_ini'] * $d['qty'], 0, ',', '.'); ?></td>
+                            <td class="text-end">Rp <?= number_format(($d['harga_saat_ini'] ?? $d['harga_jual']) * $d['qty'], 0, ',', '.'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="3" class="text-end">Subtotal</th>
-                        <th class="text-end">Rp <?= number_format($transaksi['total'] + $transaksi['potongan_harga'], 0, ',', '.'); ?></th>
+                        <th class="text-end">Rp <?= number_format($transaksi['total'] + ($transaksi['potongan_harga'] ?? 0), 0, ',', '.'); ?></th>
                     </tr>
-                    <?php if ($transaksi['poin_digunakan'] > 0) : ?>
-                    <tr>
-                        <td colspan="3" class="text-end">Poin Digunakan</td>
-                        <td class="text-end"><?= $transaksi['poin_digunakan']; ?> poin</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="text-end">Potongan Harga</td>
-                        <td class="text-end">Rp <?= number_format($transaksi['potongan_harga'], 0, ',', '.'); ?></td>
-                    </tr>
+                    <?php if (isset($transaksi['potongan_harga']) && $transaksi['potongan_harga'] > 0): ?>
+                        <tr>
+                            <th colspan="3" class="text-end">Potongan Poin (<?= $transaksi['poin_digunakan']; ?> poin)</th>
+                            <th class="text-end">Rp <?= number_format($transaksi['potongan_harga'], 0, ',', '.'); ?></th>
+                        </tr>
                     <?php endif; ?>
                     <tr>
                         <th colspan="3" class="text-end">Total Bayar</th>
