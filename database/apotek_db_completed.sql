@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS user (
   nama VARCHAR(100) NOT NULL,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  user ENUM('pemilik', 'ttk') NOT NULL DEFAULT 'ttk'
+  role ENUM('pemilik', 'ttk') NOT NULL DEFAULT 'ttk'
 );
 
 -- 2. Tabel supplier
