@@ -266,7 +266,7 @@ View bertanggung jawab untuk menampilkan data kepada pengguna.
 
 ### C. Controller (C)
 
-Controller bertindak sebagai perantara antara Model dan View, menangani request HTTP dan menentukan respons.
+Controller bertindak sebagai usertara antara Model dan View, menangani request HTTP dan menentukan respons.
 
 **Contoh dari kode Anda:**
 
@@ -1781,3 +1781,942 @@ Sistem Apotek Kita Farma memiliki alur yang terstruktur untuk mengelola supplier
 
 
 Kedua fitur ini saling terintegrasi dalam sistem apotek, di mana supplier menyediakan obat yang kemudian dijual kepada pelanggan (termasuk member) melalui transaksi.
+
+Saya tidak dapat langsung membuat file DOCX untuk diunduh, tetapi saya dapat membantu Anda menyusun konten yang dapat dengan mudah disalin ke Microsoft Word. Berikut adalah langkah-langkah untuk membuat dokumen Word dari penjelasan alur sistem Apotek Kita Farma:
+
+## Langkah-langkah Membuat Dokumen Word:
+
+1. Buka Microsoft Word di komputer Anda
+2. Salin konten di bawah ini
+3. Tempel ke dokumen Word Anda
+4. Simpan dokumen sebagai file .docx
+
+
+---
+
+# DOKUMENTASI ALUR SISTEM APOTEK KITA FARMA
+
+## Daftar Isi
+
+1. Alur Login dan Autentikasi
+2. Alur Pengelolaan Admin
+3. Alur Pengelolaan Obat dan Stok
+4. Alur Pengelolaan Supplier
+5. Alur Pengelolaan Member
+6. Alur Sistem Poin Member
+7. Alur Transaksi
+
+
+---
+
+## 1. Alur Login dan Autentikasi
+
+### A. Proses Login
+
+1. **Akses Halaman Login**
+
+1. Pengguna mengakses halaman login di URL `/auth`
+2. Sistem menampilkan form login dengan field username dan password
+
+
+
+2. **Pengisian Form Login**
+
+1. Pengguna memasukkan username dan password
+2. Pengguna mengklik tombol "Login"
+
+
+
+3. **Validasi Kredensial**
+
+1. Sistem memeriksa kredensial dengan data di database
+2. Untuk development, sistem menyediakan akses khusus:
+
+1. Username: pemilik, Password: pemilik123 (role pemilik)
+2. Username: admin, Password: admin123 (role admin)
+
+
+
+
+
+
+4. **Pemberian Akses**
+
+1. Jika kredensial valid, sistem membuat session dengan data:
+
+1. id
+2. nama_admin
+3. username
+4. role (admin/pemilik)
+5. logged_in = TRUE
+
+
+
+2. Pengguna diarahkan ke halaman dashboard
+
+
+
+
+
+### B. Proses Logout
+
+1. **Akses Logout**
+
+1. Pengguna mengklik menu "Logout" di dropdown profil
+2. Sistem menghapus session dengan `session()->destroy()`
+3. Pengguna diarahkan kembali ke halaman login
+
+
+
+
+
+### C. Registrasi Admin Baru
+
+1. **Akses Halaman Registrasi**
+
+1. Pengguna mengklik link "Daftar" di halaman login
+2. Sistem menampilkan form registrasi
+
+
+
+2. **Pengisian Form Registrasi**
+
+1. Pengguna mengisi nama lengkap, username, password, dan konfirmasi password
+2. Pengguna mengklik tombol "Daftar"
+
+
+
+3. **Validasi dan Penyimpanan**
+
+1. Sistem memvalidasi input (username unik, password minimal 6 karakter, dll)
+2. Jika valid, sistem menyimpan data admin baru dengan role default "admin"
+3. Pengguna diarahkan ke halaman login dengan pesan sukses
+
+
+
+
+
+---
+
+## 2. Alur Pengelolaan Admin
+
+### A. Struktur Data Admin
+
+- `id` (Primary Key)
+- `nama_admin` (Nama lengkap admin)
+- `username` (Username untuk login)
+- `password` (Password untuk login)
+- `role` (Role: admin/pemilik)
+
+
+### B. Alur Melihat Daftar Admin
+
+1. **Akses Menu Admin**
+
+1. Pemilik mengakses menu "Data Admin" di sidebar
+2. Sistem memeriksa role pengguna (hanya pemilik yang diizinkan)
+3. Sistem menampilkan daftar admin dalam bentuk tabel
+
+
+
+
+
+### C. Alur Tambah Admin
+
+1. **Akses Form Tambah Admin**
+
+1. Pemilik mengklik tombol "Tambah Admin" di halaman daftar admin
+2. Sistem menampilkan form tambah admin
+
+
+
+2. **Pengisian Form Admin**
+
+1. Pemilik mengisi form dengan data admin baru:
+
+1. Nama Admin
+2. Username
+3. Password
+4. Role (admin/pemilik)
+
+
+
+
+
+
+3. **Validasi dan Penyimpanan**
+
+1. Sistem memvalidasi input (username unik, dll)
+2. Jika valid, sistem menyimpan data admin baru
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar admin
+
+
+
+
+
+### D. Alur Edit Admin
+
+1. **Akses Form Edit Admin**
+
+1. Pemilik mengklik tombol edit pada admin yang ingin diubah
+2. Sistem menampilkan form edit dengan data admin yang dipilih
+
+
+
+2. **Pengisian Form Edit**
+
+1. Pemilik mengubah data yang diperlukan
+2. Jika password dikosongkan, password tidak diubah
+
+
+
+3. **Validasi dan Update**
+
+1. Sistem memvalidasi input
+2. Jika valid, sistem mengupdate data admin
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar admin
+
+
+
+
+
+### E. Alur Hapus Admin
+
+1. **Konfirmasi Hapus**
+
+1. Pemilik mengklik tombol hapus pada admin yang ingin dihapus
+2. Sistem menampilkan konfirmasi penghapusan
+
+
+
+2. **Proses Penghapusan**
+
+1. Jika dikonfirmasi, sistem menghapus data admin
+2. Sistem menampilkan notifikasi sukses dan kembali ke daftar admin
+
+
+
+
+
+---
+
+## 3. Alur Pengelolaan Obat dan Stok
+
+### A. Struktur Data Obat
+
+- `id` (Primary Key)
+- `nama_obat` (Nama obat)
+- `bpom` (Nomor BPOM)
+- `harga` (Harga jual obat)
+- `stok` (Jumlah stok tersedia)
+- `supplier_id` (ID supplier yang memasok obat)
+
+
+### B. Alur Melihat Daftar Obat
+
+1. **Akses Menu Obat**
+
+1. Admin/pemilik mengakses menu "Data Obat" di sidebar
+2. Sistem menampilkan daftar obat dalam bentuk tabel
+3. Tabel menampilkan nama obat, BPOM, harga, stok, dan supplier
+
+
+
+
+
+### C. Alur Tambah Obat
+
+1. **Akses Form Tambah Obat**
+
+1. Admin/pemilik mengklik tombol "Tambah Obat" di halaman daftar obat
+2. Sistem menampilkan form tambah obat
+
+
+
+2. **Pengisian Form Obat**
+
+1. Admin/pemilik mengisi form dengan data obat baru:
+
+1. Nama Obat
+2. Nomor BPOM
+3. Harga
+4. Stok Awal
+5. Supplier (dipilih dari dropdown)
+
+
+
+
+
+
+3. **Validasi dan Penyimpanan**
+
+1. Sistem memvalidasi input
+2. Jika valid, sistem menyimpan data obat baru
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar obat
+
+
+
+
+
+### D. Alur Edit Obat
+
+1. **Akses Form Edit Obat**
+
+1. Admin/pemilik mengklik tombol edit pada obat yang ingin diubah
+2. Sistem menampilkan form edit dengan data obat yang dipilih
+
+
+
+2. **Pengisian Form Edit**
+
+1. Admin/pemilik mengubah data yang diperlukan
+2. Perubahan stok dilakukan melalui form ini atau melalui transaksi
+
+
+
+3. **Validasi dan Update**
+
+1. Sistem memvalidasi input
+2. Jika valid, sistem mengupdate data obat
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar obat
+
+
+
+
+
+### E. Alur Hapus Obat
+
+1. **Konfirmasi Hapus**
+
+1. Admin/pemilik mengklik tombol hapus pada obat yang ingin dihapus
+2. Sistem menampilkan konfirmasi penghapusan
+
+
+
+2. **Validasi Penghapusan**
+
+1. Sistem memeriksa apakah obat memiliki riwayat transaksi
+2. Jika ada, obat tidak dapat dihapus
+
+
+
+3. **Proses Penghapusan**
+
+1. Jika tidak ada transaksi, sistem menghapus data obat
+2. Sistem menampilkan notifikasi sukses dan kembali ke daftar obat
+
+
+
+
+
+### F. Alur Pengurangan Stok Obat
+
+1. **Pengurangan Otomatis Saat Transaksi**
+
+1. Saat transaksi penjualan, stok obat dikurangi sesuai jumlah yang dibeli
+2. Proses ini dilakukan di controller `Transaksi` method `simpan()`
+
+
+```php
+// Update stok obat
+$stok_baru = $obat['stok'] - $qty[$i];
+$this->obatModel->update($obat_id[$i], ['stok' => $stok_baru]);
+```
+
+
+2. **Validasi Stok Saat Transaksi**
+
+1. Sistem memvalidasi bahwa stok mencukupi sebelum transaksi
+2. Jika stok tidak mencukupi, sistem menampilkan peringatan
+
+
+
+
+
+### G. Alur Penambahan Stok Obat
+
+1. **Penambahan Manual**
+
+1. Admin/pemilik dapat menambah stok melalui form edit obat
+2. Stok lama ditambah dengan jumlah yang diinput
+
+
+
+2. **Penambahan via Pembelian dari Supplier**
+
+1. Admin/pemilik mencatat pembelian obat dari supplier
+2. Stok obat ditambah sesuai jumlah yang dibeli
+3. Data pembelian disimpan untuk keperluan laporan
+
+
+
+
+
+---
+
+## 4. Alur Pengelolaan Supplier
+
+### A. Struktur Data Supplier
+
+- `id` (Primary Key)
+- `nama_supplier` (Nama perusahaan supplier)
+- `alamat` (Alamat lengkap supplier)
+- `kota` (Kota tempat supplier berada)
+- `telepon` (Nomor telepon kontak supplier)
+
+
+### B. Alur Melihat Daftar Supplier
+
+1. **Akses Menu Supplier**
+
+1. Admin/pemilik mengakses menu "Data Supplier" di sidebar
+2. Sistem menampilkan daftar supplier dalam bentuk tabel
+3. Tabel menampilkan nama supplier, alamat, kota, telepon, dan tombol aksi
+
+
+
+
+
+### C. Alur Tambah Supplier
+
+1. **Akses Form Tambah Supplier**
+
+1. Admin/pemilik mengklik tombol "Tambah Supplier" di halaman daftar supplier
+2. Sistem menampilkan form tambah supplier
+
+
+
+2. **Pengisian Form Supplier**
+
+1. Admin/pemilik mengisi form dengan data supplier baru:
+
+1. Nama Supplier
+2. Alamat
+3. Kota
+4. Telepon
+
+
+
+
+
+
+3. **Validasi dan Penyimpanan**
+
+1. Sistem memvalidasi input berdasarkan aturan di model
+2. Jika valid, sistem menyimpan data supplier baru
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar supplier
+
+
+
+
+
+### D. Alur Edit Supplier
+
+1. **Akses Form Edit Supplier**
+
+1. Admin/pemilik mengklik tombol edit pada supplier yang ingin diubah
+2. Sistem menampilkan form edit dengan data supplier yang dipilih
+
+
+
+2. **Pengisian Form Edit**
+
+1. Admin/pemilik mengubah data yang diperlukan
+2. Sistem memvalidasi dan mengupdate data supplier
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar supplier
+
+
+
+
+
+### E. Alur Hapus Supplier
+
+1. **Konfirmasi Hapus**
+
+1. Admin/pemilik mengklik tombol hapus pada supplier yang ingin dihapus
+2. Sistem menampilkan konfirmasi penghapusan
+3. Jika dikonfirmasi, sistem menghapus data supplier
+4. Sistem menampilkan notifikasi sukses dan kembali ke daftar supplier
+
+
+
+
+
+### F. Integrasi Supplier dengan Obat
+
+1. **Relasi Supplier-Obat**
+
+1. Setiap obat memiliki `supplier_id` yang merujuk ke supplier
+2. Saat menambah/edit obat, admin/pemilik memilih supplier dari daftar yang ada
+
+
+
+2. **Pembelian Obat dari Supplier**
+
+1. Sistem memiliki fitur untuk menambah stok obat dari supplier
+2. Proses ini dilakukan melalui menu "Beli Obat dari Supplier"
+3. Saat pembelian, data supplier ditampilkan bersama dengan obat yang dipilih
+
+
+
+
+
+---
+
+## 5. Alur Pengelolaan Member
+
+### A. Struktur Data Member
+
+- `id` (Primary Key)
+- `nama` (Nama member)
+- `no_hp` (Nomor telepon member)
+- `poin` (Jumlah poin yang dimiliki member)
+
+
+### B. Alur Melihat Daftar Member
+
+1. **Akses Menu Member**
+
+1. Admin/pemilik mengakses menu "Data Member" di sidebar
+2. Sistem menampilkan daftar member dalam bentuk tabel
+3. Tabel menampilkan nama, no. HP, poin, dan tombol aksi (riwayat/edit/hapus)
+
+
+
+
+
+### C. Alur Tambah Member
+
+1. **Akses Form Tambah Member**
+
+1. Admin/pemilik mengklik tombol "Tambah Member" di halaman daftar member
+2. Sistem menampilkan form tambah member
+
+
+
+2. **Pengisian Form Member**
+
+1. Admin/pemilik mengisi form dengan data member baru:
+
+1. Nama
+2. No. HP
+
+
+
+2. Poin awal otomatis diset 0 untuk member baru
+
+
+
+3. **Validasi dan Penyimpanan**
+
+1. Sistem memvalidasi input
+2. Jika valid, sistem menyimpan data member baru
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar member
+
+
+
+
+
+### D. Alur Tambah Member via AJAX (Saat Transaksi)
+
+1. **Akses Modal Tambah Member**
+
+1. Kasir mengklik "Tambah Member baru" pada dropdown member di form transaksi
+2. Modal form tambah member ditampilkan
+
+
+
+2. **Pengisian Form dan Pengiriman AJAX**
+
+1. Kasir mengisi nama dan no. HP member baru
+2. Data dikirim via AJAX ke controller `Member` method `simpanAjax()`
+3. Sistem menyimpan data member baru dan mengembalikan response JSON
+4. Dropdown member di form transaksi diupdate dengan member baru
+
+
+
+
+
+### E. Alur Edit Member
+
+1. **Akses Form Edit Member**
+
+1. Admin/pemilik mengklik tombol edit pada member yang ingin diubah
+2. Sistem menampilkan form edit dengan data member yang dipilih
+
+
+
+2. **Pengisian Form Edit**
+
+1. Admin/pemilik dapat mengubah nama, no. HP, dan poin member
+2. Sistem memvalidasi dan mengupdate data member
+3. Sistem menampilkan notifikasi sukses dan kembali ke daftar member
+
+
+
+
+
+### F. Alur Hapus Member
+
+1. **Konfirmasi Hapus**
+
+1. Admin/pemilik mengklik tombol hapus pada member yang ingin dihapus
+2. Sistem menampilkan konfirmasi penghapusan
+
+
+
+2. **Validasi Penghapusan**
+
+1. Sistem memeriksa apakah member memiliki riwayat transaksi
+2. Jika ada, member tidak dapat dihapus
+
+
+
+3. **Proses Penghapusan**
+
+1. Jika tidak ada transaksi, sistem menghapus data member
+2. Sistem menampilkan notifikasi sukses dan kembali ke daftar member
+
+
+
+
+
+### G. Alur Melihat Riwayat Transaksi Member
+
+1. **Akses Halaman Riwayat**
+
+1. Admin/pemilik mengklik tombol "Riwayat" pada member yang ingin dilihat riwayatnya
+2. Sistem menampilkan data member dan riwayat transaksinya
+
+
+
+2. **Tampilan Riwayat Transaksi**
+
+1. Halaman menampilkan detail member (nama, no. HP, poin)
+2. Tabel menampilkan riwayat transaksi dengan kolom:
+
+1. Tanggal
+2. Admin
+3. Total
+4. Poin Didapat
+5. Tombol Detail (untuk melihat detail transaksi)
+
+
+
+
+
+
+
+
+---
+
+## 6. Alur Sistem Poin Member
+
+### A. Perolehan Poin
+
+1. **Perhitungan Poin**
+
+1. Member mendapatkan poin saat melakukan transaksi
+2. Setiap Rp 50.000 memberikan 1 poin
+3. Poin dihitung di controller `Transaksi` method `simpan()`
+
+
+```php
+// Hitung poin yang didapat (1 poin untuk setiap Rp 50.000)
+$poin_didapat = floor($subtotal / 50000);
+```
+
+
+2. **Penyimpanan Poin**
+
+1. Poin yang didapat disimpan dalam tabel `transaksi` (field `poin_didapat`)
+2. Total poin member diupdate di tabel `member` (field `poin`)
+
+
+
+
+
+### B. Penggunaan Poin
+
+1. **Pemilihan Member**
+
+1. Saat transaksi, kasir memilih member dari dropdown
+2. Sistem menampilkan poin yang tersedia untuk member tersebut
+
+
+
+2. **Input Poin yang Digunakan**
+
+1. Kasir memasukkan jumlah poin yang ingin digunakan
+2. Sistem menghitung potongan harga (1 poin = Rp 1.000)
+3. Maksimal penggunaan poin adalah 50% dari total belanja
+
+
+
+3. **Validasi Penggunaan Poin**
+
+1. Sistem memvalidasi bahwa poin yang digunakan tidak melebihi poin tersedia
+2. Sistem memvalidasi bahwa potongan tidak melebihi 50% dari total belanja
+
+
+
+4. **Penyimpanan Penggunaan Poin**
+
+1. Poin yang digunakan disimpan dalam tabel `transaksi` (field `poin_digunakan`)
+2. Potongan harga disimpan dalam tabel `transaksi` (field `potongan_harga`)
+
+
+
+
+
+### C. Update Poin Member
+
+1. **Perhitungan Poin Akhir**
+
+1. Setelah transaksi, poin member diupdate
+2. Poin akhir = poin awal - poin digunakan + poin didapat
+
+
+```php
+$poin_akhir = $member['poin'] - $poin_digunakan + $poin_didapat;
+```
+
+
+2. **Update Database**
+
+1. Poin akhir diupdate di tabel `member`
+
+
+```php
+$this->memberModel->update($member_id, ['poin' => $poin_akhir]);
+```
+
+
+
+
+### D. Tampilan Poin di Struk
+
+1. **Informasi Poin pada Struk**
+
+1. Struk transaksi menampilkan informasi poin:
+
+1. Poin yang didapat dari transaksi
+2. Poin yang digunakan (jika ada)
+3. Potongan harga dari penggunaan poin (jika ada)
+
+
+
+
+
+
+
+
+---
+
+## 7. Alur Transaksi
+
+### A. Struktur Data Transaksi
+
+1. **Tabel Transaksi**
+
+1. `id` (Primary Key)
+2. `tanggal_transaksi` (Waktu transaksi)
+3. `admin_id` (ID admin yang melakukan transaksi)
+4. `nama_pembeli` (Nama pembeli)
+5. `member_id` (ID member, nullable)
+6. `total` (Total pembayaran)
+7. `poin_didapat` (Poin yang didapat)
+8. `poin_digunakan` (Poin yang digunakan)
+9. `potongan_harga` (Potongan harga dari poin)
+
+
+
+2. **Tabel Detail Transaksi**
+
+1. `id` (Primary Key)
+2. `transaksi_id` (ID transaksi)
+3. `obat_id` (ID obat)
+4. `harga_saat_ini` (Harga obat saat transaksi)
+5. `qty` (Jumlah obat yang dibeli)
+
+
+
+
+
+### B. Alur Melihat Daftar Transaksi
+
+1. **Akses Menu Transaksi**
+
+1. Admin/pemilik mengakses menu "Transaksi" di sidebar
+2. Sistem menampilkan form filter tanggal (default: bulan ini)
+3. Sistem menampilkan daftar transaksi sesuai filter dalam bentuk tabel
+
+
+
+2. **Filter Transaksi**
+
+1. Admin/pemilik dapat mengubah rentang tanggal filter
+2. Sistem menampilkan transaksi yang sesuai dengan filter
+
+
+
+
+
+### C. Alur Tambah Transaksi
+
+1. **Akses Form Tambah Transaksi**
+
+1. Admin/pemilik mengklik tombol "Tambah Transaksi" di halaman daftar transaksi
+2. Sistem menampilkan form tambah transaksi
+
+
+
+2. **Pengisian Data Pembeli**
+
+1. Admin/pemilik mengisi nama pembeli
+2. Admin/pemilik dapat memilih member dari dropdown (opsional)
+3. Jika member dipilih, nama pembeli otomatis diisi dengan nama member
+
+
+
+3. **Pengisian Detail Obat**
+
+1. Admin/pemilik memilih obat dari dropdown
+2. Sistem menampilkan harga obat dan stok tersedia
+3. Admin/pemilik mengisi jumlah obat yang dibeli
+4. Sistem menghitung subtotal (harga × jumlah)
+5. Admin/pemilik dapat menambah baris obat dengan tombol "Tambah Obat"
+
+
+
+4. **Penggunaan Poin Member (jika ada)**
+
+1. Jika member dipilih dan memiliki poin, sistem menampilkan bagian poin
+2. Admin/pemilik dapat mengisi jumlah poin yang digunakan
+3. Sistem menghitung potongan harga dan memvalidasi penggunaan poin
+
+
+
+5. **Perhitungan Total**
+
+1. Sistem menghitung subtotal dari semua obat
+2. Sistem menghitung potongan dari penggunaan poin (jika ada)
+3. Sistem menghitung total akhir (subtotal - potongan)
+
+
+
+6. **Simpan Transaksi**
+
+1. Admin/pemilik mengklik tombol "Simpan Transaksi"
+2. Sistem memvalidasi input (stok mencukupi, dll)
+3. Sistem menyimpan data transaksi dan detail transaksi
+4. Sistem mengupdate stok obat
+5. Sistem mengupdate poin member (jika ada)
+6. Sistem mengarahkan ke halaman struk transaksi
+
+
+
+
+
+### D. Alur Cetak Struk
+
+1. **Tampilan Struk**
+
+1. Sistem menampilkan struk transaksi dengan informasi:
+
+1. Nomor transaksi
+2. Tanggal dan waktu
+3. Nama kasir (admin)
+4. Nama pembeli
+5. Detail member dan poin (jika ada)
+6. Daftar obat yang dibeli (nama, harga, jumlah, subtotal)
+7. Subtotal keseluruhan
+8. Potongan dari poin (jika ada)
+9. Total akhir
+
+
+
+
+
+
+2. **Cetak Struk**
+
+1. Admin/pemilik dapat mencetak struk dengan mengklik tombol "Cetak"
+2. Sistem menggunakan CSS print media untuk format cetak
+
+
+
+
+
+### E. Alur Detail Transaksi
+
+1. **Akses Detail Transaksi**
+
+1. Admin/pemilik mengklik tombol "Detail" pada transaksi di daftar transaksi
+2. Sistem menampilkan detail transaksi termasuk:
+
+1. Informasi transaksi (tanggal, admin, pembeli, member)
+2. Daftar obat yang dibeli
+3. Informasi pembayaran dan poin
+
+
+
+
+
+
+
+
+### F. Alur Hapus Transaksi
+
+1. **Konfirmasi Hapus**
+
+1. Admin/pemilik mengklik tombol hapus pada transaksi yang ingin dihapus
+2. Sistem menampilkan konfirmasi penghapusan
+
+
+
+2. **Proses Penghapusan**
+
+1. Jika dikonfirmasi, sistem:
+
+1. Mengembalikan stok obat
+2. Mengembalikan poin member (jika ada)
+3. Menghapus detail transaksi
+4. Menghapus data transaksi
+
+
+
+2. Sistem menampilkan notifikasi sukses dan kembali ke daftar transaksi
+
+
+
+
+
+---
+
+## Catatan Penting:
+
+- Dokumen ini berisi alur proses utama dalam sistem Apotek Kita Farma
+- Implementasi teknis dapat dilihat pada kode sumber aplikasi
+- Alur dapat dimodifikasi sesuai kebutuhan pengembangan lebih lanjut
+
+
+---
+
+*Dokumen ini dibuat untuk keperluan dokumentasi Sistem Informasi Apotek Kita Farma*
+
+*Terakhir diperbarui: `<?= date('d-m-Y'); ?>`*
+
+---
+
+Setelah menyalin konten di atas ke Microsoft Word, Anda dapat:
+
+1. Menambahkan header dan footer
+2. Menyesuaikan format heading dan subheading
+3. Menambahkan nomor halaman
+4. Membuat daftar isi otomatis
+5. Menambahkan gambar screenshot jika diperlukan
+6. Menyesuaikan font dan ukuran teks
+
+
+Dengan begitu, Anda akan memiliki dokumentasi lengkap tentang alur sistem Apotek Kita Farma dalam format DOCX yang profesional.
