@@ -20,7 +20,7 @@
         <h6 class="m-0 font-weight-bold">Form Tambah Transaksi Penjualan</h6>
     </div>
     <div class="card-body">
-        <form action="<?= base_url('transaksi-penjualan'); ?>" method="post" id="formTransaksi">
+        <form action="<?= base_url('transaksi-penjualan/simpan'); ?>" method="post" id="formTransaksi">
             <?= csrf_field(); ?>
             <div class="row mb-3">
                 <label for="nama_pembeli" class="col-sm-2 col-form-label">Nama Pembeli</label>
@@ -63,7 +63,7 @@
                                         <select class="form-select obat-select" name="obat_id[]" required>
                                             <option value="" selected disabled>Pilih Obat</option>
                                             <?php foreach ($obat as $o) : ?>
-                                                <option value="<?= $o['id']; ?>" data-harga="<?= $o['harga']; ?>" data-stok="<?= $o['stok']; ?>"><?= $o['nama_obat']; ?> (Stok: <?= $o['stok']; ?>)</option>
+                                                <option value="<?= $o['id']; ?>" data-harga="<?= $o['harga_jual']; ?>" data-stok="<?= $o['stok']; ?>"><?= $o['nama_obat']; ?> (Stok: <?= $o['stok']; ?>)</option>
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
@@ -160,11 +160,11 @@
                 <form id="formTambahMember">
                     <div class="mb-3">
                         <label for="nama_member" class="form-label">Nama</label>
-                        <input type="text" class="form-control" id="nama_member" name="nama" required>
+                        <input type="text" class="form-control" id="nama_member" name="nama_member" required>
                     </div>
                     <div class="mb-3">
                         <label for="no_hp_member" class="form-label">No. HP</label>
-                        <input type="text" class="form-control" id="no_hp_member" name="no_hp" required>
+                        <input type="text" class="form-control" id="no_hp_member" name="no_hp_member" required>
                     </div>
                 </form>
             </div>
@@ -278,7 +278,7 @@
                         <select class="form-select obat-select" name="obat_id[]" required>
                             <option value="" selected disabled>Pilih Obat</option>
                             <?php foreach ($obat as $o) : ?>
-                                <option value="<?= $o['id']; ?>" data-harga="<?= $o['harga']; ?>" data-stok="<?= $o['stok']; ?>"><?= $o['nama_obat']; ?> (Stok: <?= $o['stok']; ?>)</option>
+                                <option value="<?= $o['id']; ?>" data-harga="<?= $o['harga_jual']; ?>" data-stok="<?= $o['stok']; ?>"><?= $o['nama_obat']; ?> (Stok: <?= $o['stok']; ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </td>
@@ -423,7 +423,7 @@
             }
             
             $.ajax({
-                url: '<?= base_url('member'); ?>/simpanAjax',
+                url: '<?= base_url('member/simpanAjax'); ?>',
                 type: 'POST',
                 data: {
                     nama: nama,

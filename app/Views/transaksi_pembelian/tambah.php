@@ -37,13 +37,6 @@
                 </div>
             </div>
             
-            <div class="row mb-3">
-                <label for="nomor_faktur_supplier" class="col-sm-2 col-form-label">Nomor Faktur Supplier</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="nomor_faktur_supplier" name="nomor_faktur_supplier" required>
-                </div>
-            </div>
-            
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h6 class="m-0 font-weight-bold">Detail Obat</h6>
@@ -68,7 +61,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required>
+                                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required readonly>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required>
@@ -101,13 +94,6 @@
                 <label for="total" class="col-sm-2 col-form-label font-weight-bold">Total Pembelian</label>
                 <div class="col-sm-10">
                     <input type="number" class="form-control form-control-lg bg-light font-weight-bold" id="total" name="total" readonly>
-                </div>
-            </div>
-            
-            <div class="row mb-3">
-                <label for="keterangan" class="col-sm-2 col-form-label">Keterangan</label>
-                <div class="col-sm-10">
-                    <textarea class="form-control" id="keterangan" name="keterangan" rows="3"></textarea>
                 </div>
             </div>
             
@@ -165,7 +151,7 @@
                             
                             if (response && response.length > 0) {
                                 response.forEach(function(obat) {
-                                    $(this).append(`<option value="${obat.id}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
+                                    $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
                                 }.bind(this));
                             }
                         });
@@ -177,8 +163,21 @@
             }
         });
         
-        // Event ketika mengubah harga beli atau qty
-        $(document).on('change', '.harga-beli, .qty', function() {
+        // Event ketika memilih obat - auto fill harga beli
+        $(document).on('change', '.obat-select', function() {
+            const selectedOption = $(this).find('option:selected');
+            const hargaBeli = selectedOption.data('harga') || 0;
+            const row = $(this).closest('tr');
+            
+            // Set harga beli otomatis
+            row.find('.harga-beli').val(hargaBeli);
+            
+            // Hitung subtotal
+            hitungSubtotal(row);
+        });
+        
+        // Event ketika mengubah qty
+        $(document).on('change', '.qty', function() {
             const row = $(this).closest('tr');
             hitungSubtotal(row);
         });
@@ -201,7 +200,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required>
+                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required readonly>
                     </td>
                     <td>
                         <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required>
@@ -224,14 +223,14 @@
                 url: '<?= base_url('transaksi-pembelian/getObatBySupplier'); ?>',
                 type: 'POST',
                 data: {
-                    supplier_id: supplier_id,
+                    supplier_id: $('#supplier_id').val(),
                     <?= csrf_token(); ?>: '<?= csrf_hash(); ?>'
                 },
                 dataType: 'json',
                 success: function(response) {
                     if (response && response.length > 0) {
                         response.forEach(function(obat) {
-                            newSelect.append(`<option value="${obat.id}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
+                            newSelect.append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
                         });
                     }
                 }
