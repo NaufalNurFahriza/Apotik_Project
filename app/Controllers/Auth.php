@@ -2,15 +2,15 @@
 
 namespace App\Controllers;
 
-use App\Models\AdminModel;
+use App\Models\UserModel;
 
 class Auth extends BaseController
 {
-    protected $adminModel;
+    protected $userModel;
 
     public function __construct()
     {
-        $this->adminModel = new AdminModel();
+        $this->userModel = new UserModel();
     }
 
     public function index()
@@ -20,10 +20,12 @@ class Auth extends BaseController
             return redirect()->to(base_url('dashboard'));
         }
 
-        return view('auth/login', [
-            'validation_errors' => session()->getFlashdata('validation_errors'),
+        $data = [
+            'title' => 'Login - Apotek Kita Farma',
             'error' => session()->getFlashdata('error')
-        ]);
+        ];
+
+        return view('auth/login', $data);
     }
 
     public function login()
@@ -31,12 +33,18 @@ class Auth extends BaseController
         $username = $this->request->getPost('username');
         $password = $this->request->getPost('password');
 
-        // Hanya untuk development! - Letakkan di awal method login
+        // Validasi input
+        if (empty($username) || empty($password)) {
+            session()->setFlashdata('error', 'Username dan password harus diisi');
+            return redirect()->to(base_url('auth'));
+        }
+
+        // Development login - untuk testing
         if (ENVIRONMENT === 'development') {
             if ($username === 'pemilik' && $password === 'pemilik123') {
                 session()->set([
                     'id' => 0,
-                    'nama_admin' => 'Pemilik Dev',
+                    'nama' => 'Pemilik Dev',
                     'username' => 'pemilik',
                     'role' => 'pemilik',
                     'logged_in' => true
@@ -44,39 +52,33 @@ class Auth extends BaseController
                 return redirect()->to(base_url('dashboard'));
             }
             
-            if ($username === 'admin' && $password === 'admin123') {
+            if ($username === 'ttk' && $password === 'ttk123') {
                 session()->set([
                     'id' => 1,
-                    'nama_admin' => 'Admin Dev',
-                    'username' => 'admin',
-                    'role' => 'admin',
+                    'nama' => 'TTK Dev',
+                    'username' => 'ttk',
+                    'role' => 'ttk',
                     'logged_in' => true
                 ]);
                 return redirect()->to(base_url('dashboard'));
             }
         }
 
-        // Cek login untuk production
-        $admin = $this->adminModel->where('username', $username)->first();
-
-        if ($admin) {
-            // Verifikasi password
-            if ($password === $admin['password']) {
-                // Set session
-                $data = [
-                    'id' => $admin['id'],
-                    'nama_admin' => $admin['nama_admin'],
-                    'username' => $admin['username'],
-                    'role' => $admin['role'],
-                    'logged_in' => TRUE
-                ];
-                session()->set($data);
-                
-                return redirect()->to(base_url('dashboard'));
-            } else {
-                session()->setFlashdata('error', 'Username atau password salah');
-                return redirect()->to(base_url('auth'));
-            }
+        // Cek login dari database
+        $user = $this->userModel->cekLogin($username, $password);
+        
+        if ($user) {
+            // Set session
+            $sessionData = [
+                'id' => $user['id'],
+                'nama' => $user['nama'],
+                'username' => $user['username'],
+                'role' => $user['role'],
+                'logged_in' => true
+            ];
+            
+            session()->set($sessionData);
+            return redirect()->to(base_url('dashboard'));
         } else {
             session()->setFlashdata('error', 'Username atau password salah');
             return redirect()->to(base_url('auth'));
@@ -99,6 +101,7 @@ class Auth extends BaseController
         $data = [
             'validation_errors' => session()->getFlashdata('validation_errors'),
             'error' => session()->getFlashdata('error'),
+            'success' => session()->getFlashdata('success'),
             'old' => session()->getFlashdata('old')
         ];
 
@@ -109,8 +112,8 @@ class Auth extends BaseController
     {
         // Validasi input
         $rules = [
-            'nama_admin' => 'required|min_length[3]|max_length[100]',
-            'username' => 'required|min_length[3]|max_length[20]|is_unique[admin.username]',
+            'nama' => 'required|min_length[3]|max_length[100]',
+            'username' => 'required|min_length[3]|max_length[20]|is_unique[user.username]',
             'password' => 'required|min_length[6]',
             'confirm_password' => 'required|matches[password]',
             'registration_code' => 'required|exact[APOTEK2025]'
@@ -122,16 +125,15 @@ class Auth extends BaseController
                 ->with('validation_errors', $this->validator->getErrors());
         }
 
-        // Simpan data admin baru dengan role default 'admin'
+        // Simpan data user baru dengan role default 'ttk'
         $data = [
-            'nama_admin' => esc($this->request->getPost('nama_admin')),
+            'nama' => esc($this->request->getPost('nama')),
             'username' => esc($this->request->getPost('username')),
             'password' => $this->request->getPost('password'),
-            'role' => 'admin', // Default role admin untuk registrasi baru
-            'created_at' => date('Y-m-d H:i:s')
+            'role' => 'ttk' // Default role ttk untuk registrasi baru
         ];
 
-        $this->adminModel->insert($data);
+        $this->userModel->insert($data);
 
         session()->setFlashdata('success', 'Registrasi berhasil. Silakan login dengan akun baru Anda.');
         return redirect()->to(base_url('auth'));

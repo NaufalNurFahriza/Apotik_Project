@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Apotek Kita Farma</title>
+    <title>Registrasi TTK | Apotek Kita Farma</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,7 +25,7 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            padding: 0;
+            padding: 20px 0;
         }
         
         .register-container {
@@ -77,7 +77,7 @@
             border-color: #2b9e3f;
         }
         
-        .login-link {
+        .back-link {
             text-align: center;
             margin-top: 1rem;
         }
@@ -86,7 +86,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             width: 100%;
             padding: 0;
             max-width: 100%;
@@ -100,29 +100,29 @@
                 <img src="<?= base_url('assets/img/logo_apotek_Kita_Farma.png'); ?>" alt="Logo Apotek Kita Farma">
             </div>
             
-            <h2 class="register-title">Daftar Akun Admin</h2>
-            
+            <h2 class="register-title">Daftar Akun TTK</h2>
+
             <?php if (session()->getFlashdata('error')) : ?>
                 <div class="alert alert-danger">
                     <?= session()->getFlashdata('error'); ?>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (session()->getFlashdata('success')) : ?>
                 <div class="alert alert-success">
                     <?= session()->getFlashdata('success'); ?>
                 </div>
             <?php endif; ?>
-            
+
             <form action="<?= base_url('auth/doRegister'); ?>" method="post">
                 <?= csrf_field(); ?>
                 <div class="mb-3">
-                    <label for="nama_admin" class="form-label">Nama Lengkap</label>
-                    <input type="text" class="form-control <?= (session()->getFlashdata('validation_errors') && isset(session()->getFlashdata('validation_errors')['nama_admin'])) ? 'is-invalid' : ''; ?>" 
-                           id="nama_admin" name="nama_admin" value="<?= old('nama_admin'); ?>" required>
-                    <?php if (session()->getFlashdata('validation_errors') && isset(session()->getFlashdata('validation_errors')['nama_admin'])) : ?>
+                    <label for="nama" class="form-label">Nama Lengkap</label>
+                    <input type="text" class="form-control <?= (session()->getFlashdata('validation_errors') && isset(session()->getFlashdata('validation_errors')['nama'])) ? 'is-invalid' : ''; ?>" 
+                           id="nama" name="nama" value="<?= old('nama'); ?>" required>
+                    <?php if (session()->getFlashdata('validation_errors') && isset(session()->getFlashdata('validation_errors')['nama'])) : ?>
                         <div class="invalid-feedback">
-                            <?= session()->getFlashdata('validation_errors')['nama_admin']; ?>
+                            <?= session()->getFlashdata('validation_errors')['nama']; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -170,16 +170,20 @@
                             <?= session()->getFlashdata('validation_errors')['registration_code']; ?>
                         </div>
                     <?php endif; ?>
-                    <div class="form-text">Masukkan kode registrasi yang diberikan oleh administrator</div>
+                    <div class="form-text">Masukkan kode registrasi: <strong>APOTEK2025</strong></div>
                 </div>
                 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-register">Daftar</button>
+                    <button type="submit" class="btn btn-primary btn-register">
+                        <i class="fas fa-user-plus me-2"></i>Daftar TTK
+                    </button>
                 </div>
             </form>
             
-            <div class="login-link">
-                Sudah punya akun? <a href="<?= base_url('auth'); ?>">Login</a>
+            <div class="back-link">
+                <a href="<?= base_url('user'); ?>" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Kembali ke Data TTK
+                </a>
             </div>
         </div>
     </div>

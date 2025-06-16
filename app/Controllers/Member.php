@@ -3,17 +3,17 @@
 namespace App\Controllers;
 
 use App\Models\MemberModel;
-use App\Models\TransaksiModel;
+use App\Models\TransaksiPenjualanModel;
 
 class Member extends BaseController
 {
     protected $memberModel;
-    protected $transaksiModel;
+    protected $transaksiPenjualanModel;
 
     public function __construct()
     {
         $this->memberModel = new MemberModel();
-        $this->transaksiModel = new TransaksiModel();
+        $this->transaksiPenjualanModel = new TransaksiPenjualanModel();
     }
 
     public function index()
@@ -160,7 +160,7 @@ class Member extends BaseController
         }
 
         // Cek apakah member memiliki transaksi
-        $transaksi = $this->transaksiModel->where('member_id', $id)->findAll();
+        $transaksi = $this->transaksiPenjualanModel->where('member_id', $id)->findAll();
         if ($transaksi) {
             session()->setFlashdata('error', 'Member tidak dapat dihapus karena memiliki riwayat transaksi.');
             return redirect()->to(base_url('member'));
@@ -182,7 +182,7 @@ class Member extends BaseController
         $data = [
             'title' => 'Riwayat Transaksi Member',
             'member' => $this->memberModel->find($id),
-            'riwayat' => $this->transaksiModel->getRiwayatByMemberId($id)
+            'riwayat' => $this->memberModel->getRiwayatTransaksi($id)
         ];
 
         return view('member/riwayat', $data);

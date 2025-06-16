@@ -62,11 +62,11 @@
                             <tr>
                                 <td><?= $i++; ?></td>
                                 <td><?= date('d-m-Y H:i', strtotime($r['tanggal_transaksi'])); ?></td>
-                                <td><?= $r['nama_admin']; ?></td>
+                                <td><?= $r['nama']; ?></td>
                                 <td>Rp <?= number_format($r['total'], 0, ',', '.'); ?></td>
                                 <td><?= $r['poin_didapat']; ?></td>
                                 <td>
-                                    <a href="<?= base_url('transaksi/detail/' . $r['id']); ?>" class="btn btn-info btn-sm">
+                                    <a href="<?= base_url('transaksi-penjualan/detail/' . $r['id']); ?>" class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i> Detail
                                     </a>
                                 </td>

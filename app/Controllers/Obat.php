@@ -24,7 +24,7 @@ class Obat extends BaseController
         }
     
         // Cek role (if this exists)
-        if (session()->get('role') != 'pemilik' && session()->get('role') != 'admin') {
+        if (session()->get('role') != 'pemilik' && session()->get('role') != 'ttk') {
             return redirect()->to(base_url('dashboard'));
         }
 
@@ -63,9 +63,12 @@ class Obat extends BaseController
         $data = [
             'bpom' => $this->request->getPost('bpom'),
             'nama_obat' => $this->request->getPost('nama_obat'),
-            'harga' => $this->request->getPost('harga'),
             'produsen' => $this->request->getPost('produsen'),
             'supplier_id' => $this->request->getPost('supplier_id'),
+            'kategori' => $this->request->getPost('kategori'),
+            'satuan' => $this->request->getPost('satuan'),
+            'harga_beli' => $this->request->getPost('harga_beli'),
+            'harga_jual' => $this->request->getPost('harga_jual'),
             'stok' => $this->request->getPost('stok'),
         ];
 
@@ -102,9 +105,12 @@ class Obat extends BaseController
         $data = [
             'bpom' => $this->request->getPost('bpom'),
             'nama_obat' => $this->request->getPost('nama_obat'),
-            'harga' => $this->request->getPost('harga'),
             'produsen' => $this->request->getPost('produsen'),
             'supplier_id' => $this->request->getPost('supplier_id'),
+            'kategori' => $this->request->getPost('kategori'),
+            'satuan' => $this->request->getPost('satuan'),
+            'harga_beli' => $this->request->getPost('harga_beli'),
+            'harga_jual' => $this->request->getPost('harga_jual'),
             'stok' => $this->request->getPost('stok'),
         ];
 

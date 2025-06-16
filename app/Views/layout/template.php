@@ -538,12 +538,12 @@
             </li>
             <?php endif; ?>
 
-            <!-- Admin - Only visible to pemilik -->
+            <!-- TTK - Only visible to pemilik -->
             <?php if (session()->get('role') === 'pemilik'): ?>
-            <li class="nav-item <?= strpos(uri_string(), 'admin') !== false ? 'active' : ''; ?>">
-                <a class="nav-link" href="<?= base_url('admin'); ?>">
+            <li class="nav-item <?= strpos(uri_string(), 'user') !== false ? 'active' : ''; ?>">
+                <a class="nav-link" href="<?= base_url('user'); ?>">
                     <i class="fas fa-fw fa-user-shield"></i>
-                    <span>Data Admin</span>
+                    <span>Data TTK</span>
                 </a>
             </li>
             <?php endif; ?>
@@ -556,18 +556,55 @@
                 </a>
             </li>
             
-            <!-- Transaksi - Visible to all but with different options -->
-            <li class="nav-item <?= strpos(uri_string(), 'transaksi') !== false ? 'active' : ''; ?>">
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTransaksi">
-                    <i class="fas fa-fw fa-cash-register"></i>
-                    <span>Transaksi</span>
+            <!-- Penjualan - Visible to all -->
+            <li class="nav-item <?= strpos(uri_string(), 'penjualan') !== false ? 'active' : ''; ?>">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePenjualan">
+                    <i class="fas fa-fw fa-shopping-cart"></i>
+                    <span>Penjualan</span>
                 </a>
-                <div id="collapseTransaksi" class="collapse <?= strpos(uri_string(), 'transaksi') !== false ? 'show' : ''; ?>">
+                <div id="collapsePenjualan" class="collapse <?= strpos(uri_string(), 'penjualan') !== false ? 'show' : ''; ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="<?= base_url('transaksi'); ?>">Data Transaksi</a>
-                        <a class="collapse-item" href="<?= base_url('transaksi/tambah'); ?>">Tambah Transaksi</a>
+                        <a class="collapse-item" href="<?= base_url('transaksi-penjualan'); ?>">Data Penjualan</a>
+                        <a class="collapse-item" href="<?= base_url('transaksi-penjualan/tambah'); ?>">Tambah Transaksi Penjualan</a>
+                        <a class="collapse-item" href="<?= base_url('transaksi-penjualan/struk'); ?>">Struk Transaksi Penjualan</a>
+                    </div>
+                </div>
+            </li>
+            
+            <!-- Pembelian - Only visible to pemilik -->
+            <?php if (session()->get('role') === 'pemilik'): ?>
+            <li class="nav-item <?= strpos(uri_string(), 'pembelian') !== false ? 'active' : ''; ?>">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePembelian">
+                    <i class="fas fa-fw fa-truck-loading"></i>
+                    <span>Pembelian</span>
+                </a>
+                <div id="collapsePembelian" class="collapse <?= strpos(uri_string(), 'pembelian') !== false ? 'show' : ''; ?>">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="<?= base_url('transaksi-pembelian'); ?>">Data Pembelian</a>
+                        <a class="collapse-item" href="<?= base_url('transaksi-pembelian/tambah'); ?>">Beli dari Supplier</a>
+                        <a class="collapse-item" href="<?= base_url('transaksi-pembelian/faktur'); ?>">Faktur Pembelian</a>
+                    </div>
+                </div>
+            </li>
+            <?php endif; ?>
+            
+            <!-- Laporan - Visible based on role -->
+            <li class="nav-item <?= strpos(uri_string(), 'laporan') !== false ? 'active' : ''; ?>">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLaporan">
+                    <i class="fas fa-fw fa-chart-line"></i>
+                    <span>Laporan</span>
+                </a>
+                <div id="collapseLaporan" class="collapse <?= strpos(uri_string(), 'laporan') !== false ? 'show' : ''; ?>">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="<?= base_url('laporan/penjualan'); ?>">Laporan Penjualan</a>
+                        <a class="collapse-item" href="<?= base_url('laporan/obat-terlaris'); ?>">Obat Terlaris</a>
+                        <a class="collapse-item" href="<?= base_url('laporan/member'); ?>">Aktivitas Member</a>
                         <?php if (session()->get('role') === 'pemilik'): ?>
-                        <a class="collapse-item" href="<?= base_url('transaksi/beliDariSupplier'); ?>">Beli dari Supplier</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="collapse-item" href="<?= base_url('laporan/pembelian'); ?>">Laporan Pembelian</a>
+                        <a class="collapse-item" href="<?= base_url('laporan/supplier'); ?>">Performance Supplier</a>
+                        <a class="collapse-item" href="<?= base_url('laporan/keuangan'); ?>">Laporan Keuangan</a>
+                        <a class="collapse-item" href="<?= base_url('laporan/stok'); ?>">Laporan Stok</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -593,7 +630,7 @@
                 <li class="nav-item dropdown no-arrow">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                            <?= session()->get('nama_admin'); ?> 
+                            <?= session()->get('nama'); ?> 
                             <span class="badge bg-primary"><?= ucfirst(session()->get('role')); ?></span>
                         </span>
                         <i class="fas fa-user-circle fa-fw"></i>

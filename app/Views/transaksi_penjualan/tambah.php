@@ -2,8 +2,8 @@
 
 <?= $this->section('content'); ?>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Tambah Transaksi</h1>
-    <a href="<?= base_url('transaksi'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+    <h1 class="h3 mb-0 text-gray-800">Tambah Transaksi Penjualan</h1>
+    <a href="<?= base_url('transaksi-penjualan'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
         <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
     </a>
 </div>
@@ -17,10 +17,10 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 bg-primary text-white">
-        <h6 class="m-0 font-weight-bold">Form Tambah Transaksi</h6>
+        <h6 class="m-0 font-weight-bold">Form Tambah Transaksi Penjualan</h6>
     </div>
     <div class="card-body">
-        <form action="<?= base_url('transaksi/simpan'); ?>" method="post" id="formTransaksi">
+        <form action="<?= base_url('transaksi-penjualan'); ?>" method="post" id="formTransaksi">
             <?= csrf_field(); ?>
             <div class="row mb-3">
                 <label for="nama_pembeli" class="col-sm-2 col-form-label">Nama Pembeli</label>
@@ -160,11 +160,11 @@
                 <form id="formTambahMember">
                     <div class="mb-3">
                         <label for="nama_member" class="form-label">Nama</label>
-                        <input type="text" class="form-control" id="nama_member" name="nama_member" required>
+                        <input type="text" class="form-control" id="nama_member" name="nama" required>
                     </div>
                     <div class="mb-3">
                         <label for="no_hp_member" class="form-label">No. HP</label>
-                        <input type="text" class="form-control" id="no_hp_member" name="no_hp_member" required>
+                        <input type="text" class="form-control" id="no_hp_member" name="no_hp" required>
                     </div>
                 </form>
             </div>
@@ -423,7 +423,7 @@
             }
             
             $.ajax({
-                url: '<?= base_url('member/simpanAjax'); ?>',
+                url: '<?= base_url('member'); ?>/simpanAjax',
                 type: 'POST',
                 data: {
                     nama: nama,

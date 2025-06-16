@@ -35,12 +35,55 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="harga" class="col-sm-2 col-form-label">Harga</label>
+                <label for="kategori_id" class="col-sm-2 col-form-label">Kategori</label>
                 <div class="col-sm-10">
-                    <input type="number" class="form-control <?= ($validation->hasError('harga')) ? 'is-invalid' : ''; ?>" id="harga" name="harga" value="<?= (old('harga')) ? old('harga') : $obat['harga']; ?>" required>
+                    <select class="form-select <?= ($validation->hasError('kategori_id')) ? 'is-invalid' : ''; ?>" id="kategori_id" name="kategori_id" required>
+                        <option value="" selected disabled>Pilih Kategori</option>
+                        <?php foreach ($kategori as $k) : ?>
+                            <option value="<?= $k['id']; ?>" <?= ((old('kategori_id')) ? old('kategori_id') : $obat['kategori_id']) == $k['id'] ? 'selected' : ''; ?>><?= $k['nama_kategori']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                     <div class="invalid-feedback">
-                        <?= $validation->getError('harga'); ?>
+                        <?= $validation->getError('kategori_id'); ?>
                     </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="satuan_id" class="col-sm-2 col-form-label">Satuan</label>
+                <div class="col-sm-10">
+                    <select class="form-select <?= ($validation->hasError('satuan_id')) ? 'is-invalid' : ''; ?>" id="satuan_id" name="satuan_id" required>
+                        <option value="" selected disabled>Pilih Satuan</option>
+                        <?php foreach ($satuan as $s) : ?>
+                            <option value="<?= $s['id']; ?>" <?= ((old('satuan_id')) ? old('satuan_id') : $obat['satuan_id']) == $s['id'] ? 'selected' : ''; ?>><?= $s['nama_satuan']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="invalid-feedback">
+                        <?= $validation->getError('satuan_id'); ?>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="harga_beli" class="col-sm-2 col-form-label">Harga Beli</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control <?= ($validation->hasError('harga_beli')) ? 'is-invalid' : ''; ?>" id="harga_beli" name="harga_beli" value="<?= (old('harga_beli')) ? old('harga_beli') : $obat['harga_beli']; ?>" required>
+                    <div class="invalid-feedback">
+                        <?= $validation->getError('harga_beli'); ?>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="harga_jual" class="col-sm-2 col-form-label">Harga Jual</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control <?= ($validation->hasError('harga_jual')) ? 'is-invalid' : ''; ?>" id="harga_jual" name="harga_jual" value="<?= (old('harga_jual')) ? old('harga_jual') : $obat['harga_jual']; ?>" required>
+                    <div class="invalid-feedback">
+                        <?= $validation->getError('harga_jual'); ?>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="margin" class="col-sm-2 col-form-label">Margin (%)</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" id="margin" name="margin" value="<?= (old('margin')) ? old('margin') : $obat['margin']; ?>" readonly>
                 </div>
             </div>
             <div class="row mb-3">
@@ -84,4 +127,31 @@
         </form>
     </div>
 </div>
+
+<script>
+    const hargaBeli = document.getElementById('harga_beli');
+    const hargaJual = document.getElementById('harga_jual');
+    const margin = document.getElementById('margin');
+
+    hargaBeli.addEventListener('keyup', function() {
+        calculateMargin();
+    });
+
+    hargaJual.addEventListener('keyup', function() {
+        calculateMargin();
+    });
+
+    function calculateMargin() {
+        const beli = parseFloat(hargaBeli.value);
+        const jual = parseFloat(hargaJual.value);
+
+        if (isNaN(beli) || isNaN(jual)) {
+            margin.value = '';
+            return;
+        }
+
+        const calculatedMargin = ((jual - beli) / beli) * 100;
+        margin.value = calculatedMargin.toFixed(2);
+    }
+</script>
 <?= $this->endSection(); ?>

@@ -34,11 +34,11 @@ class MemberModel extends Model
     public function getRiwayatTransaksi($memberId)
     {
         $db = \Config\Database::connect();
-        $builder = $db->table('transaksi');
-        $builder->select('transaksi.*, admin.nama_admin');
-        $builder->join('admin', 'admin.id = transaksi.admin_id');
-        $builder->where('transaksi.member_id', $memberId);
-        $builder->orderBy('transaksi.tanggal_transaksi', 'DESC');
+        $builder = $db->table('transaksi_penjualan');
+        $builder->select('transaksi_penjualan.*, user.nama');
+        $builder->join('user', 'user.id = transaksi_penjualan.user_id');
+        $builder->where('transaksi_penjualan.member_id', $memberId);
+        $builder->orderBy('transaksi_penjualan.tanggal_transaksi', 'DESC');
         return $builder->get()->getResultArray();
     }
 }
