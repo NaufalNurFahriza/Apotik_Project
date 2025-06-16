@@ -15,13 +15,14 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="periode">Periode</label>
-                        <select class="form-select" id="periode" name="periode">
-                            <option value="harian" <?= ($periode ?? 'harian') == 'harian' ? 'selected' : ''; ?>>Harian</option>
-                            <option value="mingguan" <?= ($periode ?? '') == 'mingguan' ? 'selected' : ''; ?>>Mingguan</option>
-                            <option value="bulanan" <?= ($periode ?? '') == 'bulanan' ? 'selected' : ''; ?>>Bulanan</option>
-                            <option value="custom" <?= ($periode ?? '') == 'custom' ? 'selected' : ''; ?>>Custom</option>
-                        </select>
+                        <label for="start_date">Tanggal Awal</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" value="<?= $start_date ?? date('Y-m-01'); ?>">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="end_date">Tanggal Akhir</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" value="<?= $end_date ?? date('Y-m-d'); ?>">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -33,24 +34,6 @@
                                 <option value="<?= $s['id']; ?>" <?= ($supplier_id ?? '') == $s['id'] ? 'selected' : ''; ?>><?= $s['nama_supplier']; ?></option>
                             <?php endforeach; ?>
                         </select>
-                    </div>
-                </div>
-                <div class="col-md-3" id="tanggal-section">
-                    <div class="form-group">
-                        <label for="tanggal">Tanggal</label>
-                        <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?= $tanggal ?? date('Y-m-d'); ?>">
-                    </div>
-                </div>
-                <div class="col-md-3" id="custom-section" style="display: none;">
-                    <div class="form-group">
-                        <label for="start_date">Tanggal Awal</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" value="<?= $start_date ?? date('Y-m-01'); ?>">
-                    </div>
-                </div>
-                <div class="col-md-3" id="custom-section-end" style="display: none;">
-                    <div class="form-group">
-                        <label for="end_date">Tanggal Akhir</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" value="<?= $end_date ?? date('Y-m-d'); ?>">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -199,31 +182,12 @@
             "pageLength": 25,
             "destroy": true // Allow reinitializing
         });
-        
-        // Handle periode change
-        $('#periode').change(function() {
-            const periode = $(this).val();
-            
-            if (periode === 'custom') {
-                $('#tanggal-section').hide();
-                $('#custom-section, #custom-section-end').show();
-            } else {
-                $('#custom-section, #custom-section-end').hide();
-                $('#tanggal-section').show();
-            }
-        });
-        
-        // Trigger change on load
-        $('#periode').trigger('change');
     });
     
     function resetFilter() {
-        $('#periode').val('harian');
-        $('#supplier_id').val('');
-        $('#tanggal').val('<?= date('Y-m-d'); ?>');
         $('#start_date').val('<?= date('Y-m-01'); ?>');
         $('#end_date').val('<?= date('Y-m-d'); ?>');
-        $('#periode').trigger('change');
+        $('#supplier_id').val('');
     }
     
 </script>

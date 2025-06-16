@@ -29,17 +29,38 @@
                 </div>
             </div>
             <div class="row mb-3">
-                <label for="member_id" class="col-sm-2 col-form-label">Member</label>
-                <div class="col-sm-10">
-                    <select class="form-select" id="member_id" name="member_id">
-                        <option value="" selected>Pilih Member (Opsional)</option>
-                        <?php foreach ($member as $m) : ?>
-                            <option value="<?= $m['id']; ?>" data-nama="<?= $m['nama']; ?>" data-poin="<?= $m['poin']; ?>"><?= $m['nama']; ?> - <?= $m['no_hp']; ?> (Poin: <?= $m['poin']; ?>)</option>
-                        <?php endforeach; ?>
-                        <option value="tambah_baru">+ Tambah Member baru</option>
-                    </select>
-                </div>
+    <label class="col-sm-2 col-form-label">Member</label>
+    <div class="col-sm-10">
+        <div class="row">
+            <div class="col-md-6">
+                <label for="search_nama" class="form-label small">Cari berdasarkan Nama</label>
+                <input type="text" class="form-control" id="search_nama" placeholder="Ketik nama member..." autocomplete="off">
+                <div id="dropdown_nama" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
+            <div class="col-md-5">
+    <label for="search_hp" class="form-label small">Cari berdasarkan No. HP</label>
+    <input type="text" class="form-control" id="search_hp" placeholder="Ketik nomor HP..." autocomplete="off">
+    <div id="dropdown_hp" class="dropdown-menu w-100" style="max-height: 200px; overflow-y: auto;"></div>
+</div>
+<div class="col-md-1 d-flex align-items-end">
+    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnResetMember" title="Reset Member">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+        </div>
+        <div class="mt-2">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i> 
+                Pilih member untuk mendapatkan poin. Atau <a href="#" id="btnTambahMemberBaru">tambah member baru</a>
+            </small>
+        </div>
+        <!-- Hidden fields -->
+        <input type="hidden" id="member_id" name="member_id">
+        <input type="hidden" id="member_nama" name="member_nama">
+        <input type="hidden" id="member_hp" name="member_hp">
+        <input type="hidden" id="member_poin" name="member_poin" value="0">
+    </div>
+</div>
             
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -360,57 +381,163 @@
             return true;
         });
         
-        // Event ketika memilih member
-        $('#member_id').change(function() {
-            const selectedOption = $(this).val();
-            
-            if (selectedOption === 'tambah_baru') {
-                // Tampilkan modal tambah member
-                $('#modalTambahMember').modal('show');
-                $(this).val(''); // Reset pilihan
+        // Data member untuk search
+const memberData = <?= json_encode($member); ?>;
+
+// Fungsi untuk filter member berdasarkan nama
+function filterMemberByNama(query) {
+    return memberData.filter(member => 
+        member.nama.toLowerCase().includes(query.toLowerCase())
+    );
+}
+
+// Fungsi untuk filter member berdasarkan HP
+function filterMemberByHP(query) {
+    return memberData.filter(member => 
+        member.no_hp.includes(query)
+    );
+}
+
+// Fungsi untuk menampilkan dropdown hasil search
+function showDropdown(results, dropdownId, type) {
+    const dropdown = $(dropdownId);
+    dropdown.empty();
+    
+    if (results.length === 0) {
+        dropdown.append('<div class="dropdown-item-text text-muted">Tidak ada hasil</div>');
+    } else {
+        results.forEach(member => {
+            const displayText = type === 'nama' 
+                ? `${member.nama} - ${member.no_hp} (Poin: ${member.poin})`
+                : `${member.no_hp} - ${member.nama} (Poin: ${member.poin})`;
                 
-                // Sembunyikan bagian poin
-                $('#poinMemberSection').hide();
-                $('#poin_tersedia').val(0);
-                $('#poin_digunakan').val(0);
-                $('#potongan_harga').val(0);
-                
-            } else if (selectedOption !== '') {
-                // Auto-fill nama pembeli dengan nama member
-                const namaMember = $('option:selected', this).data('nama');
-                const poinMember = $('option:selected', this).data('poin');
-                $('#nama_pembeli').val(namaMember);
-                
-                // Tampilkan bagian poin jika member memiliki poin
-                if (poinMember > 0) {
-                    $('#poinMemberSection').show();
-                    $('#poin_tersedia').val(poinMember);
-                    $('#poin_digunakan').val(0);
-                    $('#potongan_harga').val(0);
-                    
-                    // Update maksimal poin yang bisa digunakan
-                    const subtotal = parseInt($('#subtotal').val()) || 0;
-                    updateMaksimalPoin(subtotal);
-                } else {
-                    $('#poinMemberSection').hide();
-                    $('#poin_tersedia').val(0);
-                    $('#poin_digunakan').val(0);
-                    $('#potongan_harga').val(0);
-                }
-                
-                // Hitung ulang total
-                hitungTotal();
-            } else {
-                // Sembunyikan bagian poin
-                $('#poinMemberSection').hide();
-                $('#poin_tersedia').val(0);
-                $('#poin_digunakan').val(0);
-                $('#potongan_harga').val(0);
-                
-                // Hitung ulang total
-                hitungTotal();
-            }
+            dropdown.append(`
+                <a class="dropdown-item member-item" href="#" 
+                   data-id="${member.id}" 
+                   data-nama="${member.nama}" 
+                   data-hp="${member.no_hp}" 
+                   data-poin="${member.poin}">
+                    ${displayText}
+                </a>
+            `);
         });
+    }
+    
+    dropdown.addClass('show');
+}
+
+// Event handler untuk search nama
+$('#search_nama').on('input', function() {
+    const query = $(this).val().trim();
+    $('#dropdown_hp').removeClass('show'); // Hide HP dropdown
+    
+    if (query.length >= 2) {
+        const results = filterMemberByNama(query);
+        showDropdown(results, '#dropdown_nama', 'nama');
+    } else {
+        $('#dropdown_nama').removeClass('show');
+    }
+});
+
+// Event handler untuk search HP
+$('#search_hp').on('input', function() {
+    const query = $(this).val().trim();
+    $('#dropdown_nama').removeClass('show'); // Hide nama dropdown
+    
+    if (query.length >= 3) {
+        const results = filterMemberByHP(query);
+        showDropdown(results, '#dropdown_hp', 'hp');
+    } else {
+        $('#dropdown_hp').removeClass('show');
+    }
+});
+
+// Event handler untuk memilih member dari dropdown
+$(document).on('click', '.member-item', function(e) {
+    e.preventDefault();
+    
+    const memberId = $(this).data('id');
+    const memberNama = $(this).data('nama');
+    const memberHP = $(this).data('hp');
+    const memberPoin = $(this).data('poin');
+    
+    // Set hidden fields
+    $('#member_id').val(memberId);
+    $('#member_nama').val(memberNama);
+    $('#member_hp').val(memberHP);
+    $('#member_poin').val(memberPoin);
+    
+    // Auto-fill both search fields
+    $('#search_nama').val(memberNama);
+    $('#search_hp').val(memberHP);
+    
+    // Auto-fill nama pembeli
+    $('#nama_pembeli').val(memberNama);
+    
+    // Hide dropdowns
+    $('.dropdown-menu').removeClass('show');
+    
+    // Show/hide poin section
+    if (memberPoin > 0) {
+        $('#poinMemberSection').show();
+        $('#poin_tersedia').val(memberPoin);
+        $('#poin_digunakan').val(0);
+        $('#potongan_harga').val(0);
+        
+        // Update maksimal poin yang bisa digunakan
+        const subtotal = parseInt($('#subtotal').val()) || 0;
+        updateMaksimalPoin(subtotal);
+    } else {
+        $('#poinMemberSection').hide();
+        $('#poin_tersedia').val(0);
+        $('#poin_digunakan').val(0);
+        $('#potongan_harga').val(0);
+    }
+    
+    // Hitung ulang total
+    hitungTotal();
+});
+
+// Hide dropdown ketika klik di luar
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('.dropdown-menu, #search_nama, #search_hp').length) {
+        $('.dropdown-menu').removeClass('show');
+    }
+});
+
+// Clear member selection
+function clearMemberSelection() {
+    $('#member_id').val('');
+    $('#member_nama').val('');
+    $('#member_hp').val('');
+    $('#member_poin').val('0');
+    $('#search_nama').val('');
+    $('#search_hp').val('');
+    $('#nama_pembeli').val(''); // Add this line to clear buyer name
+    $('#poinMemberSection').hide();
+    $('#poin_tersedia').val(0);
+    $('#poin_digunakan').val(0);
+    $('#potongan_harga').val(0);
+    $('.dropdown-menu').removeClass('show');
+    hitungTotal();
+}
+
+// Event untuk tombol tambah member baru
+$('#btnTambahMemberBaru').click(function(e) {
+    e.preventDefault();
+    clearMemberSelection();
+    $('#modalTambahMember').modal('show');
+});
+
+// Update event handler untuk reset form
+$('button[type="reset"]').click(function() {
+    clearMemberSelection();
+});
+
+// Event handler untuk reset member
+$('#btnResetMember').click(function() {
+    clearMemberSelection();
+});
         
         // Simpan member baru via AJAX
         $('#btnSimpanMember').click(function() {

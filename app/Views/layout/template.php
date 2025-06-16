@@ -570,8 +570,8 @@
                 </div>
             </li>
             
-            <!-- Pembelian - Only visible to pemilik -->
-            <?php if (session()->get('role') === 'pemilik'): ?>
+            <!-- Pembelian - Visible to pemilik and ttk -->
+            <?php if (in_array(session()->get('role'), ['pemilik', 'ttk'])): ?>
             <li class="nav-item <?= strpos(uri_string(), 'pembelian') !== false ? 'active' : ''; ?>">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePembelian">
                     <i class="fas fa-fw fa-truck-loading"></i>
@@ -587,7 +587,7 @@
             <?php endif; ?>
             
             <!-- Laporan - Visible based on role -->
-            <li class="nav-item <?= strpos(uri_string(), 'laporan') !== false ? 'active' : ''; ?>">
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLaporan">
                     <i class="fas fa-fw fa-chart-line"></i>
                     <span>Laporan</span>
@@ -595,7 +595,7 @@
                 <div id="collapseLaporan" class="collapse <?= strpos(uri_string(), 'laporan') !== false ? 'show' : ''; ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="<?= base_url('laporan/penjualan'); ?>">Laporan Penjualan</a>
-                        <?php if (session()->get('role') === 'pemilik'): ?>
+                        <?php if (in_array(session()->get('role'), ['pemilik', 'ttk'])): ?>
                         <div class="dropdown-divider"></div>
                         <a class="collapse-item" href="<?= base_url('laporan/pembelian'); ?>">Laporan Pembelian</a>
                         <?php endif; ?>
@@ -696,6 +696,20 @@
         $('.dataTable').DataTable();
     });
     </script>
+
+    <script>
+// Exclusive menu collapse - only one menu open at a time
+$(document).ready(function() {
+    // Handle collapse events
+    $('.collapse').on('show.bs.collapse', function () {
+        // Close all other open collapses
+        $('.collapse.show').not(this).collapse('hide');
+    });
+    
+    // DataTables
+    $('.dataTable').DataTable();
+});
+</script>
     
     <?= $this->renderSection('scripts'); ?>
 </body>

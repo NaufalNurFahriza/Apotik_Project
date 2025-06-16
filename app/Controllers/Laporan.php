@@ -99,7 +99,8 @@ class Laporan extends BaseController
            return redirect()->to(base_url('auth'));
        }
 
-       if (session()->get('role') !== 'pemilik') {
+       // Cek role - pemilik dan TTK yang bisa akses laporan pembelian
+       if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
            session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
            return redirect()->to(base_url('dashboard'));
        }

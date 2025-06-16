@@ -26,14 +26,16 @@
             <?= csrf_field(); ?>
 
             <div class="row mb-3">
-                <label for="supplier_id" class="col-sm-2 col-form-label">Supplier</label>
-                <div class="col-sm-10">
-                    <select class="form-control" id="supplier_id" name="supplier_id" required>
-                        <option value="" selected disabled>Pilih Supplier</option>
-                        <?php foreach ($supplier as $s) : ?>
-                            <option value="<?= $s['id']; ?>"><?= $s['nama_supplier']; ?> - <?= $s['alamat']; ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <label for="supplier_search" class="col-sm-2 col-form-label">Supplier</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="supplier_search" placeholder="Cari supplier berdasarkan nama..." autocomplete="off">
+                    <input type="hidden" id="supplier_id" name="supplier_id" required>
+                    <div id="supplier_dropdown" class="dropdown-menu w-100" style="display: none; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-outline-secondary" id="clearSupplier" title="Reset Supplier">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
             
@@ -119,6 +121,114 @@
 <script>
     $(document).ready(function() {
         let rowCount = 1;
+        let supplierData = <?= json_encode($supplier); ?>;
+
+        // Supplier Search Functionality
+        let searchTimeout;
+        $('#supplier_search').on('input', function() {
+            clearTimeout(searchTimeout);
+            const query = $(this).val().trim();
+            
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    searchSupplier(query);
+                }, 300);
+            } else {
+                $('#supplier_dropdown').hide();
+            }
+        });
+
+        function searchSupplier(query) {
+            const results = supplierData.filter(supplier => 
+                supplier.nama_supplier.toLowerCase().includes(query.toLowerCase()) ||
+                supplier.alamat.toLowerCase().includes(query.toLowerCase())
+            );
+
+            let dropdown = $('#supplier_dropdown');
+            dropdown.empty();
+
+            if (results.length > 0) {
+                results.forEach(supplier => {
+                    dropdown.append(`
+                        <a class="dropdown-item supplier-item" href="#" data-id="${supplier.id}" data-nama="${supplier.nama_supplier}" data-alamat="${supplier.alamat}">
+                            <div>
+                                <strong>${supplier.nama_supplier}</strong>
+                                <br><small class="text-muted">${supplier.alamat}</small>
+                            </div>
+                        </a>
+                    `);
+                });
+                dropdown.show();
+            } else {
+                dropdown.append('<div class="dropdown-item-text">Supplier tidak ditemukan</div>');
+                dropdown.show();
+            }
+        }
+
+        // Select Supplier
+        $(document).on('click', '.supplier-item', function(e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            const nama = $(this).data('nama');
+            const alamat = $(this).data('alamat');
+
+            $('#supplier_search').val(`${nama} - ${alamat}`);
+            $('#supplier_id').val(id);
+            $('#supplier_dropdown').hide();
+
+            // Load obat berdasarkan supplier
+            loadObatBySupplier(id);
+        });
+
+        // Clear Supplier
+        $('#clearSupplier').click(function() {
+            $('#supplier_search').val('');
+            $('#supplier_id').val('');
+            $('#supplier_dropdown').hide();
+            
+            // Clear obat options
+            $('.obat-select').each(function() {
+                $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
+            });
+            
+            // Reset form
+            $('.harga-beli, .qty, .subtotal').val('');
+            $('#total').val('');
+        });
+
+        // Hide dropdown when clicking outside
+        $(document).click(function(e) {
+            if (!$(e.target).closest('#supplier_search, #supplier_dropdown').length) {
+                $('#supplier_dropdown').hide();
+            }
+        });
+
+        // Load Obat by Supplier
+        function loadObatBySupplier(supplier_id) {
+            $.ajax({
+                url: '<?= base_url('transaksi-pembelian/getObatBySupplier'); ?>',
+                type: 'POST',
+                data: {
+                    supplier_id: supplier_id,
+                    <?= csrf_token(); ?>: '<?= csrf_hash(); ?>'
+                },
+                dataType: 'json',
+                success: function(response) {
+                    $('.obat-select').each(function() {
+                        $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
+
+                        if (response && response.length > 0) {
+                            response.forEach(function(obat) {
+                                $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
+                            }.bind(this));
+                        }
+                    });
+                },
+                error: function() {
+                    alert('Gagal memuat data obat');
+                }
+            });
+        }
 
         // Fungsi untuk menghitung subtotal
         function hitungSubtotal(row) {
@@ -137,38 +247,6 @@
             });
             $('#total').val(total);
         }
-
-        // Event ketika memilih supplier
-        $('#supplier_id').change(function() {
-            const supplier_id = $(this).val();
-
-            if (supplier_id) {
-                // Load obat berdasarkan supplier
-                $.ajax({
-                    url: '<?= base_url('transaksi-pembelian/getObatBySupplier'); ?>',
-                    type: 'POST',
-                    data: {
-                        supplier_id: supplier_id,
-                        <?= csrf_token(); ?>: '<?= csrf_hash(); ?>'
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        $('.obat-select').each(function() {
-                            $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
-
-                            if (response && response.length > 0) {
-                                response.forEach(function(obat) {
-                                    $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
-                                }.bind(this));
-                            }
-                        });
-                    },
-                    error: function() {
-                        alert('Gagal memuat data obat');
-                    }
-                });
-            }
-        });
 
         // Event ketika memilih obat - auto fill harga beli
         $(document).on('change', '.obat-select', function() {
@@ -225,23 +303,7 @@
             $('#detailObat tbody').append(newRow);
 
             // Load obat untuk baris baru
-            const newSelect = $(`#row${rowCount} .obat-select`);
-            $.ajax({
-                url: '<?= base_url('transaksi-pembelian/getObatBySupplier'); ?>',
-                type: 'POST',
-                data: {
-                    supplier_id: $('#supplier_id').val(),
-                    <?= csrf_token(); ?>: '<?= csrf_hash(); ?>'
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response && response.length > 0) {
-                        response.forEach(function(obat) {
-                            newSelect.append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
-                        });
-                    }
-                }
-            });
+            loadObatBySupplier(supplier_id);
 
             // Enable tombol hapus jika ada lebih dari 1 baris
             if ($('#detailObat tbody tr').length > 1) {
@@ -262,7 +324,14 @@
 
         // Validasi form sebelum submit
         $('#formPembelian').submit(function(e) {
+            const supplier_id = $('#supplier_id').val();
             const total = parseFloat($('#total').val()) || 0;
+
+            if (!supplier_id) {
+                e.preventDefault();
+                alert('Silakan pilih supplier terlebih dahulu!');
+                return false;
+            }
 
             if (total <= 0) {
                 e.preventDefault();

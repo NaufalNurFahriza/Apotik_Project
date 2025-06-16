@@ -32,8 +32,8 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
+        // Cek role - pemilik dan TTK yang bisa akses
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
             return redirect()->to(base_url('dashboard'));
         }
@@ -62,8 +62,8 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
+        // Cek role - pemilik dan TTK yang bisa akses
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
             return redirect()->to(base_url('dashboard'));
         }
@@ -179,8 +179,8 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
+        // Cek role - pemilik dan TTK yang bisa akses
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
             return redirect()->to(base_url('dashboard'));
         }
@@ -271,8 +271,8 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
+        // Cek role - pemilik dan TTK yang bisa akses
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
             return redirect()->to(base_url('dashboard'));
         }
@@ -293,8 +293,8 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
+        // Cek role - pemilik dan TTK yang bisa akses
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
             return redirect()->to(base_url('dashboard'));
         }
@@ -315,8 +315,8 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - hanya pemilik yang bisa hapus transaksi
-        if (session()->get('role') !== 'pemilik') {
+        // Cek role - pemilik dan TTK yang bisa hapus transaksi
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             session()->setFlashdata('error', 'Anda tidak memiliki akses untuk menghapus transaksi');
             return redirect()->to(base_url('transaksi-pembelian'));
         }

@@ -3,11 +3,6 @@
 <?= $this->section('content'); ?>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Laporan Penjualan</h1>
-    <div>
-        <button onclick="window.print()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-print fa-sm text-white-50"></i> Cetak
-        </button>
-    </div>
 </div>
 
 <!-- Filter Card -->
@@ -18,36 +13,19 @@
     <div class="card-body">
         <form action="<?= base_url('laporan/penjualan'); ?>" method="get" id="formFilter">
             <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="periode">Periode</label>
-                        <select class="form-select" id="periode" name="periode">
-                            <option value="harian" <?= ($periode ?? 'harian') == 'harian' ? 'selected' : ''; ?>>Harian</option>
-                            <option value="mingguan" <?= ($periode ?? '') == 'mingguan' ? 'selected' : ''; ?>>Mingguan</option>
-                            <option value="bulanan" <?= ($periode ?? '') == 'bulanan' ? 'selected' : ''; ?>>Bulanan</option>
-                            <option value="custom" <?= ($periode ?? '') == 'custom' ? 'selected' : ''; ?>>Custom</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3" id="tanggal-section">
-                    <div class="form-group">
-                        <label for="tanggal">Tanggal</label>
-                        <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?= $tanggal ?? date('Y-m-d'); ?>">
-                    </div>
-                </div>
-                <div class="col-md-3" id="custom-section" style="display: none;">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="start_date">Tanggal Awal</label>
                         <input type="date" class="form-control" id="start_date" name="start_date" value="<?= $start_date ?? date('Y-m-01'); ?>">
                     </div>
                 </div>
-                <div class="col-md-3" id="custom-section-end" style="display: none;">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label for="end_date">Tanggal Akhir</label>
                         <input type="date" class="form-control" id="end_date" name="end_date" value="<?= $end_date ?? date('Y-m-d'); ?>">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label>&nbsp;</label>
                         <div>
@@ -195,30 +173,11 @@
             "pageLength": 25,
             "destroy": true // Allow reinitializing
         });
-        
-        // Handle periode change
-        $('#periode').change(function() {
-            const periode = $(this).val();
-            
-            if (periode === 'custom') {
-                $('#tanggal-section').hide();
-                $('#custom-section, #custom-section-end').show();
-            } else {
-                $('#custom-section, #custom-section-end').hide();
-                $('#tanggal-section').show();
-            }
-        });
-        
-        // Trigger change on load
-        $('#periode').trigger('change');
     });
     
     function resetFilter() {
-        $('#periode').val('harian');
-        $('#tanggal').val('<?= date('Y-m-d'); ?>');
         $('#start_date').val('<?= date('Y-m-01'); ?>');
         $('#end_date').val('<?= date('Y-m-d'); ?>');
-        $('#periode').trigger('change');
     }
     
 </script>
