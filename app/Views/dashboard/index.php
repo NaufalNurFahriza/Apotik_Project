@@ -148,29 +148,29 @@
                 </h6>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <a href="<?= base_url('transaksi-penjualan/tambah'); ?>" class="btn btn-primary w-100 py-3">
-                            <i class="fas fa-plus mb-1"></i><br>
-                            <span>Transaksi Baru</span>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <a href="<?= base_url('transaksi-penjualan/tambah'); ?>" class="btn btn-primary w-100 d-flex flex-column align-items-center justify-content-center" style="height: 100px; min-height: 100px;">
+                            <i class="fas fa-plus fa-2x mb-2"></i>
+                            <span class="fw-bold">Transaksi Baru</span>
                         </a>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <a href="<?= base_url('obat/tambah'); ?>" class="btn btn-success w-100 py-3">
-                            <i class="fas fa-pills mb-1"></i><br>
-                            <span>Tambah Obat</span>
+                    <div class="col-6">
+                        <a href="<?= base_url('obat/tambah'); ?>" class="btn btn-success w-100 d-flex flex-column align-items-center justify-content-center" style="height: 100px; min-height: 100px;">
+                            <i class="fas fa-pills fa-2x mb-2"></i>
+                            <span class="fw-bold">Tambah Obat</span>
                         </a>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <a href="<?= base_url('member/tambah'); ?>" class="btn btn-info w-100 py-3">
-                            <i class="fas fa-user-plus mb-1"></i><br>
-                            <span>Tambah Member</span>
+                    <div class="col-6">
+                        <a href="<?= base_url('member/tambah'); ?>" class="btn btn-info w-100 d-flex flex-column align-items-center justify-content-center" style="height: 100px; min-height: 100px;">
+                            <i class="fas fa-user-plus fa-2x mb-2"></i>
+                            <span class="fw-bold">Tambah Member</span>
                         </a>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <a href="<?= base_url('obat'); ?>?filter=stok_minimum" class="btn btn-warning w-100 py-3">
-                            <i class="fas fa-exclamation-triangle mb-1"></i><br>
-                            <span>Cek Stok</span>
+                    <div class="col-6">
+                        <a href="<?= base_url('obat'); ?>?filter=stok_minimum" class="btn btn-warning w-100 d-flex flex-column align-items-center justify-content-center" style="height: 100px; min-height: 100px;">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                            <span class="fw-bold">Cek Stok</span>
                         </a>
                     </div>
                 </div>
