@@ -78,6 +78,41 @@ class TransaksiPembelian extends BaseController
         return view('transaksi_pembelian/tambah', $data);
     }
 
+    public function getObatBySupplier()
+    {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['error' => 'Unauthorized']);
+        }
+
+        $supplier_id = $this->request->getPost('supplier_id');
+        
+        if (!$supplier_id) {
+            return $this->response->setJSON(['error' => 'Supplier ID required']);
+        }
+
+        $obat = $this->obatModel->where('supplier_id', $supplier_id)->findAll();
+        
+        return $this->response->setJSON($obat);
+    }
+
+    public function getObatById()
+    {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['error' => 'Unauthorized']);
+        }
+
+        $id = $this->request->getPost('id');
+        $obat = $this->obatModel->find($id);
+        
+        if (!$obat) {
+            return $this->response->setJSON(['error' => 'Obat tidak ditemukan']);
+        }
+
+        return $this->response->setJSON($obat);
+    }
+
     public function simpan()
     {
         // Cek login
