@@ -566,7 +566,6 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="<?= base_url('transaksi-penjualan'); ?>">Data Penjualan</a>
                         <a class="collapse-item" href="<?= base_url('transaksi-penjualan/tambah'); ?>">Tambah Transaksi Penjualan</a>
-                        <a class="collapse-item" href="<?= base_url('transaksi-penjualan/struk'); ?>">Struk Transaksi Penjualan</a>
                     </div>
                 </div>
             </li>
@@ -582,7 +581,6 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="<?= base_url('transaksi-pembelian'); ?>">Data Pembelian</a>
                         <a class="collapse-item" href="<?= base_url('transaksi-pembelian/tambah'); ?>">Beli dari Supplier</a>
-                        <a class="collapse-item" href="<?= base_url('transaksi-pembelian/faktur'); ?>">Faktur Pembelian</a>
                     </div>
                 </div>
             </li>
