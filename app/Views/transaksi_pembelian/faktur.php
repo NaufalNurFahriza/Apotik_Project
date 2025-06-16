@@ -1,118 +1,160 @@
 <?= $this->extend('layout/template'); ?>
 
 <?= $this->section('content'); ?>
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
+<style>
+@media print {
+    .no-print { display: none !important; }
+    body { margin: 0; }
+    .card { border: none !important; box-shadow: none !important; }
+}
+.invoice-header {
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+.invoice-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border: 1px solid #dee2e6;
+}
+.invoice-table td {
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+.total-section {
+    background-color: #e3f2fd;
+    font-weight: 600;
+}
+.signature-section {
+    margin-top: 60px;
+    border-top: 1px solid #dee2e6;
+    padding-top: 40px;
+}
+</style>
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4 no-print">
     <h1 class="h3 mb-0 text-gray-800">Faktur Pembelian</h1>
     <div>
-        <a href="<?= base_url('transaksi-pembelian'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm no-print">
-            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
+        <a href="<?= base_url('transaksi-pembelian'); ?>" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm"></i> Kembali
         </a>
-        <button onclick="window.print()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm no-print">
-            <i class="fas fa-print fa-sm text-white-50"></i> Cetak
+        <button onclick="window.print()" class="btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-print fa-sm"></i> Cetak
         </button>
     </div>
 </div>
 
 <div class="card shadow mb-4">
     <div class="card-body">
-        <div class="text-center mb-4">
-            <h3>FAKTUR PEMBELIAN</h3>
-            <h4>APOTEK KITA FARMA</h4>
-            <p>Jl. Raya Purwogondo Guo Sobo Kerto KM 3, Cikal, Telukwetan, Kec. Welahan, Kabupaten Jepara, Jawa Tengah<br>Telp: 085292115588</p>
-            <hr>
+        <!-- Header Invoice -->
+        <div class="invoice-header">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                        <i class="fas fa-pills fa-2x text-white"></i>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="mb-1 text-primary font-weight-bold"><?= $transaksi['nama_supplier']; ?></h5>
+                    <p class="mb-0 text-muted small">
+                        <?= $transaksi['alamat_supplier']; ?><br>
+                        <?= $transaksi['kota_supplier']; ?><br>
+                        <strong>Telp:</strong> <?= $transaksi['telepon_supplier']; ?>
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <h2 class="text-primary mb-0 font-weight-bold">FAKTUR</h2>
+                </div>
+            </div>
         </div>
-        
+
+        <!-- Info Transaksi -->
         <div class="row mb-4">
-            <div class="col-md-6">
-                <h5>Dari:</h5>
-                <p>
-                    <strong><?= $transaksi['nama_supplier']; ?></strong><br>
-                    <?= $transaksi['alamat_supplier']; ?><br>
-                    <?= $transaksi['kota_supplier']; ?><br>
-                    Telp: <?= $transaksi['telepon_supplier']; ?>
-                </p>
+            <div class="col-md-4">
+                <p class="mb-1"><strong>TTK:</strong></p>
+                <p class="text-muted"><?= $transaksi['nama_user']; ?></p>
             </div>
-            <div class="col-md-6 text-right">
-                <h5>Kepada:</h5>
-                <p>
-                    <strong>APOTEK KITA FARMA</strong><br>
-                    Jl. Raya Purwogondo Guo Sobo Kerto KM 3<br>
-                    Cikal, Telukwetan, Kec. Welahan<br>
-                    Kabupaten Jepara, Jawa Tengah
-                </p>
+            <div class="col-md-4">
+                <p class="mb-1"><strong>Tanggal:</strong></p>
+                <p class="text-muted"><?= date('d F Y', strtotime($transaksi['tanggal'])); ?></p>
+            </div>
+            <div class="col-md-4">
+                <p class="mb-1"><strong>No. Faktur Internal:</strong></p>
+                <p class="text-muted"><?= $transaksi['nomor_faktur']; ?></p>
             </div>
         </div>
-        
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <p>
-                    <strong>No. Faktur Internal:</strong> <?= $transaksi['nomor_faktur'] ?? 'PB-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?><br>
-                    <strong>No. Faktur Supplier:</strong> <?= $transaksi['nomor_faktur_supplier']; ?><br>
-                    <strong>Tanggal:</strong> <?= date('d-m-Y H:i', strtotime($transaksi['tanggal_transaksi'])); ?>
-                </p>
-            </div>
-            <div class="col-md-6 text-right">
-                <p>
-                    <strong>TTK:</strong> <?= $transaksi['nama_user']; ?><br>
-                    <strong>Status:</strong> <span class="badge badge-success">Selesai</span>
-                </p>
-            </div>
-        </div>
-        
+
+        <!-- Tabel Detail -->
         <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="thead-light">
+            <table class="table invoice-table mb-0">
+                <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Kode Obat</th>
-                        <th>Nama Obat</th>
-                        <th class="text-center">Harga Beli</th>
-                        <th class="text-center">Qty</th>
-                        <th class="text-right">Subtotal</th>
+                        <th class="text-center" style="width: 5%;">No</th>
+                        <th style="width: 35%;">Nama Barang</th>
+                        <th class="text-center" style="width: 8%;">Qty</th>
+                        <th class="text-center" style="width: 10%;">Satuan</th>
+                        <th class="text-center" style="width: 15%;">Batch</th>
+                        <th class="text-end" style="width: 12%;">Harga</th>
+                        <th class="text-end" style="width: 15%;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
                     <?php foreach ($detail as $d) : ?>
                         <tr>
-                            <td><?= $no++; ?></td>
-                            <td><?= $d['bpom'] ?? '-'; ?></td>
-                            <td><?= $d['nama_obat']; ?></td>
-                            <td class="text-center">Rp <?= number_format($d['harga_beli'], 0, ',', '.'); ?></td>
-                            <td class="text-center"><?= $d['qty']; ?></td>
-                            <td class="text-right">Rp <?= number_format($d['subtotal'], 0, ',', '.'); ?></td>
+                            <td class="text-center"><?= $no++; ?></td>
+                            <td>
+                                <strong><?= $d['nama_obat']; ?></strong><br>
+                                <small class="text-muted"><?= $d['bpom'] ?? '-'; ?></small>
+                            </td>
+                            <td class="text-center"><?= number_format($d['qty'], 0, ',', '.'); ?></td>
+                            <td class="text-center"><?= $d['satuan'] ?? 'tablet'; ?></td>
+                            <td class="text-center">
+                                <small>
+                                    <?= $d['nomor_batch'] ?? '-'; ?><br>
+                                    <span class="text-muted">
+                                        <?= isset($d['expired_date']) ? date('m/Y', strtotime($d['expired_date'])) : '-'; ?>
+                                    </span>
+                                </small>
+                            </td>
+                            <td class="text-end">Rp <?= number_format($d['harga_beli'], 0, ',', '.'); ?></td>
+                            <td class="text-end">Rp <?= number_format($d['qty'] * $d['harga_beli'], 0, ',', '.'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
-                    <tr class="font-weight-bold">
-                        <th colspan="5" class="text-right">Total Pembelian</th>
-                        <th class="text-right">Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></th>
+                    <tr>
+                        <td colspan="6" class="text-end font-weight-bold border-0 pt-3"></td>
+                        <td class="text-end font-weight-bold border-0 pt-3">
+                            Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?>
+                        </td>
+                    </tr>
+                    <tr class="total-section">
+                        <td colspan="6" class="text-end font-weight-bold py-3">
+                            <strong>Grand Total</strong>
+                        </td>
+                        <td class="text-end font-weight-bold py-3">
+                            <strong>Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></strong>
+                        </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
-        
-        <?php if (!empty($transaksi['keterangan'])): ?>
-        <div class="mt-3">
-            <strong>Keterangan:</strong><br>
-            <?= nl2br(htmlspecialchars($transaksi['keterangan'])); ?>
-        </div>
-        <?php endif; ?>
-        
-        <div class="row mt-5">
-            <div class="col-md-6">
-                <div class="text-center">
-                    <p>Supplier</p>
-                    <br><br><br>
-                    <p>_____________________</p>
+
+        <!-- Footer Signature -->
+        <div class="signature-section">
+            <div class="row">
+                <div class="col-md-6 text-center">
+                    <p class="mb-4"><strong>Penerima / Pemesan</strong></p>
+                    <div style="height: 80px;"></div>
+                    <hr style="width: 200px; margin: 0 auto; border-top: 1px solid #000;">
+                    <p class="mt-3 mb-0 font-weight-bold"><?= $transaksi['nama_user']; ?></p>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="text-center">
-                    <p>TTK Apotek</p>
-                    <br><br><br>
-                    <p>_____________________<br><?= $transaksi['nama_user']; ?></p>
+                <div class="col-md-6 text-center">
+                    <p class="mb-4"><strong>Supplier farmasi</strong></p>
+                    <div style="height: 80px;"></div>
+                    <hr style="width: 200px; margin: 0 auto; border-top: 1px solid #000;">
+                    <p class="mt-3 mb-0 font-weight-bold"><?= $transaksi['nama_supplier']; ?></p>
                 </div>
             </div>
         </div>

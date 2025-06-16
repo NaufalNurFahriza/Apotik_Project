@@ -7,11 +7,8 @@
         <a href="<?= base_url('transaksi-pembelian'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
             <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
         </a>
-        <a href="<?= base_url('transaksi-pembelian/edit/' . $transaksi['id']); ?>" class="d-none d-sm-inline-block btn btn-sm btn-warning shadow-sm">
-            <i class="fas fa-edit fa-sm text-white-50"></i> Edit
-        </a>
         <a href="<?= base_url('transaksi-pembelian/faktur/' . $transaksi['id']); ?>" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
-            <i class="fas fa-file-invoice fa-sm text-white-50"></i> Faktur
+            <i class="fas fa-print fa-sm text-white-50"></i> Cetak Faktur
         </a>
     </div>
 </div>
@@ -23,30 +20,26 @@
                 <h6 class="m-0 font-weight-bold text-primary">Informasi Transaksi</h6>
             </div>
             <div class="card-body">
-                <table class="table table-borderless">
+                <table class="table">
                     <tr>
-                        <th width="40%">No. Faktur Internal</th>
+                        <th>Nomor Faktur</th>
                         <td>: <?= $transaksi['nomor_faktur'] ?? 'PB-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?></td>
                     </tr>
                     <tr>
-                        <th>No. Faktur Supplier</th>
-                        <td>: <?= $transaksi['nomor_faktur_supplier']; ?></td>
-                    </tr>
-                    <tr>
                         <th>Tanggal</th>
-                        <td>: <?= date('d-m-Y H:i', strtotime($transaksi['tanggal_transaksi'])); ?></td>
+                        <td>: <?= date('d-m-Y H:i', strtotime($transaksi['tanggal'])); ?></td>
                     </tr>
                     <tr>
                         <th>TTK</th>
                         <td>: <?= $transaksi['nama_user']; ?></td>
                     </tr>
                     <tr>
-                        <th>Status</th>
-                        <td>: <span class="badge badge-success"><?= ucfirst($transaksi['status'] ?? 'Selesai'); ?></span></td>
+                        <th>Supplier</th>
+                        <td>: <?= $transaksi['nama_supplier']; ?></td>
                     </tr>
                     <tr>
                         <th>Total</th>
-                        <td>: <strong>Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></strong></td>
+                        <td>: Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></td>
                     </tr>
                 </table>
             </div>
@@ -59,9 +52,9 @@
                 <h6 class="m-0 font-weight-bold text-primary">Informasi Supplier</h6>
             </div>
             <div class="card-body">
-                <table class="table table-borderless">
+                <table class="table">
                     <tr>
-                        <th width="40%">Nama Supplier</th>
+                        <th>Nama Supplier</th>
                         <td>: <?= $transaksi['nama_supplier']; ?></td>
                     </tr>
                     <tr>
@@ -100,7 +93,7 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" width="100%" cellspacing="0">
-                <thead class="thead-light">
+                <thead>
                     <tr>
                         <th>#</th>
                         <th>Kode Obat</th>
@@ -119,12 +112,12 @@
                             <td><?= $d['nama_obat']; ?></td>
                             <td>Rp <?= number_format($d['harga_beli'], 0, ',', '.'); ?></td>
                             <td><?= $d['qty']; ?> <?= $d['satuan'] ?? 'pcs'; ?></td>
-                            <td>Rp <?= number_format($d['subtotal'], 0, ',', '.'); ?></td>
+                            <td>Rp <?= number_format($d['qty'] * $d['harga_beli'], 0, ',', '.'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
-                    <tr class="font-weight-bold">
+                    <tr>
                         <th colspan="5" class="text-right">Total Pembelian</th>
                         <th>Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></th>
                     </tr>

@@ -78,67 +78,6 @@ class TransaksiPembelian extends BaseController
         return view('transaksi_pembelian/tambah', $data);
     }
 
-    public function edit($id)
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
-
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
-            session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
-            return redirect()->to(base_url('dashboard'));
-        }
-
-        $transaksi = $this->transaksiPembelianModel->getTransaksiById($id);
-        if (!$transaksi) {
-            session()->setFlashdata('error', 'Transaksi tidak ditemukan');
-            return redirect()->to(base_url('transaksi-pembelian'));
-        }
-
-        $data = [
-            'title' => 'Edit Transaksi Pembelian',
-            'transaksi' => $transaksi,
-            'detail' => $this->transaksiPembelianModel->getDetailObat($id),
-            'obat' => $this->obatModel->findAll(),
-            'supplier' => $this->supplierModel->findAll(),
-            'validation' => \Config\Services::validation()
-        ];
-
-        return view('transaksi_pembelian/edit', $data);
-    }
-
-    public function getObatBySupplier()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return $this->response->setJSON(['error' => 'Unauthorized']);
-        }
-
-        $supplier_id = $this->request->getPost('supplier_id');
-        $obat = $this->obatModel->where('supplier_id', $supplier_id)->findAll();
-        
-        return $this->response->setJSON($obat);
-    }
-
-    public function getObatById()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return $this->response->setJSON(['error' => 'Unauthorized']);
-        }
-
-        $id = $this->request->getPost('id');
-        $obat = $this->obatModel->find($id);
-        
-        if (!$obat) {
-            return $this->response->setJSON(['error' => 'Obat tidak ditemukan']);
-        }
-
-        return $this->response->setJSON($obat);
-    }
-
     public function simpan()
     {
         // Cek login
@@ -156,7 +95,6 @@ class TransaksiPembelian extends BaseController
         $validation = \Config\Services::validation();
         $validation->setRules([
             'supplier_id' => 'required|numeric',
-            'nomor_faktur_supplier' => 'required|min_length[3]',
             'obat_id.*' => 'required|numeric',
             'qty.*' => 'required|numeric|greater_than[0]',
             'harga_beli.*' => 'required|numeric|greater_than[0]',
@@ -171,12 +109,10 @@ class TransaksiPembelian extends BaseController
 
         // Ambil data dari form
         $supplier_id = $this->request->getPost('supplier_id');
-        $nomor_faktur_supplier = $this->request->getPost('nomor_faktur_supplier');
         $obat_id = $this->request->getPost('obat_id');
         $harga_beli = $this->request->getPost('harga_beli');
         $qty = $this->request->getPost('qty');
         $total = $this->request->getPost('total');
-        $keterangan = $this->request->getPost('keterangan');
 
         // Pastikan user_id (TTK) valid
         $user_id = session()->get('id');
@@ -196,13 +132,10 @@ class TransaksiPembelian extends BaseController
         // Simpan data transaksi pembelian
         $data_transaksi = [
             'nomor_faktur' => $nomor_faktur,
-            'nomor_faktur_supplier' => $nomor_faktur_supplier,
-            'tanggal_transaksi' => date('Y-m-d H:i:s'),
+            'tanggal' => date('Y-m-d'),
             'user_id' => $user_id,
             'supplier_id' => $supplier_id,
-            'total' => $total,
-            'keterangan' => $keterangan,
-            'status' => 'selesai'
+            'total' => $total
         ];
 
         $this->transaksiPembelianModel->insert($data_transaksi);
@@ -215,11 +148,13 @@ class TransaksiPembelian extends BaseController
 
             // Simpan detail transaksi
             $data_detail = [
-                'transaksi_pembelian_id' => $transaksi_id,
+                'pembelian_id' => $transaksi_id,
                 'obat_id' => $obat_id[$i],
                 'harga_beli' => $harga_beli[$i],
                 'qty' => $qty[$i],
-                'subtotal' => $harga_beli[$i] * $qty[$i]
+                'nomor_batch' => 'BATCH-' . date('Ymd') . '-' . $obat_id[$i],
+                'expired_date' => date('Y-m-d', strtotime('+2 years')),
+                'satuan' => $obat['satuan']
             ];
             $this->detailPembelianModel->insert($data_detail);
 
@@ -233,96 +168,6 @@ class TransaksiPembelian extends BaseController
 
         session()->setFlashdata('pesan', 'Transaksi pembelian berhasil ditambahkan.');
         return redirect()->to(base_url('transaksi-pembelian/faktur/' . $transaksi_id));
-    }
-
-    public function update($id)
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
-
-        // Cek role - hanya pemilik yang bisa akses
-        if (session()->get('role') !== 'pemilik') {
-            session()->setFlashdata('error', 'Anda tidak memiliki akses ke halaman ini');
-            return redirect()->to(base_url('dashboard'));
-        }
-
-        // Validasi input
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'supplier_id' => 'required|numeric',
-            'nomor_faktur_supplier' => 'required|min_length[3]',
-            'obat_id.*' => 'required|numeric',
-            'qty.*' => 'required|numeric|greater_than[0]',
-            'harga_beli.*' => 'required|numeric|greater_than[0]',
-            'total' => 'required|numeric|greater_than[0]'
-        ]);
-
-        if (!$validation->withRequest($this->request)->run()) {
-            return redirect()->to(base_url('transaksi-pembelian/edit/' . $id))
-                           ->withInput()
-                           ->with('validation', $validation);
-        }
-
-        // Ambil transaksi lama untuk rollback stok
-        $transaksi_lama = $this->transaksiPembelianModel->find($id);
-        $detail_lama = $this->detailPembelianModel->where('transaksi_pembelian_id', $id)->findAll();
-
-        // Rollback stok dari transaksi lama
-        foreach ($detail_lama as $d) {
-            $obat = $this->obatModel->find($d['obat_id']);
-            $stok_baru = max(0, $obat['stok'] - $d['qty']);
-            $this->obatModel->update($d['obat_id'], ['stok' => $stok_baru]);
-        }
-
-        // Hapus detail lama
-        $this->detailPembelianModel->where('transaksi_pembelian_id', $id)->delete();
-
-        // Ambil data dari form
-        $supplier_id = $this->request->getPost('supplier_id');
-        $nomor_faktur_supplier = $this->request->getPost('nomor_faktur_supplier');
-        $obat_id = $this->request->getPost('obat_id');
-        $harga_beli = $this->request->getPost('harga_beli');
-        $qty = $this->request->getPost('qty');
-        $total = $this->request->getPost('total');
-        $keterangan = $this->request->getPost('keterangan');
-
-        // Update data transaksi pembelian
-        $data_transaksi = [
-            'nomor_faktur_supplier' => $nomor_faktur_supplier,
-            'supplier_id' => $supplier_id,
-            'total' => $total,
-            'keterangan' => $keterangan
-        ];
-
-        $this->transaksiPembelianModel->update($id, $data_transaksi);
-
-        // Simpan detail transaksi baru dan update stok obat
-        for ($i = 0; $i < count($obat_id); $i++) {
-            // Ambil data obat
-            $obat = $this->obatModel->find($obat_id[$i]);
-
-            // Simpan detail transaksi
-            $data_detail = [
-                'transaksi_pembelian_id' => $id,
-                'obat_id' => $obat_id[$i],
-                'harga_beli' => $harga_beli[$i],
-                'qty' => $qty[$i],
-                'subtotal' => $harga_beli[$i] * $qty[$i]
-            ];
-            $this->detailPembelianModel->insert($data_detail);
-
-            // Update stok dan harga beli obat
-            $stok_baru = $obat['stok'] + $qty[$i];
-            $this->obatModel->update($obat_id[$i], [
-                'stok' => $stok_baru,
-                'harga_beli' => $harga_beli[$i]
-            ]);
-        }
-
-        session()->setFlashdata('pesan', 'Transaksi pembelian berhasil diupdate.');
-        return redirect()->to(base_url('transaksi-pembelian/detail/' . $id));
     }
 
     public function detail($id)
@@ -383,7 +228,7 @@ class TransaksiPembelian extends BaseController
         }
 
         // Ambil detail transaksi
-        $detail = $this->detailPembelianModel->where('transaksi_pembelian_id', $id)->findAll();
+        $detail = $this->detailPembelianModel->where('pembelian_id', $id)->findAll();
 
         // Kembalikan stok obat (kurangi stok)
         foreach ($detail as $d) {
@@ -393,7 +238,7 @@ class TransaksiPembelian extends BaseController
         }
 
         // Hapus detail transaksi
-        $this->detailPembelianModel->where('transaksi_pembelian_id', $id)->delete();
+        $this->detailPembelianModel->where('pembelian_id', $id)->delete();
 
         // Hapus transaksi
         $this->transaksiPembelianModel->delete($id);

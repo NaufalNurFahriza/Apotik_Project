@@ -11,13 +11,13 @@ class TransaksiPembelianModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['nomor_faktur', 'nomor_faktur_supplier', 'tanggal_transaksi', 'user_id', 'supplier_id', 'total', 'keterangan', 'status'];
+    protected $allowedFields = ['nomor_faktur', 'tanggal', 'user_id', 'supplier_id', 'total'];
 
     // Validasi
     protected $validationRules = [
         'user_id' => 'required|numeric',
         'supplier_id' => 'required|numeric',
-        'tanggal_transaksi' => 'required',
+        'tanggal' => 'required',
         'total' => 'required|numeric'
     ];
 
@@ -27,7 +27,7 @@ class TransaksiPembelianModel extends Model
         return $this->select('transaksi_pembelian.*, supplier.nama_supplier, supplier.alamat as alamat_supplier, supplier.kota as kota_supplier, supplier.telepon as telepon_supplier, user.nama as nama_user')
                    ->join('supplier', 'supplier.id = transaksi_pembelian.supplier_id')
                    ->join('user', 'user.id = transaksi_pembelian.user_id')
-                   ->orderBy('transaksi_pembelian.tanggal_transaksi', 'DESC')
+                   ->orderBy('transaksi_pembelian.tanggal', 'DESC')
                    ->findAll();
     }
 
@@ -48,7 +48,7 @@ class TransaksiPembelianModel extends Model
         $builder = $db->table('detail_pembelian');
         $builder->select('detail_pembelian.*, obat.nama_obat, obat.bpom, obat.satuan');
         $builder->join('obat', 'obat.id = detail_pembelian.obat_id');
-        $builder->where('detail_pembelian.transaksi_pembelian_id', $transaksiId);
+        $builder->where('detail_pembelian.pembelian_id', $transaksiId);
         return $builder->get()->getResultArray();
     }
 
@@ -58,9 +58,9 @@ class TransaksiPembelianModel extends Model
         return $this->select('transaksi_pembelian.*, supplier.nama_supplier, supplier.alamat as alamat_supplier, supplier.kota as kota_supplier, supplier.telepon as telepon_supplier, user.nama as nama_user')
                    ->join('supplier', 'supplier.id = transaksi_pembelian.supplier_id')
                    ->join('user', 'user.id = transaksi_pembelian.user_id')
-                   ->where('DATE(transaksi_pembelian.tanggal_transaksi) >=', $startDate)
-                   ->where('DATE(transaksi_pembelian.tanggal_transaksi) <=', $endDate)
-                   ->orderBy('transaksi_pembelian.tanggal_transaksi', 'DESC')
+                   ->where('DATE(transaksi_pembelian.tanggal) >=', $startDate)
+                   ->where('DATE(transaksi_pembelian.tanggal) <=', $endDate)
+                   ->orderBy('transaksi_pembelian.tanggal', 'DESC')
                    ->findAll();
     }
 
@@ -68,18 +68,18 @@ class TransaksiPembelianModel extends Model
     public function getLaporanPembelian($startDate, $endDate, $periode = 'harian')
     {
         $builder = $this->db->table('transaksi_pembelian tp');
-        $builder->select('DATE(tp.tanggal_transaksi) as tanggal, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_pembelian');
-        $builder->where('DATE(tp.tanggal_transaksi) >=', $startDate);
-        $builder->where('DATE(tp.tanggal_transaksi) <=', $endDate);
+        $builder->select('DATE(tp.tanggal) as tanggal, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_pembelian');
+        $builder->where('DATE(tp.tanggal) >=', $startDate);
+        $builder->where('DATE(tp.tanggal) <=', $endDate);
         
         if ($periode == 'bulanan') {
-            $builder->select('YEAR(tp.tanggal_transaksi) as tahun, MONTH(tp.tanggal_transaksi) as bulan, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_pembelian');
-            $builder->groupBy('YEAR(tp.tanggal_transaksi), MONTH(tp.tanggal_transaksi)');
+            $builder->select('YEAR(tp.tanggal) as tahun, MONTH(tp.tanggal) as bulan, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_pembelian');
+            $builder->groupBy('YEAR(tp.tanggal), MONTH(tp.tanggal)');
         } else {
-            $builder->groupBy('DATE(tp.tanggal_transaksi)');
+            $builder->groupBy('DATE(tp.tanggal)');
         }
         
-        $builder->orderBy('tp.tanggal_transaksi', 'DESC');
+        $builder->orderBy('tp.tanggal', 'DESC');
         return $builder->get()->getResultArray();
     }
 
@@ -88,8 +88,8 @@ class TransaksiPembelianModel extends Model
     {
         $builder = $this->db->table('transaksi_pembelian tp');
         $builder->select('COUNT(*) as total_transaksi, SUM(tp.total) as total_pembelian, AVG(tp.total) as rata_rata');
-        $builder->where('DATE(tp.tanggal_transaksi) >=', $startDate);
-        $builder->where('DATE(tp.tanggal_transaksi) <=', $endDate);
+        $builder->where('DATE(tp.tanggal) >=', $startDate);
+        $builder->where('DATE(tp.tanggal) <=', $endDate);
         return $builder->get()->getRowArray();
     }
 }
