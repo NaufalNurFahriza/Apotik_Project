@@ -46,16 +46,16 @@ class Dashboard extends BaseController
         // Transaksi hari ini
         $today = date('Y-m-d');
         $transaksiHariIni = $this->transaksiPenjualanModel
-            ->where('DATE(tanggal)', $today)
+            ->where('DATE(tanggal_transaksi)', $today)
             ->countAllResults();
         
         // Total penjualan hari ini
         $penjualanHariIni = $this->transaksiPenjualanModel
-            ->selectSum('total_bayar')
-            ->where('DATE(tanggal)', $today)
+            ->selectSum('total')
+            ->where('DATE(tanggal_transaksi)', $today)
             ->get()
             ->getRow()
-            ->total_bayar ?? 0;
+            ->total ?? 0;
 
         // Obat dengan stok menipis (< 10)
         $obatStokMinim = $this->obatModel
@@ -66,15 +66,31 @@ class Dashboard extends BaseController
         $bulanIni = date('Y-m');
         $builder = $this->db->table('detail_penjualan dp');
         $obatTerlaris = $builder
-            ->select('o.nama_obat, SUM(dp.jumlah) as total_terjual')
-            ->join('obat o', 'dp.id_obat = o.id')
-            ->join('transaksi_penjualan tp', 'dp.id_transaksi = tp.id')
-            ->where("DATE_FORMAT(tp.tanggal, '%Y-%m')", $bulanIni)
-            ->groupBy(['dp.id_obat', 'o.nama_obat'])
+            ->select('o.nama_obat, SUM(dp.qty) as total_terjual')
+            ->join('obat o', 'dp.obat_id = o.id')
+            ->join('transaksi_penjualan tp', 'dp.transaksi_id = tp.id')
+            ->where("DATE_FORMAT(tp.tanggal_transaksi, '%Y-%m')", $bulanIni)
+            ->groupBy(['dp.obat_id', 'o.nama_obat'])
             ->orderBy('total_terjual', 'DESC')
             ->limit(5)
             ->get()
             ->getResultArray();
+
+        // Transaksi pembelian bulan ini
+        $pembelianBulanIni = $this->transaksiPembelianModel
+            ->selectSum('total')
+            ->where("DATE_FORMAT(tanggal, '%Y-%m')", $bulanIni)
+            ->get()
+            ->getRow()
+            ->total ?? 0;
+
+        // Penjualan bulan ini
+        $penjualanBulanIni = $this->transaksiPenjualanModel
+            ->selectSum('total')
+            ->where("DATE_FORMAT(tanggal_transaksi, '%Y-%m')", $bulanIni)
+            ->get()
+            ->getRow()
+            ->total ?? 0;
 
         $data = [
             'title' => 'Dashboard - Apotek Kita Farma',
@@ -84,10 +100,34 @@ class Dashboard extends BaseController
             'totalTTK' => $totalTTK,
             'transaksiHariIni' => $transaksiHariIni,
             'penjualanHariIni' => $penjualanHariIni,
+            'pembelianBulanIni' => $pembelianBulanIni,
+            'penjualanBulanIni' => $penjualanBulanIni,
             'obatStokMinim' => $obatStokMinim,
             'obatTerlaris' => $obatTerlaris
         ];
 
         return view('dashboard/index', $data);
+    }
+
+    public function getChartData()
+    {
+        // Data untuk chart penjualan 7 hari terakhir
+        $chartData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+            $total = $this->transaksiPenjualanModel
+                ->selectSum('total')
+                ->where('DATE(tanggal_transaksi)', $date)
+                ->get()
+                ->getRow()
+                ->total ?? 0;
+            
+            $chartData[] = [
+                'date' => date('d/m', strtotime($date)),
+                'total' => (float)$total
+            ];
+        }
+
+        return $this->response->setJSON($chartData);
     }
 }

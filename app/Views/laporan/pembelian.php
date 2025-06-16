@@ -163,7 +163,6 @@
                         <th>#</th>
                         <th>Tanggal</th>
                         <th>No. Faktur</th>
-                        <th>Faktur Supplier</th>
                         <th>TTK</th>
                         <th>Supplier</th>
                         <th>Total</th>
@@ -174,10 +173,9 @@
                     <?php foreach ($data as $d) : ?>
                         <tr>
                             <td><?= $i++; ?></td>
-                            <td><?= date('d-m-Y H:i', strtotime($d['tanggal_transaksi'])); ?></td>
-                            <td><?= $d['nomor_faktur'] ?? 'PB-' . str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
-                            <td><?= $d['nomor_faktur_supplier'] ?? '-'; ?></td>
-                            <td><?= $d['nama_admin'] ?? $d['nama_user']; ?></td>
+                            <td><?= date('d-m-Y H:i', strtotime($d['tanggal'])); ?></td>
+                            <td>PB-<?= str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                            <td><?= $d['nama_user'] ?? '-'; ?></td>
                             <td><?= $d['nama_supplier']; ?></td>
                             <td>Rp <?= number_format($d['total'], 0, ',', '.'); ?></td>
                         </tr>
@@ -185,7 +183,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colspan="6" class="text-right">Total</th>
+                        <th colspan="5" class="text-right">Total</th>
                         <th>Rp <?= number_format($summary['total_pembelian'] ?? 0, 0, ',', '.'); ?></th>
                     </tr>
                 </tfoot>

@@ -11,7 +11,9 @@
 <?php if (session()->getFlashdata('pesan')) : ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <?= session()->getFlashdata('pesan'); ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 <?php endif; ?>
 
@@ -27,7 +29,10 @@
                         <th>#</th>
                         <th>BPOM</th>
                         <th>Nama Obat</th>
-                        <th>Harga</th>
+                        <th>Kategori</th>
+                        <th>Satuan</th>
+                        <th>Harga Beli</th>
+                        <th>Harga Jual</th>
                         <th>Produsen</th>
                         <th>Supplier</th>
                         <th>Stok</th>
@@ -41,10 +46,27 @@
                             <td><?= $i++; ?></td>
                             <td><?= $o['bpom']; ?></td>
                             <td><?= $o['nama_obat']; ?></td>
-                            <td>Rp <?= number_format($o['harga'], 0, ',', '.'); ?></td>
+                            <td>
+                                <?php if ($o['kategori'] == 'resep') : ?>
+                                    <span class="badge badge-warning">Resep</span>
+                                <?php else : ?>
+                                    <span class="badge badge-success">Non-Resep</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= $o['satuan']; ?></td>
+                            <td>Rp <?= number_format($o['harga_beli'], 0, ',', '.'); ?></td>
+                            <td>Rp <?= number_format($o['harga_jual'], 0, ',', '.'); ?></td>
                             <td><?= $o['produsen']; ?></td>
                             <td><?= $o['nama_supplier']; ?></td>
-                            <td><?= $o['stok']; ?></td>
+                            <td>
+                                <?php if ($o['stok'] <= 10) : ?>
+                                    <span class="badge badge-danger"><?= $o['stok']; ?></span>
+                                <?php elseif ($o['stok'] <= 50) : ?>
+                                    <span class="badge badge-warning"><?= $o['stok']; ?></span>
+                                <?php else : ?>
+                                    <span class="badge badge-success"><?= $o['stok']; ?></span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <a href="<?= base_url('obat/edit/' . $o['id']); ?>" class="btn btn-info btn-sm">
                                     <i class="fas fa-edit"></i>

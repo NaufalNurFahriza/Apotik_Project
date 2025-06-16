@@ -65,7 +65,7 @@
                                     <a href="<?= base_url('user/edit/' . $user['id']); ?>" class="btn btn-info btn-sm" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <?php if ($user['id'] != session()->get('user_id')): ?>
+                                    <?php if ($user['id'] != session()->get('id')): ?>
                                     <a href="<?= base_url('user/hapus/' . $user['id']); ?>" class="btn btn-danger btn-sm" 
                                        onclick="return confirm('Apakah Anda yakin ingin menghapus TTK ini?')" title="Hapus">
                                         <i class="fas fa-trash"></i>

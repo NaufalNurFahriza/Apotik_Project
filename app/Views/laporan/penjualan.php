@@ -164,9 +164,9 @@
                         <tr>
                             <td><?= $i++; ?></td>
                             <td><?= date('d-m-Y H:i', strtotime($d['tanggal_transaksi'])); ?></td>
-                            <td><?= $d['nomor_faktur'] ?? 'PJ-' . str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
-                            <td><?= $d['nama_admin'] ?? $d['nama_user']; ?></td>
-                            <td><?= $d['nama_pembeli']; ?></td>
+                            <td>PJ-<?= str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                            <td><?= $d['nama_user'] ?? '-'; ?></td>
+                            <td><?= $d['nama_pembeli'] ?? '-'; ?></td>
                             <td><?= $d['nama_member'] ?? '-'; ?></td>
                             <td>Rp <?= number_format($d['total'], 0, ',', '.'); ?></td>
                         </tr>

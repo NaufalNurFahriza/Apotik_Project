@@ -11,25 +11,23 @@ class DetailPembelianModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['pembelian_id', 'obat_id', 'qty', 'harga_beli', 'nomor_batch', 'expired_date', 'satuan'];
+    protected $allowedFields = ['transaksi_pembelian_id', 'obat_id', 'qty', 'harga_beli', 'subtotal'];
 
     // Validasi
     protected $validationRules = [
-        'pembelian_id' => 'required|numeric',
+        'transaksi_pembelian_id' => 'required|numeric',
         'obat_id' => 'required|numeric',
         'qty' => 'required|numeric',
         'harga_beli' => 'required|numeric',
-        'nomor_batch' => 'required',
-        'expired_date' => 'required|valid_date',
-        'satuan' => 'required'
+        'subtotal' => 'required|numeric'
     ];
 
     // Get detail dengan obat
-    public function getDetailWithObat($pembelian_id)
+    public function getDetailWithObat($transaksi_pembelian_id)
     {
-        return $this->select('detail_pembelian.*, obat.nama_obat')
+        return $this->select('detail_pembelian.*, obat.nama_obat, obat.bpom, obat.satuan')
                    ->join('obat', 'obat.id = detail_pembelian.obat_id')
-                   ->where('pembelian_id', $pembelian_id)
+                   ->where('transaksi_pembelian_id', $transaksi_pembelian_id)
                    ->findAll();
     }
 }

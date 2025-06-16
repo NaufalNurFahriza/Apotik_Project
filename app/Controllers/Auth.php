@@ -21,7 +21,8 @@ class Auth extends BaseController
         }
 
         $data = [
-            'title' => 'Login - Apotek Kita Farma'
+            'title' => 'Login - Apotek Kita Farma',
+            'error' => session()->getFlashdata('error')
         ];
 
         return view('auth/login', $data);
@@ -38,7 +39,32 @@ class Auth extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek login
+        // Development login - untuk testing
+        if (ENVIRONMENT === 'development') {
+            if ($username === 'pemilik' && $password === 'pemilik123') {
+                session()->set([
+                    'id' => 0,
+                    'nama' => 'Pemilik Dev',
+                    'username' => 'pemilik',
+                    'role' => 'pemilik',
+                    'logged_in' => true
+                ]);
+                return redirect()->to(base_url('dashboard'));
+            }
+            
+            if ($username === 'ttk' && $password === 'ttk123') {
+                session()->set([
+                    'id' => 1,
+                    'nama' => 'TTK Dev',
+                    'username' => 'ttk',
+                    'role' => 'ttk',
+                    'logged_in' => true
+                ]);
+                return redirect()->to(base_url('dashboard'));
+            }
+        }
+
+        // Cek login dari database
         $user = $this->userModel->cekLogin($username, $password);
         
         if ($user) {
@@ -52,13 +78,7 @@ class Auth extends BaseController
             ];
             
             session()->set($sessionData);
-            
-            // Redirect berdasarkan role
-            if ($user['role'] == 'pemilik') {
-                return redirect()->to(base_url('dashboard'));
-            } else {
-                return redirect()->to(base_url('dashboard'));
-            }
+            return redirect()->to(base_url('dashboard'));
         } else {
             session()->setFlashdata('error', 'Username atau password salah');
             return redirect()->to(base_url('auth'));
@@ -73,14 +93,16 @@ class Auth extends BaseController
 
     public function register()
     {
-        // Hanya pemilik yang bisa mengakses halaman register
-        if (!session()->get('logged_in') || session()->get('role') != 'pemilik') {
-            return redirect()->to(base_url('auth'));
+        // Jika sudah login, redirect ke dashboard
+        if (session()->get('logged_in')) {
+            return redirect()->to(base_url('dashboard'));
         }
 
         $data = [
-            'title' => 'Registrasi TTK Baru',
-            'validation' => \Config\Services::validation()
+            'validation_errors' => session()->getFlashdata('validation_errors'),
+            'error' => session()->getFlashdata('error'),
+            'success' => session()->getFlashdata('success'),
+            'old' => session()->getFlashdata('old')
         ];
 
         return view('auth/register', $data);
@@ -88,26 +110,32 @@ class Auth extends BaseController
 
     public function doRegister()
     {
-        // Hanya pemilik yang bisa registrasi user baru
-        if (!session()->get('logged_in') || session()->get('role') != 'pemilik') {
-            return redirect()->to(base_url('auth'));
-        }
-
         // Validasi input
-        if (!$this->validate($this->userModel->validationRules)) {
-            return redirect()->to(base_url('auth/register'))->withInput()->with('validation', $this->validator);
+        $rules = [
+            'nama' => 'required|min_length[3]|max_length[100]',
+            'username' => 'required|min_length[3]|max_length[20]|is_unique[user.username]',
+            'password' => 'required|min_length[6]',
+            'confirm_password' => 'required|matches[password]',
+            'registration_code' => 'required|exact[APOTEK2025]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->to(base_url('auth/register'))
+                ->withInput()
+                ->with('validation_errors', $this->validator->getErrors());
         }
 
-        // Simpan data
+        // Simpan data user baru dengan role default 'ttk'
         $data = [
-            'nama' => $this->request->getPost('nama'),
-            'username' => $this->request->getPost('username'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-            'role' => $this->request->getPost('role')
+            'nama' => esc($this->request->getPost('nama')),
+            'username' => esc($this->request->getPost('username')),
+            'password' => $this->request->getPost('password'),
+            'role' => 'ttk' // Default role ttk untuk registrasi baru
         ];
 
         $this->userModel->insert($data);
-        session()->setFlashdata('pesan', 'TTK baru berhasil didaftarkan');
-        return redirect()->to(base_url('user'));
+
+        session()->setFlashdata('success', 'Registrasi berhasil. Silakan login dengan akun baru Anda.');
+        return redirect()->to(base_url('auth'));
     }
 }

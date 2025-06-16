@@ -32,7 +32,7 @@
                     Telp: <?= $transaksi['telepon_supplier']; ?>
                 </p>
             </div>
-            <div class="col-md-6 text-md-end">
+            <div class="col-md-6 text-right">
                 <h5>Kepada:</h5>
                 <p>
                     <strong>APOTEK KITA FARMA</strong><br>
@@ -51,24 +51,24 @@
                     <strong>Tanggal:</strong> <?= date('d-m-Y H:i', strtotime($transaksi['tanggal_transaksi'])); ?>
                 </p>
             </div>
-            <div class="col-md-6 text-md-end">
+            <div class="col-md-6 text-right">
                 <p>
-                    <strong>TTK:</strong> <?= $transaksi['nama_admin'] ?? $transaksi['nama_user']; ?><br>
-                    <strong>Status:</strong> <span class="badge bg-success">Selesai</span>
+                    <strong>TTK:</strong> <?= $transaksi['nama_user']; ?><br>
+                    <strong>Status:</strong> <span class="badge badge-success">Selesai</span>
                 </p>
             </div>
         </div>
         
         <div class="table-responsive">
             <table class="table table-bordered">
-                <thead class="bg-light">
+                <thead class="thead-light">
                     <tr>
                         <th>#</th>
                         <th>Kode Obat</th>
                         <th>Nama Obat</th>
                         <th class="text-center">Harga Beli</th>
                         <th class="text-center">Qty</th>
-                        <th class="text-end">Subtotal</th>
+                        <th class="text-right">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,18 +76,18 @@
                     <?php foreach ($detail as $d) : ?>
                         <tr>
                             <td><?= $no++; ?></td>
-                            <td><?= $d['bpom'] ?? $d['kode_obat']; ?></td>
+                            <td><?= $d['bpom'] ?? '-'; ?></td>
                             <td><?= $d['nama_obat']; ?></td>
                             <td class="text-center">Rp <?= number_format($d['harga_beli'], 0, ',', '.'); ?></td>
                             <td class="text-center"><?= $d['qty']; ?></td>
-                            <td class="text-end">Rp <?= number_format($d['harga_beli'] * $d['qty'], 0, ',', '.'); ?></td>
+                            <td class="text-right">Rp <?= number_format($d['subtotal'], 0, ',', '.'); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <th colspan="5" class="text-end">Total Pembelian</th>
-                        <th class="text-end">Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></th>
+                    <tr class="font-weight-bold">
+                        <th colspan="5" class="text-right">Total Pembelian</th>
+                        <th class="text-right">Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></th>
                     </tr>
                 </tfoot>
             </table>
@@ -112,7 +112,7 @@
                 <div class="text-center">
                     <p>TTK Apotek</p>
                     <br><br><br>
-                    <p>_____________________<br><?= $transaksi['nama_admin'] ?? $transaksi['nama_user']; ?></p>
+                    <p>_____________________<br><?= $transaksi['nama_user']; ?></p>
                 </div>
             </div>
         </div>

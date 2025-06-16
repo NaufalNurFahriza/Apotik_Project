@@ -58,7 +58,7 @@ class TransaksiPenjualan extends BaseController
 
         $data = [
             'title' => 'Tambah Transaksi Penjualan',
-            'obat' => $this->obatModel->getObatWithStock(),
+            'obat' => $this->obatModel->where('stok >', 0)->findAll(),
             'member' => $this->memberModel->findAll(),
             'validation' => \Config\Services::validation()
         ];
@@ -111,7 +111,6 @@ class TransaksiPenjualan extends BaseController
         $obat_id = $this->request->getPost('obat_id');
         $harga = $this->request->getPost('harga');
         $qty = $this->request->getPost('qty');
-        $subtotal = $this->request->getPost('subtotal');
         $poin_digunakan = $this->request->getPost('poin_digunakan') ?? 0;
         $potongan_harga = $this->request->getPost('potongan_harga') ?? 0;
         $total = $this->request->getPost('total');
@@ -127,7 +126,7 @@ class TransaksiPenjualan extends BaseController
 
         // Pastikan user_id (TTK) valid
         $user_id = session()->get('id');
-        if ($user_id == 0) {
+        if (!$user_id) {
             $firstUser = $this->userModel->first();
             if ($firstUser) {
                 $user_id = $firstUser['id'];
@@ -140,12 +139,8 @@ class TransaksiPenjualan extends BaseController
         // Hitung poin yang didapat (1 poin untuk setiap Rp 50.000)
         $poin_didapat = floor($total / 50000);
 
-        // Generate nomor faktur
-        $nomor_faktur = 'PJ-' . date('Ymd') . '-' . str_pad($this->transaksiPenjualanModel->countAllResults() + 1, 4, '0', STR_PAD_LEFT);
-
         // Simpan data transaksi penjualan
         $data_transaksi = [
-            'nomor_faktur' => $nomor_faktur,
             'tanggal_transaksi' => date('Y-m-d H:i:s'),
             'user_id' => $user_id,
             'nama_pembeli' => $nama_pembeli,
@@ -153,8 +148,7 @@ class TransaksiPenjualan extends BaseController
             'total' => $total,
             'poin_didapat' => $poin_didapat,
             'poin_digunakan' => $poin_digunakan,
-            'potongan_harga' => $potongan_harga,
-            'status' => 'selesai'
+            'potongan_harga' => $potongan_harga
         ];
 
         $this->transaksiPenjualanModel->insert($data_transaksi);
@@ -167,11 +161,10 @@ class TransaksiPenjualan extends BaseController
 
             // Simpan detail transaksi
             $data_detail = [
-                'transaksi_penjualan_id' => $transaksi_id,
+                'transaksi_id' => $transaksi_id,
                 'obat_id' => $obat_id[$i],
-                'harga_jual' => $harga[$i],
                 'qty' => $qty[$i],
-                'subtotal' => $harga[$i] * $qty[$i]
+                'harga_saat_ini' => $harga[$i]
             ];
             $this->detailPenjualanModel->insert($data_detail);
 
@@ -188,7 +181,7 @@ class TransaksiPenjualan extends BaseController
         }
 
         session()->setFlashdata('pesan', 'Transaksi penjualan berhasil ditambahkan.');
-        return redirect()->to(base_url('transaksi-penjualan/faktur/' . $transaksi_id));
+        return redirect()->to(base_url('transaksi-penjualan/struk/' . $transaksi_id));
     }
 
     public function detail($id)
@@ -205,6 +198,22 @@ class TransaksiPenjualan extends BaseController
         ];
 
         return view('transaksi_penjualan/detail', $data);
+    }
+
+    public function struk($id)
+    {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth'));
+        }
+
+        $data = [
+            'title' => 'Struk Transaksi Penjualan',
+            'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
+            'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
+        ];
+
+        return view('transaksi_penjualan/struk', $data);
     }
 
     public function faktur($id)
@@ -237,7 +246,7 @@ class TransaksiPenjualan extends BaseController
         }
 
         // Ambil detail transaksi
-        $detail = $this->detailPenjualanModel->where('transaksi_penjualan_id', $id)->findAll();
+        $detail = $this->detailPenjualanModel->where('transaksi_id', $id)->findAll();
 
         // Kembalikan stok obat
         foreach ($detail as $d) {
@@ -255,40 +264,12 @@ class TransaksiPenjualan extends BaseController
         }
 
         // Hapus detail transaksi
-        $this->detailPenjualanModel->where('transaksi_penjualan_id', $id)->delete();
+        $this->detailPenjualanModel->where('transaksi_id', $id)->delete();
 
         // Hapus transaksi
         $this->transaksiPenjualanModel->delete($id);
 
         session()->setFlashdata('pesan', 'Transaksi penjualan berhasil dihapus.');
         return redirect()->to(base_url('transaksi-penjualan'));
-    }
-
-    public function laporan()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
-
-        // Ambil parameter filter
-        $start_date = $this->request->getGet('start_date') ?? date('Y-m-01');
-        $end_date = $this->request->getGet('end_date') ?? date('Y-m-d');
-        $periode = $this->request->getGet('periode') ?? 'harian';
-
-        // Ambil data laporan
-        $laporan = $this->transaksiPenjualanModel->getLaporanPenjualan($start_date, $end_date, $periode);
-        $summary = $this->transaksiPenjualanModel->getSummaryPenjualan($start_date, $end_date);
-
-        $data = [
-            'title' => 'Laporan Penjualan',
-            'laporan' => $laporan,
-            'summary' => $summary,
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-            'periode' => $periode
-        ];
-
-        return view('transaksi_penjualan/laporan', $data);
     }
 }

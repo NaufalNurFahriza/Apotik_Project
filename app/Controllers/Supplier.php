@@ -20,9 +20,14 @@ class Supplier extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
+        // Cek role - hanya pemilik dan ttk yang bisa akses
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
+            return redirect()->to(base_url('dashboard'));
+        }
+
         $data = [
             'title' => 'Data Supplier',
-            'supplier' => $this->supplierModel->findAll()
+            'supplier' => $this->supplierModel->getSupplierWithObatCount()
         ];
 
         return view('supplier/index', $data);
@@ -45,6 +50,11 @@ class Supplier extends BaseController
 
     public function simpan()
     {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth'));
+        }
+
         // Validasi input
         if (!$this->validate($this->supplierModel->validationRules)) {
             return redirect()->to(base_url('supplier/tambah'))->withInput()->with('validation', $this->validator);
@@ -52,14 +62,14 @@ class Supplier extends BaseController
 
         // Simpan data
         $data = [
-            'nama_supplier' => $this->request->getPost('nama_supplier'),
-            'alamat' => $this->request->getPost('alamat'),
-            'kota' => $this->request->getPost('kota'),
-            'telepon' => $this->request->getPost('telepon')
+            'nama_supplier' => esc($this->request->getPost('nama_supplier')),
+            'alamat' => esc($this->request->getPost('alamat')),
+            'kota' => esc($this->request->getPost('kota')),
+            'telepon' => esc($this->request->getPost('telepon'))
         ];
 
         $this->supplierModel->insert($data);
-        session()->setFlashdata('pesan', 'Data berhasil ditambahkan');
+        session()->setFlashdata('pesan', 'Data supplier berhasil ditambahkan');
         return redirect()->to(base_url('supplier'));
     }
 
@@ -70,9 +80,15 @@ class Supplier extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
+        $supplier = $this->supplierModel->find($id);
+        if (!$supplier) {
+            session()->setFlashdata('error', 'Data supplier tidak ditemukan');
+            return redirect()->to(base_url('supplier'));
+        }
+
         $data = [
             'title' => 'Edit Supplier',
-            'supplier' => $this->supplierModel->find($id),
+            'supplier' => $supplier,
             'validation' => \Config\Services::validation()
         ];
 
@@ -81,6 +97,11 @@ class Supplier extends BaseController
 
     public function update($id)
     {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth'));
+        }
+
         // Validasi input
         if (!$this->validate($this->supplierModel->validationRules)) {
             return redirect()->to(base_url('supplier/edit/' . $id))->withInput()->with('validation', $this->validator);
@@ -88,22 +109,33 @@ class Supplier extends BaseController
 
         // Update data
         $data = [
-            'nama_supplier' => $this->request->getPost('nama_supplier'),
-            'alamat' => $this->request->getPost('alamat'),
-            'kota' => $this->request->getPost('kota'),
-            'telepon' => $this->request->getPost('telepon')
+            'nama_supplier' => esc($this->request->getPost('nama_supplier')),
+            'alamat' => esc($this->request->getPost('alamat')),
+            'kota' => esc($this->request->getPost('kota')),
+            'telepon' => esc($this->request->getPost('telepon'))
         ];
 
         $this->supplierModel->update($id, $data);
-        session()->setFlashdata('pesan', 'Data berhasil diupdate');
+        session()->setFlashdata('pesan', 'Data supplier berhasil diupdate');
         return redirect()->to(base_url('supplier'));
     }
 
     public function hapus($id)
     {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth'));
+        }
+
+        // Cek apakah supplier digunakan oleh obat
+        if ($this->supplierModel->isUsedByObat($id)) {
+            session()->setFlashdata('error', 'Supplier tidak dapat dihapus karena masih digunakan oleh obat');
+            return redirect()->to(base_url('supplier'));
+        }
+
         // Hapus data
         $this->supplierModel->delete($id);
-        session()->setFlashdata('pesan', 'Data berhasil dihapus');
+        session()->setFlashdata('pesan', 'Data supplier berhasil dihapus');
         return redirect()->to(base_url('supplier'));
     }
 }

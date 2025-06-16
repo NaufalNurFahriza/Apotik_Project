@@ -4,7 +4,7 @@
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Struk Penjualan</h1>
     <div>
-        <a href="<?= base_url('transaksi-penjualan'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm no-print">
+        <a href="<?= base_url('transaksi'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm no-print">
             <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
         </a>
         <button onclick="window.print()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm no-print">
@@ -26,7 +26,7 @@
                 <p>
                     <strong>No. Transaksi:</strong> <?= $transaksi['nomor_faktur'] ?? 'PJ-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?><br>
                     <strong>Tanggal:</strong> <?= date('d-m-Y H:i', strtotime($transaksi['tanggal_transaksi'])); ?><br>
-                    <strong>Kasir:</strong> <?= $transaksi['nama_admin'] ?? $transaksi['nama_user']; ?>
+                    <strong>Kasir:</strong> <?= $transaksi['nama'] ?? $transaksi['nama_user']; ?>
                 </p>
             </div>
             <div class="col-md-6 text-md-end">

@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS detail_pembelian (
 -- =====================================================
 
 -- Insert data user (TTK & Pemilik)
-INSERT INTO user (nama, username, password, user) VALUES
+INSERT INTO user (nama, username, password, role) VALUES
 ('Kevin Bimo', 'kevin_bimo', 'kevin123', 'pemilik'),
 ('Sari Dewi', 'sari_ttk', 'sari123', 'ttk'),
 ('Ahmad Fauzi', 'ahmad_ttk', 'ahmad123', 'ttk'),

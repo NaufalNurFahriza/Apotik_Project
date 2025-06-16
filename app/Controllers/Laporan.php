@@ -45,34 +45,51 @@ class Laporan extends BaseController
         $end_date = $this->request->getGet('end_date') ?? date('Y-m-d');
         $periode = $this->request->getGet('periode') ?? 'harian';
 
-        // Query laporan penjualan
+        // Query data transaksi penjualan dengan detail
         $builder = $this->db->table('transaksi_penjualan tp');
-        $laporan = $builder
-            ->select('DATE(tp.tanggal) as tanggal, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_penjualan')
-            ->where('DATE(tp.tanggal) >=', $start_date)
-            ->where('DATE(tp.tanggal) <=', $end_date)
-            ->groupBy('DATE(tp.tanggal)')
-            ->orderBy('tanggal', 'DESC')
+        $data = $builder
+            ->select('tp.*, u.nama as nama_user, m.nama as nama_member')
+            ->join('user u', 'tp.user_id = u.id', 'left')
+            ->join('member m', 'tp.member_id = m.id', 'left')
+            ->where('DATE(tp.tanggal_transaksi) >=', $start_date)
+            ->where('DATE(tp.tanggal_transaksi) <=', $end_date)
+            ->orderBy('tp.tanggal_transaksi', 'DESC')
             ->get()
             ->getResultArray();
 
-        // Summary
+        // Hitung summary
+        $totalTransaksi = count($data);
+        $totalPenjualan = array_sum(array_column($data, 'total'));
+        $rataRata = $totalTransaksi > 0 ? $totalPenjualan / $totalTransaksi : 0;
+        
+        // Hitung total item
+        $builderItem = $this->db->table('detail_penjualan dp');
+        $totalItem = $builderItem
+            ->selectSum('qty')
+            ->join('transaksi_penjualan tp', 'dp.transaksi_id = tp.id')
+            ->where('DATE(tp.tanggal_transaksi) >=', $start_date)
+            ->where('DATE(tp.tanggal_transaksi) <=', $end_date)
+            ->get()
+            ->getRow()
+            ->qty ?? 0;
+
         $summary = [
-            'total_transaksi' => array_sum(array_column($laporan, 'jumlah_transaksi')),
-            'total_penjualan' => array_sum(array_column($laporan, 'total_penjualan')),
-            'rata_rata_per_hari' => count($laporan) > 0 ? array_sum(array_column($laporan, 'total_penjualan')) / count($laporan) : 0
+            'total_transaksi' => $totalTransaksi,
+            'total_penjualan' => $totalPenjualan,
+            'rata_rata' => $rataRata,
+            'total_item' => $totalItem
         ];
 
-        $data = [
+        $viewData = [
             'title' => 'Laporan Penjualan',
-            'laporan' => $laporan,
+            'data' => $data,
             'summary' => $summary,
             'start_date' => $start_date,
             'end_date' => $end_date,
             'periode' => $periode
         ];
 
-        return view('laporan/penjualan', $data);
+        return view('laporan/penjualan', $viewData);
     }
 
     public function pembelian()
@@ -90,35 +107,63 @@ class Laporan extends BaseController
         // Ambil parameter filter
         $start_date = $this->request->getGet('start_date') ?? date('Y-m-01');
         $end_date = $this->request->getGet('end_date') ?? date('Y-m-d');
+        $supplier_id = $this->request->getGet('supplier_id') ?? '';
 
-        // Query laporan pembelian
+        // Query data transaksi pembelian
         $builder = $this->db->table('transaksi_pembelian tp');
-        $laporan = $builder
-            ->select('DATE(tp.tanggal) as tanggal, s.nama_supplier, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_pembelian')
+        $query = $builder
+            ->select('tp.*, u.nama as nama_user, s.nama_supplier')
+            ->join('user u', 'tp.user_id = u.id', 'left')
             ->join('supplier s', 'tp.supplier_id = s.id')
             ->where('DATE(tp.tanggal) >=', $start_date)
-            ->where('DATE(tp.tanggal) <=', $end_date)
-            ->groupBy(['DATE(tp.tanggal)', 's.nama_supplier'])
-            ->orderBy('tanggal', 'DESC')
-            ->get()
-            ->getResultArray();
+            ->where('DATE(tp.tanggal) <=', $end_date);
 
-        // Summary
+        if (!empty($supplier_id)) {
+            $query->where('tp.supplier_id', $supplier_id);
+        }
+
+        $data = $query->orderBy('tp.tanggal', 'DESC')->get()->getResultArray();
+
+        // Hitung summary
+        $totalTransaksi = count($data);
+        $totalPembelian = array_sum(array_column($data, 'total'));
+        $rataRata = $totalTransaksi > 0 ? $totalPembelian / $totalTransaksi : 0;
+
+        // Hitung total item
+        $builderItem = $this->db->table('detail_pembelian dp');
+        $itemQuery = $builderItem
+            ->selectSum('qty')
+            ->join('transaksi_pembelian tp', 'dp.transaksi_pembelian_id = tp.id')
+            ->where('DATE(tp.tanggal) >=', $start_date)
+            ->where('DATE(tp.tanggal) <=', $end_date);
+
+        if (!empty($supplier_id)) {
+            $itemQuery->where('tp.supplier_id', $supplier_id);
+        }
+
+        $totalItem = $itemQuery->get()->getRow()->qty ?? 0;
+
         $summary = [
-            'total_transaksi' => array_sum(array_column($laporan, 'jumlah_transaksi')),
-            'total_pembelian' => array_sum(array_column($laporan, 'total_pembelian')),
-            'rata_rata_per_hari' => count($laporan) > 0 ? array_sum(array_column($laporan, 'total_pembelian')) / count($laporan) : 0
+            'total_transaksi' => $totalTransaksi,
+            'total_pembelian' => $totalPembelian,
+            'rata_rata' => $rataRata,
+            'total_item' => $totalItem
         ];
 
-        $data = [
+        // Ambil data supplier untuk filter
+        $supplier = $this->supplierModel->findAll();
+
+        $viewData = [
             'title' => 'Laporan Pembelian',
-            'laporan' => $laporan,
+            'data' => $data,
             'summary' => $summary,
+            'supplier' => $supplier,
             'start_date' => $start_date,
-            'end_date' => $end_date
+            'end_date' => $end_date,
+            'supplier_id' => $supplier_id
         ];
 
-        return view('laporan/pembelian', $data);
+        return view('laporan/pembelian', $viewData);
     }
 
     public function obatTerlaris()
@@ -139,9 +184,9 @@ class Laporan extends BaseController
             ->select('o.nama_obat, o.kategori, s.nama_supplier, SUM(dp.qty) as total_terjual, SUM(dp.subtotal) as total_pendapatan')
             ->join('obat o', 'dp.obat_id = o.id')
             ->join('supplier s', 'o.supplier_id = s.id')
-            ->join('transaksi_penjualan tp', 'dp.transaksi_penjualan_id = tp.id')
-            ->where('DATE(tp.tanggal) >=', $start_date)
-            ->where('DATE(tp.tanggal) <=', $end_date)
+            ->join('transaksi_penjualan tp', 'dp.transaksi_id = tp.id')
+            ->where('DATE(tp.tanggal_transaksi) >=', $start_date)
+            ->where('DATE(tp.tanggal_transaksi) <=', $end_date)
             ->groupBy(['o.id', 'o.nama_obat', 'o.kategori', 's.nama_supplier'])
             ->orderBy('total_terjual', 'DESC')
             ->limit($limit)
@@ -173,12 +218,12 @@ class Laporan extends BaseController
         // Query aktivitas member
         $builder = $this->db->table('transaksi_penjualan tp');
         $aktivitasMember = $builder
-            ->select('m.nama_member, m.no_hp, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_belanja, SUM(tp.poin_didapat) as total_poin')
+            ->select('m.nama as nama_member, m.no_hp, COUNT(*) as jumlah_transaksi, SUM(tp.total) as total_belanja, m.poin')
             ->join('member m', 'tp.member_id = m.id')
-            ->where('DATE(tp.tanggal) >=', $start_date)
-            ->where('DATE(tp.tanggal) <=', $end_date)
+            ->where('DATE(tp.tanggal_transaksi) >=', $start_date)
+            ->where('DATE(tp.tanggal_transaksi) <=', $end_date)
             ->where('tp.member_id IS NOT NULL')
-            ->groupBy(['m.id', 'm.nama_member', 'm.no_hp'])
+            ->groupBy(['m.id', 'm.nama', 'm.no_hp', 'm.poin'])
             ->orderBy('total_belanja', 'DESC')
             ->get()
             ->getResultArray();
@@ -251,8 +296,8 @@ class Laporan extends BaseController
         $builderPenjualan = $this->db->table('transaksi_penjualan');
         $totalPenjualan = $builderPenjualan
             ->selectSum('total')
-            ->where('DATE(tanggal) >=', $start_date)
-            ->where('DATE(tanggal) <=', $end_date)
+            ->where('DATE(tanggal_transaksi) >=', $start_date)
+            ->where('DATE(tanggal_transaksi) <=', $end_date)
             ->get()
             ->getRow()
             ->total ?? 0;

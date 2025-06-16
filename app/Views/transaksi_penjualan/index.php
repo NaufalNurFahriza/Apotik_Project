@@ -2,9 +2,9 @@
 
 <?= $this->section('content'); ?>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Data Transaksi</h1>
-    <a href="<?= base_url('transaksi/tambah'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Transaksi
+    <h1 class="h3 mb-0 text-gray-800">Data Penjualan</h1>
+    <a href="<?= base_url('transaksi-penjualan/tambah'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Tambah Transaksi Penjualan
     </a>
 </div>
 
@@ -15,13 +15,12 @@
     </div>
 <?php endif; ?>
 
-
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Filter Tanggal</h6>
     </div>
     <div class="card-body">
-        <form action="<?= base_url('transaksi'); ?>" method="get" id="formFilter">
+        <form action="<?= base_url('transaksi-penjualan'); ?>" method="get" id="formFilter">
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -50,7 +49,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">List Transaksi</h6>
+        <h6 class="m-0 font-weight-bold text-primary">List Transaksi Penjualan</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -58,8 +57,9 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Nomor Faktur</th>
                         <th>Tanggal</th>
-                        <th>Admin</th>
+                        <th>TTK</th>
                         <th>Pembeli</th>
                         <th>Member</th>
                         <th>Total</th>
@@ -71,21 +71,24 @@
                     <?php foreach ($transaksi as $t) : ?>
                         <tr>
                             <td><?= $i++; ?></td>
+                            <td><?= $t['nomor_faktur'] ?? 'PJ-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?></td>
                             <td><?= date('d-m-Y H:i', strtotime($t['tanggal_transaksi'])); ?></td>
-                            <td><?= $t['nama_admin']; ?></td>
+                            <td><?= $t['nama'] ?? $t['nama_user']; ?></td>
                             <td><?= $t['nama_pembeli']; ?></td>
                             <td><?= $t['nama_member'] ? $t['nama_member'] : '-'; ?></td>
                             <td>Rp <?= number_format($t['total'], 0, ',', '.'); ?></td>
                             <td>
-                                <a href="<?= base_url('transaksi/detail/' . $t['id']); ?>" class="btn btn-info btn-sm">
+                                <a href="<?= base_url('transaksi-penjualan/detail/' . $t['id']); ?>" class="btn btn-info btn-sm">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="<?= base_url('transaksi/struk/' . $t['id']); ?>" class="btn btn-success btn-sm">
+                                <a href="<?= base_url('transaksi-penjualan/struk/' . $t['id']); ?>" class="btn btn-success btn-sm">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <a href="<?= base_url('transaksi/hapus/' . $t['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                <?php if (session()->get('role') === 'pemilik'): ?>
+                                <a href="<?= base_url('transaksi-penjualan/hapus/' . $t['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -103,7 +106,7 @@
         if (!$.fn.DataTable.isDataTable('.dataTable')) {
             // Initialize DataTable only if not already initialized
             $('.dataTable').DataTable({
-                "order": [[1, "desc"]], // Sort by date (column 1) in descending order
+                "order": [[2, "desc"]], // Sort by date (column 2) in descending order
                 "pageLength": 25, // Show 25 entries per page
                 "destroy": true // Allow table to be reinitialized
             });

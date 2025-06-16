@@ -11,7 +11,9 @@
 <?php if (session()->getFlashdata('error')) : ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <?= session()->getFlashdata('error'); ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 <?php endif; ?>
 
@@ -26,7 +28,7 @@
             <div class="row mb-3">
                 <label for="supplier_id" class="col-sm-2 col-form-label">Supplier</label>
                 <div class="col-sm-10">
-                    <select class="form-select" id="supplier_id" name="supplier_id" required>
+                    <select class="form-control" id="supplier_id" name="supplier_id" required>
                         <option value="" selected disabled>Pilih Supplier</option>
                         <?php foreach ($supplier as $s) : ?>
                             <option value="<?= $s['id']; ?>"><?= $s['nama_supplier']; ?> - <?= $s['alamat']; ?></option>
@@ -49,7 +51,7 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered" id="detailObat">
-                            <thead class="bg-light">
+                            <thead class="thead-light">
                                 <tr>
                                     <th>Obat</th>
                                     <th>Harga Beli</th>
@@ -61,7 +63,7 @@
                             <tbody>
                                 <tr id="row1">
                                     <td>
-                                        <select class="form-select obat-select" name="obat_id[]" required>
+                                        <select class="form-control obat-select" name="obat_id[]" required>
                                             <option value="" selected disabled>Pilih Obat</option>
                                         </select>
                                     </td>
@@ -96,9 +98,9 @@
             </div>
             
             <div class="row mb-3">
-                <label for="total" class="col-sm-2 col-form-label fw-bold">Total Pembelian</label>
+                <label for="total" class="col-sm-2 col-form-label font-weight-bold">Total Pembelian</label>
                 <div class="col-sm-10">
-                    <input type="number" class="form-control form-control-lg bg-light fw-bold" id="total" name="total" readonly>
+                    <input type="number" class="form-control form-control-lg bg-light font-weight-bold" id="total" name="total" readonly>
                 </div>
             </div>
             
@@ -194,7 +196,7 @@
             const newRow = `
                 <tr id="row${rowCount}">
                     <td>
-                        <select class="form-select obat-select" name="obat_id[]" required>
+                        <select class="form-control obat-select" name="obat_id[]" required>
                             <option value="" selected disabled>Pilih Obat</option>
                         </select>
                     </td>
