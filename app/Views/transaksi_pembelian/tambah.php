@@ -24,7 +24,7 @@
     <div class="card-body">
         <form action="<?= base_url('transaksi-pembelian/simpan'); ?>" method="post" id="formPembelian">
             <?= csrf_field(); ?>
-            
+
             <div class="row mb-3">
                 <label for="supplier_id" class="col-sm-2 col-form-label">Supplier</label>
                 <div class="col-sm-10">
@@ -37,6 +37,13 @@
                 </div>
             </div>
             
+            <div class="row mb-3">
+                <label for="nomor_faktur_supplier" class="col-sm-2 col-form-label">Nomor Faktur Supplier</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="nomor_faktur_supplier" name="nomor_faktur_supplier" required>
+                </div>
+            </div>
+
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h6 class="m-0 font-weight-bold">Detail Obat</h6>
@@ -89,14 +96,14 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="row mb-3">
                 <label for="total" class="col-sm-2 col-form-label font-weight-bold">Total Pembelian</label>
                 <div class="col-sm-10">
                     <input type="number" class="form-control form-control-lg bg-light font-weight-bold" id="total" name="total" readonly>
                 </div>
             </div>
-            
+
             <div class="row mb-3">
                 <div class="col-sm-10 offset-sm-2">
                     <button type="submit" class="btn btn-primary">Simpan Pembelian</button>
@@ -112,7 +119,7 @@
 <script>
     $(document).ready(function() {
         let rowCount = 1;
-        
+
         // Fungsi untuk menghitung subtotal
         function hitungSubtotal(row) {
             const harga = parseFloat($(row).find('.harga-beli').val()) || 0;
@@ -121,7 +128,7 @@
             $(row).find('.subtotal').val(subtotal);
             hitungTotal();
         }
-        
+
         // Fungsi untuk menghitung total
         function hitungTotal() {
             let total = 0;
@@ -130,11 +137,11 @@
             });
             $('#total').val(total);
         }
-        
+
         // Event ketika memilih supplier
         $('#supplier_id').change(function() {
             const supplier_id = $(this).val();
-            
+
             if (supplier_id) {
                 // Load obat berdasarkan supplier
                 $.ajax({
@@ -148,7 +155,7 @@
                     success: function(response) {
                         $('.obat-select').each(function() {
                             $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
-                            
+
                             if (response && response.length > 0) {
                                 response.forEach(function(obat) {
                                     $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
@@ -162,35 +169,35 @@
                 });
             }
         });
-        
+
         // Event ketika memilih obat - auto fill harga beli
         $(document).on('change', '.obat-select', function() {
             const selectedOption = $(this).find('option:selected');
             const hargaBeli = selectedOption.data('harga') || 0;
             const row = $(this).closest('tr');
-            
+
             // Set harga beli otomatis
             row.find('.harga-beli').val(hargaBeli);
-            
+
             // Hitung subtotal
             hitungSubtotal(row);
         });
-        
+
         // Event ketika mengubah qty
         $(document).on('change', '.qty', function() {
             const row = $(this).closest('tr');
             hitungSubtotal(row);
         });
-        
+
         // Tambah baris obat
         $('#btnTambahObat').click(function() {
             const supplier_id = $('#supplier_id').val();
-            
+
             if (!supplier_id) {
                 alert('Pilih supplier terlebih dahulu!');
                 return;
             }
-            
+
             rowCount++;
             const newRow = `
                 <tr id="row${rowCount}">
@@ -216,7 +223,7 @@
                 </tr>
             `;
             $('#detailObat tbody').append(newRow);
-            
+
             // Load obat untuk baris baru
             const newSelect = $(`#row${rowCount} .obat-select`);
             $.ajax({
@@ -235,34 +242,34 @@
                     }
                 }
             });
-            
+
             // Enable tombol hapus jika ada lebih dari 1 baris
             if ($('#detailObat tbody tr').length > 1) {
                 $('.btn-hapus').prop('disabled', false);
             }
         });
-        
+
         // Hapus baris obat
         $(document).on('click', '.btn-hapus', function() {
             $(this).closest('tr').remove();
             hitungTotal();
-            
+
             // Disable tombol hapus jika hanya ada 1 baris
             if ($('#detailObat tbody tr').length <= 1) {
                 $('.btn-hapus').prop('disabled', true);
             }
         });
-        
+
         // Validasi form sebelum submit
         $('#formPembelian').submit(function(e) {
             const total = parseFloat($('#total').val()) || 0;
-            
+
             if (total <= 0) {
                 e.preventDefault();
                 alert('Silakan isi detail obat terlebih dahulu!');
                 return false;
             }
-            
+
             return true;
         });
     });

@@ -3,14 +3,6 @@
 <?= $this->section('content'); ?>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Laporan Pembelian</h1>
-    <div>
-        <button onclick="exportExcel()" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
-            <i class="fas fa-file-excel fa-sm text-white-50"></i> Export Excel
-        </button>
-        <button onclick="window.print()" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-print fa-sm text-white-50"></i> Cetak
-        </button>
-    </div>
 </div>
 
 <!-- Filter Card -->
@@ -196,10 +188,16 @@
 <?= $this->section('scripts'); ?>
 <script>
     $(document).ready(function() {
+        // Destroy existing DataTable if exists
+        if ($.fn.DataTable.isDataTable('#dataTable')) {
+            $('#dataTable').DataTable().destroy();
+        }
+        
         // Initialize DataTable
         $('#dataTable').DataTable({
             "order": [[1, "desc"]], // Sort by date
-            "pageLength": 25
+            "pageLength": 25,
+            "destroy": true // Allow reinitializing
         });
         
         // Handle periode change
@@ -228,12 +226,5 @@
         $('#periode').trigger('change');
     }
     
-    function exportExcel() {
-        const form = $('#formFilter');
-        const action = form.attr('action');
-        form.attr('action', action + '/excel');
-        form.submit();
-        form.attr('action', action);
-    }
 </script>
 <?= $this->endSection(); ?>

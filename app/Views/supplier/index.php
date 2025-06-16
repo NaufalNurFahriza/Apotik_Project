@@ -40,7 +40,6 @@
                         <th>Alamat</th>
                         <th>Kota</th>
                         <th>Telepon</th>
-                        <th>Jumlah Obat</th>
                         <th>Opsi</th>
                     </tr>
                 </thead>
@@ -60,11 +59,6 @@
                             <td>
                                 <i class="fas fa-phone text-success"></i>
                                 <?= esc($s['telepon']); ?>
-                            </td>
-                            <td>
-                                <span class="badge badge-info">
-                                    <?= $s['jumlah_obat']; ?> obat
-                                </span>
                             </td>
                             <td>
                                 <a href="<?= base_url('supplier/edit/' . $s['id']); ?>" class="btn btn-info btn-sm" title="Edit">

@@ -113,6 +113,65 @@ class TransaksiPembelian extends BaseController
         return $this->response->setJSON($obat);
     }
 
+    public function cariFaktur()
+    {
+        // Cek login
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Unauthorized']);
+        }
+
+        $supplier_id = $this->request->getPost('supplier_id');
+        $nomor_faktur = $this->request->getPost('nomor_faktur');
+        
+        if (!$supplier_id || !$nomor_faktur) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Data tidak lengkap']);
+        }
+
+        // Simulasi data faktur (dalam implementasi nyata, ini bisa dari API supplier atau database faktur)
+        // Untuk demo, kita buat data dummy berdasarkan supplier
+        $supplier = $this->supplierModel->find($supplier_id);
+        if (!$supplier) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Supplier tidak ditemukan']);
+        }
+
+        // Get obat dari supplier untuk simulasi
+        $obatSupplier = $this->obatModel->where('supplier_id', $supplier_id)->findAll();
+        
+        if (empty($obatSupplier)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Tidak ada obat dari supplier ini']);
+        }
+
+        // Simulasi detail faktur (dalam implementasi nyata, data ini dari sistem supplier)
+        $detailFaktur = [];
+        foreach ($obatSupplier as $obat) {
+            // Simulasi qty random untuk demo
+            $qty = rand(10, 50);
+            $detailFaktur[] = [
+                'obat_id' => $obat['id'],
+                'nama_obat' => $obat['nama_obat'],
+                'harga_beli' => $obat['harga_beli'],
+                'qty' => $qty,
+                'satuan' => $obat['satuan'],
+                'nomor_batch' => 'BATCH-' . date('Ymd') . '-' . $obat['id'],
+                'expired_date' => date('Y-m-d', strtotime('+2 years'))
+            ];
+        }
+
+        $response = [
+            'success' => true,
+            'data' => [
+                'supplier' => $supplier,
+                'faktur' => [
+                    'nomor_faktur' => $nomor_faktur,
+                    'tanggal' => date('Y-m-d')
+                ],
+                'detail' => $detailFaktur
+            ]
+        ];
+
+        return $this->response->setJSON($response);
+    }
+
     public function simpan()
     {
         // Cek login

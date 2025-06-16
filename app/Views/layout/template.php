@@ -595,14 +595,9 @@
                 <div id="collapseLaporan" class="collapse <?= strpos(uri_string(), 'laporan') !== false ? 'show' : ''; ?>">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="<?= base_url('laporan/penjualan'); ?>">Laporan Penjualan</a>
-                        <a class="collapse-item" href="<?= base_url('laporan/obat-terlaris'); ?>">Obat Terlaris</a>
-                        <a class="collapse-item" href="<?= base_url('laporan/member'); ?>">Aktivitas Member</a>
                         <?php if (session()->get('role') === 'pemilik'): ?>
                         <div class="dropdown-divider"></div>
                         <a class="collapse-item" href="<?= base_url('laporan/pembelian'); ?>">Laporan Pembelian</a>
-                        <a class="collapse-item" href="<?= base_url('laporan/supplier'); ?>">Performance Supplier</a>
-                        <a class="collapse-item" href="<?= base_url('laporan/keuangan'); ?>">Laporan Keuangan</a>
-                        <a class="collapse-item" href="<?= base_url('laporan/stok'); ?>">Laporan Stok</a>
                         <?php endif; ?>
                     </div>
                 </div>

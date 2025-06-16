@@ -48,9 +48,9 @@
                             <td><?= $o['nama_obat']; ?></td>
                             <td>
                                 <?php if ($o['kategori'] == 'resep') : ?>
-                                    <span class="badge badge-warning">Resep</span>
+                                    <span class="text-dark font-weight-bold">Resep</span>
                                 <?php else : ?>
-                                    <span class="badge badge-success">Non-Resep</span>
+                                    <span class="text-dark font-weight-bold">Non-Resep</span>
                                 <?php endif; ?>
                             </td>
                             <td><?= $o['satuan']; ?></td>
@@ -59,13 +59,7 @@
                             <td><?= $o['produsen']; ?></td>
                             <td><?= $o['nama_supplier']; ?></td>
                             <td>
-                                <?php if ($o['stok'] <= 10) : ?>
-                                    <span class="badge badge-danger"><?= $o['stok']; ?></span>
-                                <?php elseif ($o['stok'] <= 50) : ?>
-                                    <span class="badge badge-warning"><?= $o['stok']; ?></span>
-                                <?php else : ?>
-                                    <span class="badge badge-success"><?= $o['stok']; ?></span>
-                                <?php endif; ?>
+                                <span class="text-dark font-weight-bold"><?= $o['stok']; ?></span>
                             </td>
                             <td>
                                 <a href="<?= base_url('obat/edit/' . $o['id']); ?>" class="btn btn-info btn-sm">
