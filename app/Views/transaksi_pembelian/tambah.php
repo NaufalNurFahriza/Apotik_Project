@@ -3,7 +3,7 @@
 <?= $this->section('content'); ?>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Beli dari Supplier</h1>
-    <a href="<?= base_url('transaksi-pembelian'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+    <a href="<?= base_url('transaksi-pembelian'); ?>" class="btn btn-secondary btn-sm shadow-sm">
         <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
     </a>
 </div>
@@ -11,15 +11,20 @@
 <?php if (session()->getFlashdata('error')) : ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <?= session()->getFlashdata('error'); ?>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->getFlashdata('pesan')) : ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <?= session()->getFlashdata('pesan'); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 bg-primary text-white">
-        <h6 class="m-0 font-weight-bold">Form Pembelian dari Supplier</h6>
+        <h6 class="m-0 fw-bold">Form Pembelian dari Supplier</h6>
     </div>
     <div class="card-body">
         <form action="<?= base_url('transaksi-pembelian/simpan'); ?>" method="post" id="formPembelian">
@@ -42,38 +47,50 @@
             <div class="row mb-3">
                 <label for="nomor_faktur_supplier" class="col-sm-2 col-form-label">Nomor Faktur Supplier</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="nomor_faktur_supplier" name="nomor_faktur_supplier" required>
+                    <input type="text" class="form-control" id="nomor_faktur_supplier" name="nomor_faktur_supplier" placeholder="Masukkan nomor faktur dari supplier" required>
                 </div>
             </div>
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h6 class="m-0 font-weight-bold">Detail Obat</h6>
+                    <h6 class="m-0 fw-bold">Detail Obat</h6>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered" id="detailObat">
-                            <thead class="thead-light">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Obat</th>
-                                    <th>Harga Beli</th>
-                                    <th>Jumlah</th>
-                                    <th>Subtotal</th>
-                                    <th>Aksi</th>
+                                    <th style="width: 22%;">Obat</th>
+                                    <th style="width: 10%;">Harga Beli</th>
+                                    <th style="width: 7%;">Jumlah</th>
+                                    <th style="width: 8%;">Satuan</th>
+                                    <th style="width: 12%;">Batch</th>
+                                    <th style="width: 10%;">Exp Date</th>
+                                    <th style="width: 10%;">Subtotal</th>
+                                    <th style="width: 6%;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr id="row1">
                                     <td>
-                                        <select class="form-control obat-select" name="obat_id[]" required>
+                                        <select class="form-select obat-select" name="obat_id[]" required>
                                             <option value="" selected disabled>Pilih Obat</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required readonly>
+                                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required disabled>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required>
+                                        <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required disabled>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control satuan" name="satuan[]" readonly disabled>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control batch" name="nomor_batch[]" placeholder="Batch" required disabled>
+                                    </td>
+                                    <td>
+                                        <input type="date" class="form-control expired" name="expired_date[]" required disabled>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control subtotal" readonly>
@@ -87,7 +104,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="5">
+                                    <td colspan="8">
                                         <button type="button" class="btn btn-success btn-sm" id="btnTambahObat">
                                             <i class="fas fa-plus"></i> Tambah Obat
                                         </button>
@@ -100,16 +117,20 @@
             </div>
 
             <div class="row mb-3">
-                <label for="total" class="col-sm-2 col-form-label font-weight-bold">Total Pembelian</label>
+                <label for="total" class="col-sm-2 col-form-label fw-bold">Total Pembelian</label>
                 <div class="col-sm-10">
-                    <input type="number" class="form-control form-control-lg bg-light font-weight-bold" id="total" name="total" readonly>
+                    <input type="number" class="form-control form-control-lg bg-light fw-bold" id="total" name="total" readonly>
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-sm-10 offset-sm-2">
-                    <button type="submit" class="btn btn-primary">Simpan Pembelian</button>
-                    <button type="reset" class="btn btn-secondary">Reset</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan Pembelian
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
                 </div>
             </div>
         </form>
@@ -121,7 +142,32 @@
 <script>
     $(document).ready(function() {
         let rowCount = 1;
-        let supplierData = <?= json_encode($supplier); ?>;
+        let supplierData = <?= json_encode($supplier ?? []); ?>;
+        let currentObatData = []; // Store current obat data
+
+        // Set default expiration date (2 years from now)
+        function setDefaultExpDate(element) {
+            const defaultDate = new Date();
+            defaultDate.setFullYear(defaultDate.getFullYear() + 2);
+            const formattedDate = defaultDate.toISOString().split('T')[0];
+            $(element).val(formattedDate);
+        }
+
+        // Function to enable/disable row fields based on medicine selection
+        function toggleRowFields(row, enable) {
+            const inputs = row.find('.harga-beli, .qty, .batch, .expired');
+            if (enable) {
+                inputs.prop('disabled', false).removeClass('bg-light');
+            } else {
+                inputs.prop('disabled', true).addClass('bg-light').val('');
+                row.find('.subtotal').val('');
+                row.find('.satuan').val(''); // Clear satuan when disabled
+            }
+            hitungTotal();
+        }
+
+        // Set default expiration date for first row
+        setDefaultExpDate('#row1 .expired');
 
         // Supplier Search Functionality
         let searchTimeout;
@@ -185,14 +231,14 @@
             $('#supplier_search').val('');
             $('#supplier_id').val('');
             $('#supplier_dropdown').hide();
+            currentObatData = [];
             
-            // Clear obat options
+            // Clear obat options and disable all fields
             $('.obat-select').each(function() {
                 $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
+                toggleRowFields($(this).closest('tr'), false);
             });
             
-            // Reset form
-            $('.harga-beli, .qty, .subtotal').val('');
             $('#total').val('');
         });
 
@@ -214,18 +260,27 @@
                 },
                 dataType: 'json',
                 success: function(response) {
-                    $('.obat-select').each(function() {
-                        $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
-
-                        if (response && response.length > 0) {
-                            response.forEach(function(obat) {
-                                $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}">${obat.nama_obat} (Stok: ${obat.stok})</option>`);
-                            }.bind(this));
-                        }
-                    });
+                    currentObatData = response || [];
+                    populateObatDropdowns();
                 },
                 error: function() {
                     alert('Gagal memuat data obat');
+                    currentObatData = [];
+                }
+            });
+        }
+
+        // Populate all obat dropdowns with current data
+        function populateObatDropdowns() {
+            $('.obat-select').each(function() {
+                const currentValue = $(this).val();
+                $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
+
+                if (currentObatData.length > 0) {
+                    currentObatData.forEach(function(obat) {
+                        const selected = currentValue == obat.id ? 'selected' : '';
+                        $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}" data-satuan="${obat.satuan}" ${selected}>${obat.nama_obat} (Stok: ${obat.stok})</option>`);
+                    }.bind(this));
                 }
             });
         }
@@ -235,7 +290,7 @@
             const harga = parseFloat($(row).find('.harga-beli').val()) || 0;
             const qty = parseFloat($(row).find('.qty').val()) || 0;
             const subtotal = harga * qty;
-            $(row).find('.subtotal').val(subtotal);
+            $(row).find('.subtotal').val(Math.round(subtotal)); // Bulatkan ke integer
             hitungTotal();
         }
 
@@ -245,24 +300,37 @@
             $('.subtotal').each(function() {
                 total += parseFloat($(this).val()) || 0;
             });
-            $('#total').val(total);
+            $('#total').val(Math.round(total)); // Bulatkan total ke integer
         }
 
-        // Event ketika memilih obat - auto fill harga beli
+        // Event ketika memilih obat - enable fields and auto fill harga beli
         $(document).on('change', '.obat-select', function() {
             const selectedOption = $(this).find('option:selected');
-            const hargaBeli = selectedOption.data('harga') || 0;
             const row = $(this).closest('tr');
-
-            // Set harga beli otomatis
-            row.find('.harga-beli').val(hargaBeli);
-
-            // Hitung subtotal
-            hitungSubtotal(row);
+            
+            if ($(this).val()) {
+                // Enable other fields
+                toggleRowFields(row, true);
+                
+                // Auto fill harga beli and satuan
+                const hargaBeli = selectedOption.data('harga') || 0;
+                const satuan = selectedOption.data('satuan') || '';
+                row.find('.harga-beli').val(hargaBeli);
+                row.find('.satuan').val(satuan);
+                
+                // Set default expired date
+                setDefaultExpDate(row.find('.expired'));
+                
+                // Hitung subtotal
+                hitungSubtotal(row);
+            } else {
+                // Disable other fields
+                toggleRowFields(row, false);
+            }
         });
 
-        // Event ketika mengubah qty
-        $(document).on('change', '.qty', function() {
+        // Event ketika mengubah harga beli atau qty
+        $(document).on('change input', '.harga-beli, .qty', function() {
             const row = $(this).closest('tr');
             hitungSubtotal(row);
         });
@@ -276,19 +344,37 @@
                 return;
             }
 
+            if (currentObatData.length === 0) {
+                alert('Tidak ada obat tersedia untuk supplier ini!');
+                return;
+            }
+
             rowCount++;
+            const defaultExpDate = new Date();
+            defaultExpDate.setFullYear(defaultExpDate.getFullYear() + 2);
+            const formattedDate = defaultExpDate.toISOString().split('T')[0];
+
             const newRow = `
                 <tr id="row${rowCount}">
                     <td>
-                        <select class="form-control obat-select" name="obat_id[]" required>
+                        <select class="form-select obat-select" name="obat_id[]" required>
                             <option value="" selected disabled>Pilih Obat</option>
                         </select>
                     </td>
                     <td>
-                        <input type="number" class="form-control harga-beli" name="harga_beli[]" min="0" step="0.01" required readonly>
+                        <input type="number" class="form-control harga-beli bg-light" name="harga_beli[]" min="0" step="0.01" required disabled>
                     </td>
                     <td>
-                        <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required>
+                        <input type="number" class="form-control qty bg-light" name="qty[]" min="1" value="1" required disabled>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control satuan bg-light" name="satuan[]" readonly disabled>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control batch bg-light" name="nomor_batch[]" placeholder="Batch" required disabled>
+                    </td>
+                    <td>
+                        <input type="date" class="form-control expired bg-light" name="expired_date[]" value="${formattedDate}" required disabled>
                     </td>
                     <td>
                         <input type="number" class="form-control subtotal" readonly>
@@ -302,8 +388,8 @@
             `;
             $('#detailObat tbody').append(newRow);
 
-            // Load obat untuk baris baru
-            loadObatBySupplier(supplier_id);
+            // Populate obat dropdown for new row
+            populateObatDropdowns();
 
             // Enable tombol hapus jika ada lebih dari 1 baris
             if ($('#detailObat tbody tr').length > 1) {
@@ -326,6 +412,7 @@
         $('#formPembelian').submit(function(e) {
             const supplier_id = $('#supplier_id').val();
             const total = parseFloat($('#total').val()) || 0;
+            const nomor_faktur_supplier = $('#nomor_faktur_supplier').val().trim();
 
             if (!supplier_id) {
                 e.preventDefault();
@@ -333,9 +420,65 @@
                 return false;
             }
 
+            if (!nomor_faktur_supplier) {
+                e.preventDefault();
+                alert('Silakan masukkan nomor faktur supplier!');
+                return false;
+            }
+
             if (total <= 0) {
                 e.preventDefault();
                 alert('Silakan isi detail obat terlebih dahulu!');
+                return false;
+            }
+
+            // Validasi setiap baris obat
+            let validationError = false;
+            $('#detailObat tbody tr').each(function() {
+                const obatSelect = $(this).find('.obat-select');
+                const hargaBeli = $(this).find('.harga-beli');
+                const qty = $(this).find('.qty');
+                const batch = $(this).find('.batch');
+                const expired = $(this).find('.expired');
+
+                if (!obatSelect.val()) {
+                    validationError = true;
+                    obatSelect.focus();
+                    alert('Silakan pilih obat untuk semua baris!');
+                    return false;
+                }
+
+                if (!hargaBeli.val() || parseFloat(hargaBeli.val()) <= 0) {
+                    validationError = true;
+                    hargaBeli.focus();
+                    alert('Silakan isi harga beli yang valid!');
+                    return false;
+                }
+
+                if (!qty.val() || parseInt(qty.val()) <= 0) {
+                    validationError = true;
+                    qty.focus();
+                    alert('Silakan isi jumlah yang valid!');
+                    return false;
+                }
+
+                if (!batch.val().trim()) {
+                    validationError = true;
+                    batch.focus();
+                    alert('Silakan isi nomor batch!');
+                    return false;
+                }
+
+                if (!expired.val()) {
+                    validationError = true;
+                    expired.focus();
+                    alert('Silakan isi tanggal kadaluarsa!');
+                    return false;
+                }
+            });
+
+            if (validationError) {
+                e.preventDefault();
                 return false;
             }
 

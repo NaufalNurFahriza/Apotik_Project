@@ -88,7 +88,7 @@
         <div class="table-responsive">
             <table class="table invoice-table mb-0">
                 <thead>
-                    <tr>
+                   <tr>
                         <th class="text-center" style="width: 4%;">No</th>
                         <th style="width: 30%;">Nama Barang</th>
                         <th class="text-center" style="width: 7%;">Qty</th>

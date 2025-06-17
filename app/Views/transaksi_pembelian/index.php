@@ -78,8 +78,7 @@
                         <tr>
                             <td><?= $i++; ?></td>
                             <td>
-                                <?= $t['nomor_faktur'] ?? 'PB-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?><br>
-                                <small class="text-muted">Supplier: <?= $t['nomor_faktur_supplier'] ?? '-'; ?></small>
+                                <?= $t['nomor_faktur'] ?? 'PB-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?>
                             </td>
                             <td><?= date('d-m-Y', strtotime($t['tanggal'])); ?></td>
                             <td><?= $t['nama_user']; ?></td>
