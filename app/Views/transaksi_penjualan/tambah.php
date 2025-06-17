@@ -25,7 +25,7 @@
             <div class="row mb-3">
                 <label for="nama_pembeli" class="col-sm-2 col-form-label">Nama Pembeli</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="nama_pembeli" name="nama_pembeli" required>
+                    <input type="text" class="form-control" id="nama_pembeli" name="nama_pembeli" placeholder="Masukkan nama pembeli atau biarkan kosong untuk 'Pembeli Umum'">
                 </div>
             </div>
             <div class="row mb-3">
@@ -367,10 +367,16 @@
             hitungTotal();
         });
         
-        // Validasi form sebelum submit
-        $('#formTransaksi').submit(function(e) {
+        // Enhanced form submission handler - add this before the existing submit handler
+        $('#formTransaksi').on('submit', function(e) {
+            // Always ensure nama_pembeli has a value before submission
+            let namaPembeli = $('#nama_pembeli').val().trim();
+            if (namaPembeli === '' || namaPembeli === null || namaPembeli === undefined) {
+                $('#nama_pembeli').val('Pembeli Umum');
+                console.log('Set nama pembeli to: Pembeli Umum');
+            }
+            
             const subtotal = parseFloat($('#subtotal').val()) || 0;
-            const total = parseFloat($('#total').val()) || 0;
             
             if (subtotal <= 0) {
                 e.preventDefault();
@@ -378,7 +384,17 @@
                 return false;
             }
             
+            // Debug log
+            console.log('Form submitted with nama_pembeli:', $('#nama_pembeli').val());
             return true;
+        });
+        
+        // Backup handler - add this after the existing submit handler
+        $('#formTransaksi').on('beforeunload submit', function() {
+            let namaPembeli = $('#nama_pembeli').val().trim();
+            if (!namaPembeli) {
+                $('#nama_pembeli').val('Pembeli Umum');
+            }
         });
         
         // Data member untuk search
@@ -513,7 +529,7 @@ function clearMemberSelection() {
     $('#member_poin').val('0');
     $('#search_nama').val('');
     $('#search_hp').val('');
-    $('#nama_pembeli').val(''); // Add this line to clear buyer name
+    $('#nama_pembeli').val('Pembeli Umum'); // Set default instead of empty
     $('#poinMemberSection').hide();
     $('#poin_tersedia').val(0);
     $('#poin_digunakan').val(0);
@@ -531,6 +547,10 @@ $('#btnTambahMemberBaru').click(function(e) {
 
 // Update event handler untuk reset form
 $('button[type="reset"]').click(function() {
+    // Set default name after reset
+    setTimeout(function() {
+        $('#nama_pembeli').val('Pembeli Umum');
+    }, 100);
     clearMemberSelection();
 });
 
