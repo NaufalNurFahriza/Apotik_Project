@@ -89,13 +89,14 @@
             <table class="table invoice-table mb-0">
                 <thead>
                     <tr>
-                        <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 35%;">Nama Barang</th>
-                        <th class="text-center" style="width: 8%;">Qty</th>
-                        <th class="text-center" style="width: 10%;">Satuan</th>
-                        <th class="text-center" style="width: 15%;">Batch</th>
+                        <th class="text-center" style="width: 4%;">No</th>
+                        <th style="width: 30%;">Nama Barang</th>
+                        <th class="text-center" style="width: 7%;">Qty</th>
+                        <th class="text-center" style="width: 8%;">Satuan</th>
+                        <th class="text-center" style="width: 12%;">Batch</th>
+                        <th class="text-center" style="width: 9%;">Exp Date</th>
                         <th class="text-end" style="width: 12%;">Harga</th>
-                        <th class="text-end" style="width: 15%;">Subtotal</th>
+                        <th class="text-end" style="width: 13%;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,10 +112,12 @@
                             <td class="text-center"><?= $d['satuan'] ?? 'tablet'; ?></td>
                             <td class="text-center">
                                 <small>
-                                    <?= $d['nomor_batch'] ?? '-'; ?><br>
-                                    <span class="text-muted">
-                                        <?= isset($d['expired_date']) ? date('m/Y', strtotime($d['expired_date'])) : '-'; ?>
-                                    </span>
+                                    <?= $d['nomor_batch'] ?? '-'; ?>
+                                </small>
+                            </td>
+                            <td class="text-center">
+                                <small class="text-muted">
+                                    <?= isset($d['expired_date']) ? date('m/Y', strtotime($d['expired_date'])) : '-'; ?>
                                 </small>
                             </td>
                             <td class="text-end">Rp <?= number_format($d['harga_beli'], 0, ',', '.'); ?></td>
@@ -123,18 +126,27 @@
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
+                    <?php 
+                    // Calculate correct total from detail items
+                    $calculated_total = 0;
+                    foreach ($detail as $d) {
+                        $calculated_total += ($d['qty'] * $d['harga_beli']);
+                    }
+                    ?>
                     <tr>
-                        <td colspan="6" class="text-end font-weight-bold border-0 pt-3"></td>
+                        <td colspan="7" class="text-end font-weight-bold border-0 pt-3">
+                            <strong>Total</strong>
+                        </td>
                         <td class="text-end font-weight-bold border-0 pt-3">
-                            Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?>
+                            <strong>Rp <?= number_format($calculated_total, 0, ',', '.'); ?></strong>
                         </td>
                     </tr>
                     <tr class="total-section">
-                        <td colspan="6" class="text-end font-weight-bold py-3">
+                        <td colspan="7" class="text-end font-weight-bold py-3">
                             <strong>Grand Total</strong>
                         </td>
                         <td class="text-end font-weight-bold py-3">
-                            <strong>Rp <?= number_format($transaksi['total'], 0, ',', '.'); ?></strong>
+                            <strong>Rp <?= number_format($calculated_total, 0, ',', '.'); ?></strong>
                         </td>
                     </tr>
                 </tfoot>

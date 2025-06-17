@@ -40,16 +40,7 @@
                         <tr>
                             <td><?= $i++; ?></td>
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-sm me-2">
-                                        <div class="avatar-title bg-primary rounded-circle">
-                                            <?= strtoupper(substr($user['nama'], 0, 1)); ?>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <strong><?= $user['nama']; ?></strong>
-                                    </div>
-                                </div>
+                                <strong><?= $user['nama']; ?></strong>
                             </td>
                             <td><?= $user['username']; ?></td>
                             <td>
@@ -111,19 +102,5 @@
 
 <?= $this->section('scripts'); ?>
 <style>
-.avatar-sm {
-    width: 2rem;
-    height: 2rem;
-}
-
-.avatar-title {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    font-weight: 600;
-}
 </style>
 <?= $this->endSection(); ?>
