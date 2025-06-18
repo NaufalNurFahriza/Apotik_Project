@@ -10,10 +10,10 @@ class UserModel extends Model
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $allowedFields = ['nama', 'username', 'password', 'role'];
-    protected $useTimestamps = true;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
+    
+    // DISABLE timestamps karena kolom sudah di-drop
+    protected $useTimestamps = false;
+    
     protected $validationRules = [
         'nama' => 'required|min_length[3]|max_length[100]',
         'username' => 'required|min_length[3]|max_length[20]|is_unique[user.username,id,{id}]',

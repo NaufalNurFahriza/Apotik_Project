@@ -15,13 +15,13 @@ class User extends BaseController
 
     public function index()
     {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
+        // Cek role - hanya pemilik yang bisa akses
+        if (session()->get('role') !== 'pemilik') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak');
         }
 
         $data = [
-            'title' => 'Data TTK (Tenaga Teknis Kefarmasian)',
+            'title' => 'Data TTK',
             'users' => $this->userModel->findAll()
         ];
 
@@ -30,9 +30,9 @@ class User extends BaseController
 
     public function tambah()
     {
-        // Cek login dan role
-        if (!session()->get('logged_in') || session()->get('role') != 'pemilik') {
-            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak. Hanya pemilik yang dapat menambah user.');
+        // Cek role - hanya pemilik yang bisa akses
+        if (session()->get('role') !== 'pemilik') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak');
         }
 
         $data = [
@@ -50,7 +50,14 @@ class User extends BaseController
             return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak.');
         }
 
-        // Validasi input dengan confirm password
+        // STEP 1: Cek apakah data POST ada
+        $postData = $this->request->getPost();
+        if (empty($postData)) {
+            session()->setFlashdata('error', 'Tidak ada data yang dikirim');
+            return redirect()->to(base_url('user/tambah'));
+        }
+
+        // STEP 2: Validasi input
         $rules = [
             'nama' => 'required|min_length[3]|max_length[100]',
             'username' => 'required|min_length[3]|max_length[20]|is_unique[user.username]',
@@ -60,10 +67,11 @@ class User extends BaseController
         ];
 
         if (!$this->validate($rules)) {
+            session()->setFlashdata('error', 'Validasi gagal: ' . implode(', ', $this->validator->getErrors()));
             return redirect()->to(base_url('user/tambah'))->withInput()->with('validation', $this->validator);
         }
 
-        // Simpan data
+        // STEP 3: Siapkan data
         $data = [
             'nama' => esc($this->request->getPost('nama')),
             'username' => esc($this->request->getPost('username')),
@@ -71,108 +79,119 @@ class User extends BaseController
             'role' => $this->request->getPost('role')
         ];
 
-        $this->userModel->insert($data);
-        session()->setFlashdata('pesan', 'Data TTK berhasil ditambahkan');
-        return redirect()->to(base_url('user'));
+        // STEP 4: Coba insert dengan error handling
+        try {
+            $result = $this->userModel->insert($data);
+            
+            if ($result) {
+                session()->setFlashdata('pesan', 'Data TTK berhasil ditambahkan');
+                return redirect()->to(base_url('user'));
+            } else {
+                // Ambil error dari model
+                $errors = $this->userModel->errors();
+                session()->setFlashdata('error', 'Gagal menyimpan: ' . implode(', ', $errors));
+                return redirect()->to(base_url('user/tambah'))->withInput();
+            }
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Error: ' . $e->getMessage());
+            return redirect()->to(base_url('user/tambah'))->withInput();
+        }
     }
 
     public function edit($id)
     {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
+        // Cek role - hanya pemilik yang bisa akses
+        if (session()->get('role') !== 'pemilik') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak');
         }
 
-        // Cek role - hanya pemilik atau edit data sendiri
-        if (session()->get('role') != 'pemilik' && session()->get('id') != $id) {
-            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak.');
+        $user = $this->userModel->find($id);
+        if (!$user) {
+            return redirect()->to(base_url('user'))->with('error', 'Data tidak ditemukan');
         }
 
         $data = [
             'title' => 'Edit TTK',
-            'user' => $this->userModel->find($id),
+            'user' => $user,
             'validation' => \Config\Services::validation()
         ];
-
-        if (!$data['user']) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('User tidak ditemukan');
-        }
 
         return view('user/edit', $data);
     }
 
     public function update($id)
     {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
+        // Cek role - hanya pemilik yang bisa akses
+        if (session()->get('role') !== 'pemilik') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak');
         }
 
-        // Cek role - hanya pemilik atau edit data sendiri
-        if (session()->get('role') != 'pemilik' && session()->get('id') != $id) {
-            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak.');
-        }
-
-        // Validasi input
+        // Validasi
         $rules = [
             'nama' => 'required|min_length[3]|max_length[100]',
-            'username' => 'required|min_length[3]|max_length[20]|is_unique[user.username,id,' . $id . ']',
+            'username' => "required|min_length[3]|max_length[20]|is_unique[user.username,id,$id]",
             'role' => 'required|in_list[ttk,pemilik]'
         ];
 
-        // Tambah validasi password jika diisi
-        if ($this->request->getPost('password') != '') {
-            $rules['password'] = 'required|min_length[6]';
-            $rules['confirm_password'] = 'required|matches[password]';
+        if (!empty($this->request->getPost('password'))) {
+            $rules['password'] = 'min_length[6]';
+            $rules['confirm_password'] = 'matches[password]';
         }
 
         if (!$this->validate($rules)) {
             return redirect()->to(base_url('user/edit/' . $id))->withInput()->with('validation', $this->validator);
         }
 
-        // Update data
+        // Ambil data
         $data = [
             'nama' => esc($this->request->getPost('nama')),
             'username' => esc($this->request->getPost('username')),
-            'role' => esc($this->request->getPost('role'))
+            'role' => $this->request->getPost('role')
         ];
 
-        // Update password jika diisi
-        if ($this->request->getPost('password') != '') {
+        if (!empty($this->request->getPost('password'))) {
             $data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
         }
 
-        $this->userModel->update($id, $data);
-        session()->setFlashdata('pesan', 'Data TTK berhasil diupdate');
+        // Update
+        try {
+            $result = $this->userModel->update($id, $data);
+            if ($result) {
+                session()->setFlashdata('pesan', 'Data TTK berhasil diubah');
+            } else {
+                session()->setFlashdata('error', 'Gagal mengubah data');
+            }
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Error: ' . $e->getMessage());
+        }
+        
         return redirect()->to(base_url('user'));
     }
 
     public function hapus($id)
     {
-        // Cek login dan role
-        if (!session()->get('logged_in') || session()->get('role') != 'pemilik') {
-            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak.');
+        // Cek role - hanya pemilik yang bisa akses
+        if (session()->get('role') !== 'pemilik') {
+            return redirect()->to(base_url('dashboard'))->with('error', 'Akses ditolak');
         }
 
-        // Cek apakah user yang akan dihapus bukan user yang sedang login
+        // Tidak bisa hapus diri sendiri
         if ($id == session()->get('id')) {
-            session()->setFlashdata('error', 'Tidak dapat menghapus akun sendiri');
-            return redirect()->to(base_url('user'));
+            return redirect()->to(base_url('user'))->with('error', 'Tidak dapat menghapus akun sendiri');
         }
 
-        // Cek apakah user masih memiliki transaksi
-        $db = \Config\Database::connect();
-        $transaksiPenjualan = $db->table('transaksi_penjualan')->where('user_id', $id)->countAllResults();
-        $transaksiPembelian = $db->table('transaksi_pembelian')->where('user_id', $id)->countAllResults();
-
-        if ($transaksiPenjualan > 0 || $transaksiPembelian > 0) {
-            session()->setFlashdata('error', 'Tidak dapat menghapus TTK yang masih memiliki riwayat transaksi');
-            return redirect()->to(base_url('user'));
+        try {
+            $result = $this->userModel->delete($id);
+            
+            if ($result) {
+                session()->setFlashdata('pesan', 'TTK berhasil dihapus');
+            } else {
+                session()->setFlashdata('error', 'Gagal menghapus TTK');
+            }
+        } catch (\Exception $e) {
+            session()->setFlashdata('error', 'Error: ' . $e->getMessage());
         }
-
-        // Hapus data
-        $this->userModel->delete($id);
-        session()->setFlashdata('pesan', 'Data TTK berhasil dihapus');
+        
         return redirect()->to(base_url('user'));
     }
 }

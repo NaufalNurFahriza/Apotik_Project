@@ -27,11 +27,10 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="25%">Nama TTK</th>
-                        <th width="20%">Username</th>
+                        <th width="35%">Nama TTK</th>
+                        <th width="25%">Username</th>
                         <th width="15%">Role</th>
-                        <th width="20%">Tanggal Dibuat</th>
-                        <th width="15%">Aksi</th>
+                        <th width="20%">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,7 +49,6 @@
                                     <span class="badge bg-primary">TTK</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= date('d/m/Y H:i', strtotime($user['created_at'] ?? 'now')); ?></td>
                             <td>
                                 <div class="btn-group" role="group">
                                     <a href="<?= base_url('user/edit/' . $user['id']); ?>" class="btn btn-info btn-sm" title="Edit">
