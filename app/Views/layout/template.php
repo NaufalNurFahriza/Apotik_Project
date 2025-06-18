@@ -515,7 +515,7 @@
             <hr class="sidebar-divider">
             
             <!-- Obat - Only visible to pemilik -->
-            <?php if (session()->get('role') === 'pemilik' || session()->get('role') === 'admin'): ?>
+            <?php if (session()->get('role') === 'pemilik' || session()->get('role') === 'ttk'): ?>
             <li class="nav-item <?= strpos(uri_string(), 'obat') !== false ? 'active' : ''; ?>">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseObat">
                     <i class="fas fa-fw fa-pills"></i>

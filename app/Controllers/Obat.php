@@ -24,7 +24,7 @@ class Obat extends BaseController
         }
     
         // Cek role (if this exists)
-        if (session()->get('role') != 'pemilik' && session()->get('role') != 'ttk') {
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
             return redirect()->to(base_url('dashboard'));
         }
 
@@ -41,6 +41,11 @@ class Obat extends BaseController
         // Cek login
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('auth'));
+        }
+
+        // Cek role (if this exists)
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
+            return redirect()->to(base_url('dashboard'));
         }
 
         $data = [
@@ -82,6 +87,11 @@ class Obat extends BaseController
         // Cek login
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('auth'));
+        }
+
+        // Cek role (if this exists)
+        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
+            return redirect()->to(base_url('dashboard'));
         }
 
         $data = [
