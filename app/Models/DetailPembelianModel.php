@@ -13,13 +13,32 @@ class DetailPembelianModel extends Model
     protected $useSoftDeletes = false;
     protected $allowedFields = ['pembelian_id', 'obat_id', 'qty', 'harga_beli', 'nomor_batch', 'expired_date', 'satuan'];
 
-    // Validasi
+    // Validasi - HAPUS subtotal yang tidak ada
     protected $validationRules = [
         'pembelian_id' => 'required|numeric',
         'obat_id' => 'required|numeric',
         'qty' => 'required|numeric',
-        'harga_beli' => 'required|numeric',
-        'subtotal' => 'required|numeric'
+        'harga_beli' => 'required|numeric'
+        // HAPUS: 'subtotal' => 'required|numeric'
+    ];
+
+    protected $validationMessages = [
+        'pembelian_id' => [
+            'required' => 'ID Pembelian harus diisi',
+            'numeric' => 'ID Pembelian harus berupa angka'
+        ],
+        'obat_id' => [
+            'required' => 'ID Obat harus diisi',
+            'numeric' => 'ID Obat harus berupa angka'
+        ],
+        'qty' => [
+            'required' => 'Quantity harus diisi',
+            'numeric' => 'Quantity harus berupa angka'
+        ],
+        'harga_beli' => [
+            'required' => 'Harga beli harus diisi',
+            'numeric' => 'Harga beli harus berupa angka'
+        ]
     ];
 
     // Get detail dengan obat

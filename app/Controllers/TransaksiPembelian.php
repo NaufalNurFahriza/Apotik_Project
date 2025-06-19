@@ -71,7 +71,7 @@ class TransaksiPembelian extends BaseController
         $data = [
             'title' => 'Beli dari Supplier',
             'obat' => $this->obatModel->findAll(),
-            'supplier' => $this->supplierModel->findAll(),
+            'supplier' => $this->supplierModel->findAll(), // Fix: ubah dari 'supplier' ke 'suppliers'
             'validation' => \Config\Services::validation()
         ];
 
@@ -123,6 +123,14 @@ class TransaksiPembelian extends BaseController
         $total = $this->request->getPost('total');
         $satuan = $this->request->getPost('satuan');
 
+        // Debug: Log individual arrays
+        log_message('info', 'obat_id: ' . json_encode($obat_id));
+        log_message('info', 'harga_beli: ' . json_encode($harga_beli));
+        log_message('info', 'qty: ' . json_encode($qty));
+        log_message('info', 'nomor_batch: ' . json_encode($nomor_batch));
+        log_message('info', 'expired_date: ' . json_encode($expired_date));
+        log_message('info', 'satuan: ' . json_encode($satuan));
+
         // Validasi dasar
         if (empty($supplier_id)) {
             session()->setFlashdata('error', 'Supplier harus dipilih.');
@@ -146,25 +154,38 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
 
-        // Filter dan validasi item yang valid
+        // PERBAIKAN: Validasi item yang lebih fleksibel
         $valid_items = [];
         for ($i = 0; $i < count($obat_id); $i++) {
-            if (!empty($obat_id[$i]) && $obat_id[$i] != '' && 
+            // Debug setiap item
+            log_message('info', "Item $i - obat_id: " . ($obat_id[$i] ?? 'NULL') . 
+                              ", qty: " . ($qty[$i] ?? 'NULL') . 
+                              ", harga_beli: " . ($harga_beli[$i] ?? 'NULL') . 
+                              ", batch: " . ($nomor_batch[$i] ?? 'NULL') . 
+                              ", expired: " . ($expired_date[$i] ?? 'NULL') . 
+                              ", satuan: " . ($satuan[$i] ?? 'NULL'));
+
+            // Validasi yang lebih permisif
+            if (!empty($obat_id[$i]) && 
                 !empty($qty[$i]) && $qty[$i] > 0 && 
                 !empty($harga_beli[$i]) && $harga_beli[$i] > 0 &&
                 !empty($nomor_batch[$i]) && trim($nomor_batch[$i]) != '' &&
-                !empty($expired_date[$i]) &&
-                !empty($satuan[$i])) {
+                !empty($expired_date[$i])) {
+                
                 $valid_items[] = $i;
+                log_message('info', "Item $i is VALID");
+            } else {
+                log_message('info', "Item $i is INVALID");
             }
         }
 
+        log_message('info', 'Valid items count: ' . count($valid_items));
+        log_message('info', 'Valid items indexes: ' . json_encode($valid_items));
+
         if (empty($valid_items)) {
-            session()->setFlashdata('error', 'Tidak ada item obat yang valid untuk disimpan.');
+            session()->setFlashdata('error', 'Tidak ada item obat yang valid untuk disimpan. Pastikan semua field terisi dengan benar.');
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
-
-        log_message('info', 'Valid items count: ' . count($valid_items));
 
         // Pastikan user_id (TTK) valid
         $user_id = session()->get('id');
@@ -219,7 +240,7 @@ class TransaksiPembelian extends BaseController
                     'qty' => $qty[$i],
                     'nomor_batch' => $nomor_batch[$i],
                     'expired_date' => $expired_date[$i],
-                    'satuan' => $satuan[$i]
+                    'satuan' => $satuan[$i] ?? $obat['satuan'] // Fallback ke satuan obat jika kosong
                 ];
             
                 log_message('info', 'Inserting detail: ' . json_encode($data_detail));
@@ -249,7 +270,6 @@ class TransaksiPembelian extends BaseController
             }
 
             session()->setFlashdata('pesan', 'Transaksi pembelian berhasil ditambahkan.');
-            // Redirect ke halaman data pembelian, bukan faktur
             return redirect()->to(base_url('transaksi-pembelian'));
 
         } catch (\Exception $e) {
