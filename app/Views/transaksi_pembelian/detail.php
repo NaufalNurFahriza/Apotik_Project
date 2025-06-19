@@ -23,7 +23,7 @@
                 <table class="table">
                     <tr>
                         <th>Nomor Faktur</th>
-                        <td>: <?= $transaksi['nomor_faktur'] ?? 'PB-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                        <td>: <?= $transaksi['no_faktur_beli'] ?? 'PB-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?></td>
                     </tr>
                     <tr>
                         <th>Tanggal</th>

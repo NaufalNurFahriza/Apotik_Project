@@ -11,7 +11,7 @@ class TransaksiPenjualanModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['tanggal_transaksi', 'user_id', 'nama_pembeli', 'member_id', 'total', 'poin_didapat', 'poin_digunakan', 'potongan_harga'];
+    protected $allowedFields = ['no_faktur_jual', 'tanggal_transaksi', 'user_id', 'nama_pembeli', 'member_id', 'total', 'poin_didapat', 'poin_digunakan', 'potongan_harga'];
 
     // Mendapatkan semua transaksi dengan nama user
     public function getAllTransaksi()

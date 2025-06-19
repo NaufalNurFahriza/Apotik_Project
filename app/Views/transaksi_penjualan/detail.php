@@ -4,10 +4,10 @@
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Detail Transaksi Penjualan</h1>
     <div>
-        <a href="<?= base_url('transaksi'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+        <a href="<?= base_url('transaksi-penjualan'); ?>" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
             <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
         </a>
-        <a href="<?= base_url('transaksi/struk/' . $transaksi['id']); ?>" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
+        <a href="<?= base_url('transaksi-penjualan/struk/' . $transaksi['id']); ?>" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
             <i class="fas fa-print fa-sm text-white-50"></i> Cetak Struk
         </a>
     </div>
@@ -23,7 +23,7 @@
                 <table class="table">
                     <tr>
                         <th>Nomor Faktur</th>
-                        <td>: <?= $transaksi['nomor_faktur'] ?? 'PJ-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                        <td>: <?= $transaksi['no_faktur_jual'] ?? 'PJ-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?></td>
                     </tr>
                     <tr>
                         <th>Tanggal</th>
@@ -31,7 +31,7 @@
                     </tr>
                     <tr>
                         <th>TTK</th>
-                        <td>: <?= $transaksi['nama'] ?? $transaksi['nama_user']; ?></td>
+                        <td>: <?= $transaksi['nama_admin'] ?? $transaksi['nama_user']; ?></td>
                     </tr>
                     <tr>
                         <th>Pembeli</th>

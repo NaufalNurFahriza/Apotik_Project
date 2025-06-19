@@ -78,7 +78,7 @@
                         <tr>
                             <td><?= $i++; ?></td>
                             <td>
-                                <?= $t['nomor_faktur'] ?? 'PB-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?>
+                                <?= $t['no_faktur_beli'] ?? 'PB-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?>
                             </td>
                             <td><?= date('d-m-Y', strtotime($t['tanggal'])); ?></td>
                             <td><?= $t['nama_user']; ?></td>

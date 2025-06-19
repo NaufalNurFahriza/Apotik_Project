@@ -71,7 +71,7 @@
                     <?php foreach ($transaksi as $t) : ?>
                         <tr>
                             <td><?= $i++; ?></td>
-                            <td><?= $t['nomor_faktur'] ?? 'PJ-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                            <td><?= $t['no_faktur_jual'] ?? 'PJ-' . str_pad($t['id'], 5, '0', STR_PAD_LEFT); ?></td>
                             <td><?= date('d-m-Y H:i', strtotime($t['tanggal_transaksi'])); ?></td>
                             <td><?= $t['nama'] ?? $t['nama_user']; ?></td>
                             <td><?= $t['nama_pembeli']; ?></td>

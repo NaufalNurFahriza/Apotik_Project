@@ -25,6 +25,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 bg-primary text-white">
         <h6 class="m-0 fw-bold">Form Pembelian dari Supplier</h6>
+        <small class="text-light">Masukkan nomor faktur pembelian</small>
     </div>
     <div class="card-body">
         <form action="<?= base_url('transaksi-pembelian/simpan'); ?>" method="post" id="formPembelian">
@@ -43,11 +44,11 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="row mb-3">
-                <label for="nomor_faktur_supplier" class="col-sm-2 col-form-label">Nomor Faktur Supplier</label>
+                <label for="no_faktur_beli" class="col-sm-2 col-form-label">Nomor Faktur</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="nomor_faktur_supplier" name="nomor_faktur_supplier" placeholder="Masukkan nomor faktur dari supplier" required>
+                    <input type="text" class="form-control" id="no_faktur_beli" name="no_faktur_beli" placeholder="Masukkan nomor faktur pembelian" required>
                 </div>
             </div>
 
@@ -392,7 +393,7 @@
         $('#formPembelian').submit(function(e) {
             const supplier_id = $('#supplier_id').val();
             const total = parseFloat($('#total').val()) || 0;
-            const nomor_faktur_supplier = $('#nomor_faktur_supplier').val().trim();
+            const no_faktur_beli = $('#no_faktur_beli').val().trim();
 
             if (!supplier_id) {
                 e.preventDefault();
@@ -400,9 +401,9 @@
                 return false;
             }
 
-            if (!nomor_faktur_supplier) {
+            if (!no_faktur_beli) {
                 e.preventDefault();
-                alert('Silakan masukkan nomor faktur supplier!');
+                alert('Silakan masukkan nomor faktur!');
                 return false;
             }
 

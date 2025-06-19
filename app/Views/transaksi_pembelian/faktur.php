@@ -80,7 +80,7 @@
             </div>
             <div class="col-md-4">
                 <p class="mb-1"><strong>No. Faktur Internal:</strong></p>
-                <p class="text-muted"><?= $transaksi['nomor_faktur']; ?></p>
+                <p class="text-muted"><?= $transaksi['no_faktur_beli']; ?></p>
             </div>
         </div>
 

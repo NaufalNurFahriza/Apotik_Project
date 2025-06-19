@@ -112,24 +112,19 @@ class TransaksiPembelian extends BaseController
         // Debug: Log semua data yang diterima
         log_message('info', 'POST data received: ' . json_encode($this->request->getPost()));
 
-        // Ambil data dari form - HAPUS satuan
+        // Ambil data dari form
         $supplier_id = $this->request->getPost('supplier_id');
-        $nomor_faktur_supplier = $this->request->getPost('nomor_faktur_supplier');
         $obat_id = $this->request->getPost('obat_id');
         $harga_beli = $this->request->getPost('harga_beli');
         $qty = $this->request->getPost('qty');
         $nomor_batch = $this->request->getPost('nomor_batch');
         $expired_date = $this->request->getPost('expired_date');
         $total = $this->request->getPost('total');
+        $no_faktur_beli = $this->request->getPost('no_faktur_beli');
 
         // Validasi dasar
         if (empty($supplier_id)) {
             session()->setFlashdata('error', 'Supplier harus dipilih.');
-            return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
-        }
-
-        if (empty($nomor_faktur_supplier)) {
-            session()->setFlashdata('error', 'Nomor faktur supplier harus diisi.');
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
 
@@ -138,14 +133,18 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
 
-        // Cek duplikasi nomor faktur
-        $existingFaktur = $this->transaksiPembelianModel->where('nomor_faktur', $nomor_faktur_supplier)->first();
-        if ($existingFaktur) {
-            session()->setFlashdata('error', 'Nomor faktur supplier sudah ada, gunakan nomor yang berbeda.');
+        if (empty($no_faktur_beli)) {
+            session()->setFlashdata('error', 'Nomor faktur harus diisi.');
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
 
-        // Validasi item yang valid - TANPA satuan
+        $existingFaktur = $this->transaksiPembelianModel->where('no_faktur_beli', $no_faktur_beli)->first();
+        if ($existingFaktur) {
+            session()->setFlashdata('error', 'Nomor faktur sudah ada, gunakan nomor yang berbeda.');
+            return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
+        }
+
+        // Validasi item yang valid
         $valid_items = [];
         for ($i = 0; $i < count($obat_id); $i++) {
             if (!empty($obat_id[$i]) && 
@@ -177,8 +176,8 @@ class TransaksiPembelian extends BaseController
 
         // Simpan data transaksi pembelian
         $data_transaksi = [
-            'nomor_faktur' => $nomor_faktur_supplier,
-            'tanggal' => date('Y-m-d'),
+            'no_faktur_beli' => $no_faktur_beli, // Nomor faktur manual input
+            'tanggal' => date('Y-m-d H:i:s'),
             'user_id' => $user_id,
             'supplier_id' => $supplier_id,
             'total' => $total
@@ -203,7 +202,7 @@ class TransaksiPembelian extends BaseController
                     continue;
                 }
 
-                // Simpan detail transaksi - TANPA satuan
+                // Simpan detail transaksi
                 $data_detail = [
                     'pembelian_id' => $transaksi_id,
                     'obat_id' => $obat_id[$i],
@@ -234,8 +233,8 @@ class TransaksiPembelian extends BaseController
                 throw new \Exception('Transaction failed');
             }
 
-            session()->setFlashdata('pesan', 'Transaksi pembelian berhasil ditambahkan.');
-            return redirect()->to(base_url('transaksi-pembelian'));
+            session()->setFlashdata('pesan', 'Transaksi pembelian berhasil ditambahkan dengan nomor faktur: ' . $no_faktur_beli);
+            return redirect()->to(base_url('transaksi-pembelian/faktur/' . $transaksi_id));
 
         } catch (\Exception $e) {
             $this->transaksiPembelianModel->transRollback();

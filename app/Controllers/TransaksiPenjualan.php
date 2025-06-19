@@ -10,266 +10,290 @@ use App\Models\UserModel;
 
 class TransaksiPenjualan extends BaseController
 {
-    protected $transaksiPenjualanModel;
-    protected $detailPenjualanModel;
-    protected $obatModel;
-    protected $memberModel;
-    protected $userModel;
+   protected $transaksiPenjualanModel;
+   protected $detailPenjualanModel;
+   protected $obatModel;
+   protected $memberModel;
+   protected $userModel;
 
-    public function __construct()
-    {
-        $this->transaksiPenjualanModel = new TransaksiPenjualanModel();
-        $this->detailPenjualanModel = new DetailPenjualanModel();
-        $this->obatModel = new ObatModel();
-        $this->memberModel = new MemberModel();
-        $this->userModel = new UserModel();
-    }
+   public function __construct()
+   {
+       $this->transaksiPenjualanModel = new TransaksiPenjualanModel();
+       $this->detailPenjualanModel = new DetailPenjualanModel();
+       $this->obatModel = new ObatModel();
+       $this->memberModel = new MemberModel();
+       $this->userModel = new UserModel();
+   }
 
-    public function index()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+   private function generateNoFakturJual()
+   {
+       $tanggal = date('Ymd');
+       $prefix = 'PJ-' . $tanggal . '-';
+       
+       // Cari nomor terakhir hari ini
+       $lastFaktur = $this->transaksiPenjualanModel
+           ->where('DATE(tanggal_transaksi)', date('Y-m-d'))
+           ->orderBy('id', 'DESC')
+           ->first();
+       
+       $urutan = 1;
+       if ($lastFaktur && !empty($lastFaktur['no_faktur_jual'])) {
+           $lastNumber = substr($lastFaktur['no_faktur_jual'], -4);
+           $urutan = intval($lastNumber) + 1;
+       }
+       
+       return $prefix . str_pad($urutan, 4, '0', STR_PAD_LEFT);
+   }
 
-        // Ambil parameter filter tanggal
-        $start_date = $this->request->getGet('start_date') ?? date('Y-m-01');
-        $end_date = $this->request->getGet('end_date') ?? date('Y-m-d');
+   public function index()
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-        // Ambil data transaksi penjualan berdasarkan filter tanggal
-        $transaksi = $this->transaksiPenjualanModel->getTransaksiByDateRange($start_date, $end_date);
+       // Ambil parameter filter tanggal
+       $start_date = $this->request->getGet('start_date') ?? date('Y-m-01');
+       $end_date = $this->request->getGet('end_date') ?? date('Y-m-d');
 
-        $data = [
-            'title' => 'Data Transaksi Penjualan',
-            'transaksi' => $transaksi,
-            'start_date' => $start_date,
-            'end_date' => $end_date
-        ];
+       // Ambil data transaksi penjualan berdasarkan filter tanggal
+       $transaksi = $this->transaksiPenjualanModel->getTransaksiByDateRange($start_date, $end_date);
 
-        return view('transaksi_penjualan/index', $data);
-    }
+       $data = [
+           'title' => 'Data Transaksi Penjualan',
+           'transaksi' => $transaksi,
+           'start_date' => $start_date,
+           'end_date' => $end_date
+       ];
 
-    public function tambah()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+       return view('transaksi_penjualan/index', $data);
+   }
 
-        $data = [
-            'title' => 'Tambah Transaksi Penjualan',
-            'obat' => $this->obatModel->where('stok >', 0)->findAll(),
-            'member' => $this->memberModel->findAll(),
-            'validation' => \Config\Services::validation()
-        ];
+   public function tambah()
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-        return view('transaksi_penjualan/tambah', $data);
-    }
+       $data = [
+           'title' => 'Tambah Transaksi Penjualan',
+           'obat' => $this->obatModel->where('stok >', 0)->findAll(),
+           'member' => $this->memberModel->findAll(),
+           'validation' => \Config\Services::validation()
+       ];
 
-    public function getObatById()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return $this->response->setJSON(['error' => 'Unauthorized']);
-        }
+       return view('transaksi_penjualan/tambah', $data);
+   }
 
-        $id = $this->request->getPost('id');
-        $obat = $this->obatModel->find($id);
-        
-        if (!$obat) {
-            return $this->response->setJSON(['error' => 'Obat tidak ditemukan']);
-        }
+   public function getObatById()
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return $this->response->setJSON(['error' => 'Unauthorized']);
+       }
 
-        return $this->response->setJSON($obat);
-    }
+       $id = $this->request->getPost('id');
+       $obat = $this->obatModel->find($id);
+       
+       if (!$obat) {
+           return $this->response->setJSON(['error' => 'Obat tidak ditemukan']);
+       }
 
-    public function simpan()
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+       return $this->response->setJSON($obat);
+   }
 
-        // Validasi input
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'nama_pembeli' => 'required|min_length[3]',
-            'obat_id.*' => 'required|numeric',
-            'qty.*' => 'required|numeric|greater_than[0]',
-            'total' => 'required|numeric|greater_than[0]'
-        ]);
+   public function simpan()
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-        if (!$validation->withRequest($this->request)->run()) {
-            return redirect()->to(base_url('transaksi-penjualan/tambah'))
-                           ->withInput()
-                           ->with('validation', $validation);
-        }
+       // Validasi input
+       $validation = \Config\Services::validation();
+       $validation->setRules([
+           'nama_pembeli' => 'required|min_length[3]',
+           'obat_id.*' => 'required|numeric',
+           'qty.*' => 'required|numeric|greater_than[0]',
+           'total' => 'required|numeric|greater_than[0]'
+       ]);
 
-        // Ambil data dari form
-        $nama_pembeli = $this->request->getPost('nama_pembeli');
-        $member_id = $this->request->getPost('member_id');
-        $obat_id = $this->request->getPost('obat_id');
-        $harga = $this->request->getPost('harga');
-        $qty = $this->request->getPost('qty');
-        $poin_digunakan = $this->request->getPost('poin_digunakan') ?? 0;
-        $potongan_harga = $this->request->getPost('potongan_harga') ?? 0;
-        $total = $this->request->getPost('total');
+       if (!$validation->withRequest($this->request)->run()) {
+           return redirect()->to(base_url('transaksi-penjualan/tambah'))
+                          ->withInput()
+                          ->with('validation', $validation);
+       }
 
-        // Validasi stok
-        for ($i = 0; $i < count($obat_id); $i++) {
-            $obat = $this->obatModel->find($obat_id[$i]);
-            if ($obat['stok'] < $qty[$i]) {
-                session()->setFlashdata('error', "Stok obat {$obat['nama_obat']} tidak mencukupi. Stok tersedia: {$obat['stok']}");
-                return redirect()->to(base_url('transaksi-penjualan/tambah'))->withInput();
-            }
-        }
+       // Ambil data dari form
+       $nama_pembeli = $this->request->getPost('nama_pembeli');
+       $member_id = $this->request->getPost('member_id');
+       $obat_id = $this->request->getPost('obat_id');
+       $harga = $this->request->getPost('harga');
+       $qty = $this->request->getPost('qty');
+       $poin_digunakan = $this->request->getPost('poin_digunakan') ?? 0;
+       $potongan_harga = $this->request->getPost('potongan_harga') ?? 0;
+       $total = $this->request->getPost('total');
 
-        // Pastikan user_id (TTK) valid
-        $user_id = session()->get('id');
-        if (!$user_id) {
-            $firstUser = $this->userModel->first();
-            if ($firstUser) {
-                $user_id = $firstUser['id'];
-            } else {
-                session()->setFlashdata('error', 'Tidak ada TTK yang tersedia di database.');
-                return redirect()->to(base_url('transaksi-penjualan/tambah'));
-            }
-        }
+       // Validasi stok
+       for ($i = 0; $i < count($obat_id); $i++) {
+           $obat = $this->obatModel->find($obat_id[$i]);
+           if ($obat['stok'] < $qty[$i]) {
+               session()->setFlashdata('error', "Stok obat {$obat['nama_obat']} tidak mencukupi. Stok tersedia: {$obat['stok']}");
+               return redirect()->to(base_url('transaksi-penjualan/tambah'))->withInput();
+           }
+       }
 
-        // Hitung poin yang didapat (1 poin untuk setiap Rp 50.000)
-        $poin_didapat = floor($total / 50000);
+       // Pastikan user_id (TTK) valid
+       $user_id = session()->get('id');
+       if (!$user_id) {
+           $firstUser = $this->userModel->first();
+           if ($firstUser) {
+               $user_id = $firstUser['id'];
+           } else {
+               session()->setFlashdata('error', 'Tidak ada TTK yang tersedia di database.');
+               return redirect()->to(base_url('transaksi-penjualan/tambah'));
+           }
+       }
 
-        // Simpan data transaksi penjualan
-        $data_transaksi = [
-            'tanggal_transaksi' => date('Y-m-d H:i:s'),
-            'user_id' => $user_id,
-            'nama_pembeli' => $nama_pembeli,
-            'member_id' => $member_id ? $member_id : null,
-            'total' => $total,
-            'poin_didapat' => $poin_didapat,
-            'poin_digunakan' => $poin_digunakan,
-            'potongan_harga' => $potongan_harga
-        ];
+       // Hitung poin yang didapat (1 poin untuk setiap Rp 50.000)
+       $poin_didapat = floor($total / 50000);
 
-        $this->transaksiPenjualanModel->insert($data_transaksi);
-        $transaksi_id = $this->transaksiPenjualanModel->getInsertID();
+       // Generate nomor faktur
+       $no_faktur_jual = $this->generateNoFakturJual();
 
-        // Simpan detail transaksi dan update stok obat
-        for ($i = 0; $i < count($obat_id); $i++) {
-            // Ambil data obat
-            $obat = $this->obatModel->find($obat_id[$i]);
+       // Simpan data transaksi penjualan
+       $data_transaksi = [
+           'no_faktur_jual' => $no_faktur_jual,
+           'tanggal_transaksi' => date('Y-m-d H:i:s'),
+           'user_id' => $user_id,
+           'nama_pembeli' => $nama_pembeli,
+           'member_id' => $member_id ? $member_id : null,
+           'total' => $total,
+           'poin_didapat' => $poin_didapat,
+           'poin_digunakan' => $poin_digunakan,
+           'potongan_harga' => $potongan_harga
+       ];
 
-            // Simpan detail transaksi
-            $data_detail = [
-                'transaksi_id' => $transaksi_id,
-                'obat_id' => $obat_id[$i],
-                'qty' => $qty[$i],
-                'harga_saat_ini' => $harga[$i]
-            ];
-            $this->detailPenjualanModel->insert($data_detail);
+       $this->transaksiPenjualanModel->insert($data_transaksi);
+       $transaksi_id = $this->transaksiPenjualanModel->getInsertID();
 
-            // Update stok obat
-            $stok_baru = $obat['stok'] - $qty[$i];
-            $this->obatModel->update($obat_id[$i], ['stok' => $stok_baru]);
-        }
+       // Simpan detail transaksi dan update stok obat
+       for ($i = 0; $i < count($obat_id); $i++) {
+           // Ambil data obat
+           $obat = $this->obatModel->find($obat_id[$i]);
 
-        // Update poin member jika transaksi menggunakan member
-        if ($member_id) {
-            $member = $this->memberModel->find($member_id);
-            $poin_akhir = $member['poin'] - $poin_digunakan + $poin_didapat;
-            $this->memberModel->update($member_id, ['poin' => $poin_akhir]);
-        }
+           // Simpan detail transaksi
+           $data_detail = [
+               'transaksi_id' => $transaksi_id,
+               'obat_id' => $obat_id[$i],
+               'qty' => $qty[$i],
+               'harga_saat_ini' => $harga[$i]
+           ];
+           $this->detailPenjualanModel->insert($data_detail);
 
-        session()->setFlashdata('pesan', 'Transaksi penjualan berhasil ditambahkan.');
-        return redirect()->to(base_url('transaksi-penjualan/struk/' . $transaksi_id));
-    }
+           // Update stok obat
+           $stok_baru = $obat['stok'] - $qty[$i];
+           $this->obatModel->update($obat_id[$i], ['stok' => $stok_baru]);
+       }
 
-    public function detail($id)
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+       // Update poin member jika transaksi menggunakan member
+       if ($member_id) {
+           $member = $this->memberModel->find($member_id);
+           $poin_akhir = $member['poin'] - $poin_digunakan + $poin_didapat;
+           $this->memberModel->update($member_id, ['poin' => $poin_akhir]);
+       }
 
-        $data = [
-            'title' => 'Detail Transaksi Penjualan',
-            'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
-            'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
-        ];
+       session()->setFlashdata('pesan', 'Transaksi penjualan berhasil ditambahkan.');
+       return redirect()->to(base_url('transaksi-penjualan/struk/' . $transaksi_id));
+   }
 
-        return view('transaksi_penjualan/detail', $data);
-    }
+   public function detail($id)
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-    public function struk($id)
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+       $data = [
+           'title' => 'Detail Transaksi Penjualan',
+           'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
+           'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
+       ];
 
-        $data = [
-            'title' => 'Struk Transaksi Penjualan',
-            'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
-            'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
-        ];
+       return view('transaksi_penjualan/detail', $data);
+   }
 
-        return view('transaksi_penjualan/struk', $data);
-    }
+   public function struk($id)
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-    public function faktur($id)
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+       $data = [
+           'title' => 'Struk Transaksi Penjualan',
+           'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
+           'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
+       ];
 
-        $data = [
-            'title' => 'Faktur Penjualan',
-            'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
-            'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
-        ];
+       return view('transaksi_penjualan/struk', $data);
+   }
 
-        return view('transaksi_penjualan/faktur', $data);
-    }
+   public function faktur($id)
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-    public function hapus($id)
-    {
-        // Cek login
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('auth'));
-        }
+       $data = [
+           'title' => 'Faktur Penjualan',
+           'transaksi' => $this->transaksiPenjualanModel->getTransaksiById($id),
+           'detail' => $this->transaksiPenjualanModel->getDetailObat($id)
+       ];
 
-        // Cek role - hanya pemilik yang bisa hapus transaksi
-        if (session()->get('role') !== 'pemilik') {
-            session()->setFlashdata('error', 'Anda tidak memiliki akses untuk menghapus transaksi');
-            return redirect()->to(base_url('transaksi-penjualan'));
-        }
+       return view('transaksi_penjualan/faktur', $data);
+   }
 
-        // Ambil detail transaksi
-        $detail = $this->detailPenjualanModel->where('transaksi_id', $id)->findAll();
+   public function hapus($id)
+   {
+       // Cek login
+       if (!session()->get('logged_in')) {
+           return redirect()->to(base_url('auth'));
+       }
 
-        // Kembalikan stok obat
-        foreach ($detail as $d) {
-            $obat = $this->obatModel->find($d['obat_id']);
-            $stok_baru = $obat['stok'] + $d['qty'];
-            $this->obatModel->update($d['obat_id'], ['stok' => $stok_baru]);
-        }
+       // Cek role - hanya pemilik yang bisa hapus transaksi
+       if (session()->get('role') !== 'pemilik') {
+           session()->setFlashdata('error', 'Anda tidak memiliki akses untuk menghapus transaksi');
+           return redirect()->to(base_url('transaksi-penjualan'));
+       }
 
-        // Ambil data transaksi untuk mengurangi poin member jika ada
-        $transaksi = $this->transaksiPenjualanModel->find($id);
-        if ($transaksi['member_id'] && $transaksi['poin_didapat'] > 0) {
-            $member = $this->memberModel->find($transaksi['member_id']);
-            $poin_baru = max(0, $member['poin'] - $transaksi['poin_didapat'] + $transaksi['poin_digunakan']);
-            $this->memberModel->update($transaksi['member_id'], ['poin' => $poin_baru]);
-        }
+       // Ambil detail transaksi
+       $detail = $this->detailPenjualanModel->where('transaksi_id', $id)->findAll();
 
-        // Hapus detail transaksi
-        $this->detailPenjualanModel->where('transaksi_id', $id)->delete();
+       // Kembalikan stok obat
+       foreach ($detail as $d) {
+           $obat = $this->obatModel->find($d['obat_id']);
+           $stok_baru = $obat['stok'] + $d['qty'];
+           $this->obatModel->update($d['obat_id'], ['stok' => $stok_baru]);
+       }
 
-        // Hapus transaksi
-        $this->transaksiPenjualanModel->delete($id);
+       // Ambil data transaksi untuk mengurangi poin member jika ada
+       $transaksi = $this->transaksiPenjualanModel->find($id);
+       if ($transaksi['member_id'] && $transaksi['poin_didapat'] > 0) {
+           $member = $this->memberModel->find($transaksi['member_id']);
+           $poin_baru = max(0, $member['poin'] - $transaksi['poin_didapat'] + $transaksi['poin_digunakan']);
+           $this->memberModel->update($transaksi['member_id'], ['poin' => $poin_baru]);
+       }
 
-        session()->setFlashdata('pesan', 'Transaksi penjualan berhasil dihapus.');
-        return redirect()->to(base_url('transaksi-penjualan'));
-    }
+       // Hapus detail transaksi
+       $this->detailPenjualanModel->where('transaksi_id', $id)->delete();
+
+       // Hapus transaksi
+       $this->transaksiPenjualanModel->delete($id);
+
+       session()->setFlashdata('pesan', 'Transaksi penjualan berhasil dihapus.');
+       return redirect()->to(base_url('transaksi-penjualan'));
+   }
 }
