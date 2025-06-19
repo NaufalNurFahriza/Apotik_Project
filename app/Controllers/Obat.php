@@ -74,7 +74,6 @@ class Obat extends BaseController
             'satuan' => $this->request->getPost('satuan'),
             'harga_beli' => $this->request->getPost('harga_beli'),
             'harga_jual' => $this->request->getPost('harga_jual'),
-            'stok' => $this->request->getPost('stok'),
         ];
 
         $this->obatModel->insert($data);
@@ -121,7 +120,6 @@ class Obat extends BaseController
             'satuan' => $this->request->getPost('satuan'),
             'harga_beli' => $this->request->getPost('harga_beli'),
             'harga_jual' => $this->request->getPost('harga_jual'),
-            'stok' => $this->request->getPost('stok'),
         ];
 
         $this->obatModel->update($id, $data);

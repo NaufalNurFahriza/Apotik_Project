@@ -56,7 +56,8 @@
                         <select class="form-control <?= ($validation->hasError('supplier_id')) ? 'is-invalid' : ''; ?>" 
                                 id="supplier_id" name="supplier_id" required>
                             <option value="">Pilih Supplier</option>
-                            <?php foreach ($supplier as $s) : ?>
+                            <?php foreach (
+                                $supplier as $s) : ?>
                                 <option value="<?= $s['id']; ?>" <?= (old('supplier_id') == $s['id']) ? 'selected' : ''; ?>>
                                     <?= $s['nama_supplier']; ?>
                                 </option>
@@ -110,7 +111,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="harga_beli">Harga Beli <span class="text-danger">*</span></label>
                         <input type="number" class="form-control <?= ($validation->hasError('harga_beli')) ? 'is-invalid' : ''; ?>" 
@@ -120,23 +121,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="form-group">
                         <label for="harga_jual">Harga Jual <span class="text-danger">*</span></label>
                         <input type="number" class="form-control <?= ($validation->hasError('harga_jual')) ? 'is-invalid' : ''; ?>" 
                                id="harga_jual" name="harga_jual" value="<?= old('harga_jual'); ?>" required>
                         <div class="invalid-feedback">
                             <?= $validation->getError('harga_jual'); ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label for="stok">Stok Awal <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control <?= ($validation->hasError('stok')) ? 'is-invalid' : ''; ?>" 
-                               id="stok" name="stok" value="<?= old('stok'); ?>" required>
-                        <div class="invalid-feedback">
-                            <?= $validation->getError('stok'); ?>
                         </div>
                     </div>
                 </div>

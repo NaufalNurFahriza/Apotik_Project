@@ -11,7 +11,7 @@ class ObatModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['bpom', 'nama_obat', 'produsen', 'supplier_id', 'kategori', 'satuan', 'harga_beli', 'harga_jual', 'stok'];
+    protected $allowedFields = ['bpom', 'nama_obat', 'produsen', 'supplier_id', 'kategori', 'satuan', 'harga_beli', 'harga_jual'];
 
     // Validasi
     protected $validationRules = [
@@ -22,8 +22,7 @@ class ObatModel extends Model
         'kategori' => 'required|in_list[resep,non-resep]',
         'satuan' => 'required',
         'harga_beli' => 'required|numeric',
-        'harga_jual' => 'required|numeric',
-        'stok' => 'required|numeric'
+        'harga_jual' => 'required|numeric'
     ];
 
     // Get obat dengan supplier
