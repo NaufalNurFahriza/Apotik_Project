@@ -71,7 +71,7 @@ class TransaksiPembelian extends BaseController
         $data = [
             'title' => 'Beli dari Supplier',
             'obat' => $this->obatModel->findAll(),
-            'supplier' => $this->supplierModel->findAll(), // Fix: ubah dari 'supplier' ke 'suppliers'
+            'supplier' => $this->supplierModel->findAll(),
             'validation' => \Config\Services::validation()
         ];
 
@@ -112,7 +112,7 @@ class TransaksiPembelian extends BaseController
         // Debug: Log semua data yang diterima
         log_message('info', 'POST data received: ' . json_encode($this->request->getPost()));
 
-        // Ambil data dari form
+        // Ambil data dari form - HAPUS satuan
         $supplier_id = $this->request->getPost('supplier_id');
         $nomor_faktur_supplier = $this->request->getPost('nomor_faktur_supplier');
         $obat_id = $this->request->getPost('obat_id');
@@ -121,15 +121,6 @@ class TransaksiPembelian extends BaseController
         $nomor_batch = $this->request->getPost('nomor_batch');
         $expired_date = $this->request->getPost('expired_date');
         $total = $this->request->getPost('total');
-        $satuan = $this->request->getPost('satuan');
-
-        // Debug: Log individual arrays
-        log_message('info', 'obat_id: ' . json_encode($obat_id));
-        log_message('info', 'harga_beli: ' . json_encode($harga_beli));
-        log_message('info', 'qty: ' . json_encode($qty));
-        log_message('info', 'nomor_batch: ' . json_encode($nomor_batch));
-        log_message('info', 'expired_date: ' . json_encode($expired_date));
-        log_message('info', 'satuan: ' . json_encode($satuan));
 
         // Validasi dasar
         if (empty($supplier_id)) {
@@ -154,18 +145,9 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
 
-        // PERBAIKAN: Validasi item yang lebih fleksibel
+        // Validasi item yang valid - TANPA satuan
         $valid_items = [];
         for ($i = 0; $i < count($obat_id); $i++) {
-            // Debug setiap item
-            log_message('info', "Item $i - obat_id: " . ($obat_id[$i] ?? 'NULL') . 
-                              ", qty: " . ($qty[$i] ?? 'NULL') . 
-                              ", harga_beli: " . ($harga_beli[$i] ?? 'NULL') . 
-                              ", batch: " . ($nomor_batch[$i] ?? 'NULL') . 
-                              ", expired: " . ($expired_date[$i] ?? 'NULL') . 
-                              ", satuan: " . ($satuan[$i] ?? 'NULL'));
-
-            // Validasi yang lebih permisif
             if (!empty($obat_id[$i]) && 
                 !empty($qty[$i]) && $qty[$i] > 0 && 
                 !empty($harga_beli[$i]) && $harga_beli[$i] > 0 &&
@@ -173,17 +155,11 @@ class TransaksiPembelian extends BaseController
                 !empty($expired_date[$i])) {
                 
                 $valid_items[] = $i;
-                log_message('info', "Item $i is VALID");
-            } else {
-                log_message('info', "Item $i is INVALID");
             }
         }
 
-        log_message('info', 'Valid items count: ' . count($valid_items));
-        log_message('info', 'Valid items indexes: ' . json_encode($valid_items));
-
         if (empty($valid_items)) {
-            session()->setFlashdata('error', 'Tidak ada item obat yang valid untuk disimpan. Pastikan semua field terisi dengan benar.');
+            session()->setFlashdata('error', 'Tidak ada item obat yang valid untuk disimpan.');
             return redirect()->to(base_url('transaksi-pembelian/tambah'))->withInput();
         }
 
@@ -208,8 +184,6 @@ class TransaksiPembelian extends BaseController
             'total' => $total
         ];
 
-        log_message('info', 'Data transaksi: ' . json_encode($data_transaksi));
-
         try {
             // Start transaction
             $this->transaksiPembelianModel->transStart();
@@ -221,34 +195,27 @@ class TransaksiPembelian extends BaseController
                 throw new \Exception('Gagal menyimpan transaksi pembelian');
             }
 
-            log_message('info', 'Transaksi ID: ' . $transaksi_id);
-
             // Simpan detail transaksi dan update stok obat
             foreach ($valid_items as $i) {
                 // Ambil data obat
                 $obat = $this->obatModel->find($obat_id[$i]);
                 if (!$obat) {
-                    log_message('error', 'Obat not found for ID: ' . $obat_id[$i]);
                     continue;
                 }
 
-                // Simpan detail transaksi
+                // Simpan detail transaksi - TANPA satuan
                 $data_detail = [
                     'pembelian_id' => $transaksi_id,
                     'obat_id' => $obat_id[$i],
                     'harga_beli' => $harga_beli[$i],
                     'qty' => $qty[$i],
                     'nomor_batch' => $nomor_batch[$i],
-                    'expired_date' => $expired_date[$i],
-                    'satuan' => $satuan[$i] ?? $obat['satuan'] // Fallback ke satuan obat jika kosong
+                    'expired_date' => $expired_date[$i]
                 ];
-            
-                log_message('info', 'Inserting detail: ' . json_encode($data_detail));
             
                 $result = $this->detailPembelianModel->insert($data_detail);
             
                 if (!$result) {
-                    log_message('error', 'Failed to insert detail: ' . json_encode($data_detail));
                     throw new \Exception('Gagal menyimpan detail pembelian');
                 }
 
@@ -258,8 +225,6 @@ class TransaksiPembelian extends BaseController
                     'stok' => $stok_baru,
                     'harga_beli' => $harga_beli[$i]
                 ]);
-            
-                log_message('info', 'Updated stock for obat ID ' . $obat_id[$i] . ' to ' . $stok_baru);
             }
 
             // Complete transaction

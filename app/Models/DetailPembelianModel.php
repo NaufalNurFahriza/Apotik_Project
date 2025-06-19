@@ -11,15 +11,15 @@ class DetailPembelianModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['pembelian_id', 'obat_id', 'qty', 'harga_beli', 'nomor_batch', 'expired_date', 'satuan'];
+    // HAPUS 'satuan' dari allowedFields
+    protected $allowedFields = ['pembelian_id', 'obat_id', 'qty', 'harga_beli', 'nomor_batch', 'expired_date'];
 
-    // Validasi - HAPUS subtotal yang tidak ada
+    // Validasi
     protected $validationRules = [
         'pembelian_id' => 'required|numeric',
         'obat_id' => 'required|numeric',
         'qty' => 'required|numeric',
         'harga_beli' => 'required|numeric'
-        // HAPUS: 'subtotal' => 'required|numeric'
     ];
 
     protected $validationMessages = [

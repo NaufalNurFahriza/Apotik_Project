@@ -60,14 +60,13 @@
                         <table class="table table-bordered" id="detailObat">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width: 22%;">Obat</th>
-                                    <th style="width: 10%;">Harga Beli</th>
-                                    <th style="width: 7%;">Jumlah</th>
-                                    <th style="width: 8%;">Satuan</th>
-                                    <th style="width: 12%;">Batch</th>
-                                    <th style="width: 10%;">Exp Date</th>
-                                    <th style="width: 10%;">Subtotal</th>
-                                    <th style="width: 6%;">Aksi</th>
+                                    <th style="width: 25%;">Obat</th>
+                                    <th style="width: 12%;">Harga Beli</th>
+                                    <th style="width: 8%;">Jumlah</th>
+                                    <th style="width: 15%;">Batch</th>
+                                    <th style="width: 12%;">Exp Date</th>
+                                    <th style="width: 12%;">Subtotal</th>
+                                    <th style="width: 8%;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,9 +81,6 @@
                                     </td>
                                     <td>
                                         <input type="number" class="form-control qty" name="qty[]" min="1" value="1" required disabled>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control satuan" name="satuan[]" readonly disabled>
                                     </td>
                                     <td>
                                         <input type="text" class="form-control batch" name="nomor_batch[]" placeholder="Batch" required disabled>
@@ -104,7 +100,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="7">
                                         <button type="button" class="btn btn-success btn-sm" id="btnTambahObat">
                                             <i class="fas fa-plus"></i> Tambah Obat
                                         </button>
@@ -143,7 +139,7 @@
     $(document).ready(function() {
         let rowCount = 1;
         let supplierData = <?= json_encode($supplier ?? []); ?>;
-        let currentObatData = []; // Store current obat data
+        let currentObatData = [];
 
         // Set default expiration date (2 years from now)
         function setDefaultExpDate(element) {
@@ -161,7 +157,6 @@
             } else {
                 inputs.prop('disabled', true).addClass('bg-light').val('');
                 row.find('.subtotal').val('');
-                row.find('.satuan').val(''); // Clear satuan when disabled
             }
             hitungTotal();
         }
@@ -222,7 +217,6 @@
             $('#supplier_id').val(id);
             $('#supplier_dropdown').hide();
 
-            // Load obat berdasarkan supplier
             loadObatBySupplier(id);
         });
 
@@ -233,7 +227,6 @@
             $('#supplier_dropdown').hide();
             currentObatData = [];
             
-            // Clear obat options and disable all fields
             $('.obat-select').each(function() {
                 $(this).empty().append('<option value="" selected disabled>Pilih Obat</option>');
                 toggleRowFields($(this).closest('tr'), false);
@@ -279,7 +272,7 @@
                 if (currentObatData.length > 0) {
                     currentObatData.forEach(function(obat) {
                         const selected = currentValue == obat.id ? 'selected' : '';
-                        $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}" data-satuan="${obat.satuan}" ${selected}>${obat.nama_obat} (Stok: ${obat.stok})</option>`);
+                        $(this).append(`<option value="${obat.id}" data-harga="${obat.harga_beli}" data-stok="${obat.stok}" ${selected}>${obat.nama_obat} (Stok: ${obat.stok})</option>`);
                     }.bind(this));
                 }
             });
@@ -290,7 +283,7 @@
             const harga = parseFloat($(row).find('.harga-beli').val()) || 0;
             const qty = parseFloat($(row).find('.qty').val()) || 0;
             const subtotal = harga * qty;
-            $(row).find('.subtotal').val(Math.round(subtotal)); // Bulatkan ke integer
+            $(row).find('.subtotal').val(Math.round(subtotal));
             hitungTotal();
         }
 
@@ -300,7 +293,7 @@
             $('.subtotal').each(function() {
                 total += parseFloat($(this).val()) || 0;
             });
-            $('#total').val(Math.round(total)); // Bulatkan total ke integer
+            $('#total').val(Math.round(total));
         }
 
         // Event ketika memilih obat - enable fields and auto fill harga beli
@@ -309,22 +302,15 @@
             const row = $(this).closest('tr');
             
             if ($(this).val()) {
-                // Enable other fields
                 toggleRowFields(row, true);
                 
-                // Auto fill harga beli and satuan
+                // Auto fill harga beli
                 const hargaBeli = selectedOption.data('harga') || 0;
-                const satuan = selectedOption.data('satuan') || '';
                 row.find('.harga-beli').val(hargaBeli);
-                row.find('.satuan').val(satuan);
                 
-                // Set default expired date
                 setDefaultExpDate(row.find('.expired'));
-                
-                // Hitung subtotal
                 hitungSubtotal(row);
             } else {
-                // Disable other fields
                 toggleRowFields(row, false);
             }
         });
@@ -368,9 +354,6 @@
                         <input type="number" class="form-control qty bg-light" name="qty[]" min="1" value="1" required disabled>
                     </td>
                     <td>
-                        <input type="text" class="form-control satuan bg-light" name="satuan[]" readonly disabled>
-                    </td>
-                    <td>
                         <input type="text" class="form-control batch bg-light" name="nomor_batch[]" placeholder="Batch" required disabled>
                     </td>
                     <td>
@@ -388,10 +371,8 @@
             `;
             $('#detailObat tbody').append(newRow);
 
-            // Populate obat dropdown for new row
             populateObatDropdowns();
 
-            // Enable tombol hapus jika ada lebih dari 1 baris
             if ($('#detailObat tbody tr').length > 1) {
                 $('.btn-hapus').prop('disabled', false);
             }
@@ -402,7 +383,6 @@
             $(this).closest('tr').remove();
             hitungTotal();
 
-            // Disable tombol hapus jika hanya ada 1 baris
             if ($('#detailObat tbody tr').length <= 1) {
                 $('.btn-hapus').prop('disabled', true);
             }
