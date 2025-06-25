@@ -16,7 +16,7 @@ class TransaksiPenjualanModel extends Model
     // Mendapatkan semua transaksi dengan nama user
     public function getAllTransaksi()
     {
-        return $this->select('transaksi_penjualan.*, user.nama, member.nama as nama_member')
+        return $this->select('transaksi_penjualan.*, user.nama as nama_user, member.nama as nama_member')
                     ->join('user', 'user.id = transaksi_penjualan.user_id')
                     ->join('member', 'member.id = transaksi_penjualan.member_id', 'left')
                     ->orderBy('transaksi_penjualan.tanggal_transaksi', 'DESC')
@@ -26,7 +26,7 @@ class TransaksiPenjualanModel extends Model
     // Mendapatkan detail transaksi berdasarkan ID
     public function getTransaksiById($id)
     {
-        return $this->select('transaksi_penjualan.*, user.nama, member.nama as nama_member')
+        return $this->select('transaksi_penjualan.*, user.nama as nama_user, member.nama as nama_member')
                     ->join('user', 'user.id = transaksi_penjualan.user_id')
                     ->join('member', 'member.id = transaksi_penjualan.member_id', 'left')
                     ->where('transaksi_penjualan.id', $id)
@@ -47,7 +47,7 @@ class TransaksiPenjualanModel extends Model
     // Mendapatkan riwayat transaksi berdasarkan member_id
     public function getRiwayatByMemberId($memberId)
     {
-        return $this->select('transaksi_penjualan.*, user.nama')
+        return $this->select('transaksi_penjualan.*, user.nama as nama_user')
                     ->join('user', 'user.id = transaksi_penjualan.user_id')
                     ->where('transaksi_penjualan.member_id', $memberId)
                     ->orderBy('transaksi_penjualan.tanggal_transaksi', 'DESC')
@@ -57,7 +57,7 @@ class TransaksiPenjualanModel extends Model
     // Mendapatkan transaksi berdasarkan rentang tanggal
     public function getTransaksiByDateRange($startDate, $endDate)
     {
-        return $this->select('transaksi_penjualan.*, user.nama, member.nama as nama_member')
+        return $this->select('transaksi_penjualan.*, user.nama as nama_user, member.nama as nama_member')
                     ->join('user', 'user.id = transaksi_penjualan.user_id')
                     ->join('member', 'member.id = transaksi_penjualan.member_id', 'left')
                     ->where('DATE(transaksi_penjualan.tanggal_transaksi) >=', $startDate)

@@ -11,10 +11,12 @@ class TransaksiPembelianModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    protected $allowedFields = ['nomor_faktur', 'tanggal', 'user_id', 'supplier_id', 'total'];
+    // PERBAIKI: Tambahkan no_faktur_beli ke allowedFields
+    protected $allowedFields = ['no_faktur_beli', 'tanggal', 'user_id', 'supplier_id', 'total'];
 
     // Validasi
     protected $validationRules = [
+        'no_faktur_beli' => 'required|is_unique[transaksi_pembelian.no_faktur_beli,id,{id}]',
         'user_id' => 'required|numeric',
         'supplier_id' => 'required|numeric',
         'tanggal' => 'required',
@@ -91,5 +93,28 @@ class TransaksiPembelianModel extends Model
         $builder->where('DATE(tp.tanggal) >=', $startDate);
         $builder->where('DATE(tp.tanggal) <=', $endDate);
         return $builder->get()->getRowArray();
+    }
+
+    // Generate nomor faktur otomatis
+    public function generateNoFaktur()
+    {
+        $today = date('Ymd');
+        $prefix = 'PB-' . $today . '-';
+        
+        // Cari nomor terakhir hari ini
+        $lastTransaction = $this->select('no_faktur_beli')
+                               ->like('no_faktur_beli', $prefix, 'after')
+                               ->orderBy('no_faktur_beli', 'DESC')
+                               ->first();
+        
+        if ($lastTransaction) {
+            // Ambil nomor urut terakhir
+            $lastNumber = (int) substr($lastTransaction['no_faktur_beli'], -4);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+        
+        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 }

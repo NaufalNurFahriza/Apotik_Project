@@ -79,8 +79,14 @@
                 <p class="text-muted"><?= date('d F Y', strtotime($transaksi['tanggal'])); ?></p>
             </div>
             <div class="col-md-4">
-                <p class="mb-1"><strong>No. Faktur Internal:</strong></p>
-                <p class="text-muted"><?= $transaksi['no_faktur_beli']; ?></p>
+                <p class="mb-1"><strong>No. Faktur:</strong></p>
+                <p class="text-muted">
+                    <?php if (!empty($transaksi['no_faktur_beli'])): ?>
+                        <strong class="text-primary"><?= $transaksi['no_faktur_beli']; ?></strong>
+                    <?php else: ?>
+                        <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </p>
             </div>
         </div>
 

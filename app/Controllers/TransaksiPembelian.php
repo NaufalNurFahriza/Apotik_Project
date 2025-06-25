@@ -295,29 +295,80 @@ class TransaksiPembelian extends BaseController
             return redirect()->to(base_url('auth'));
         }
 
-        // Cek role - pemilik dan TTK yang bisa hapus transaksi
-        if (!in_array(session()->get('role'), ['pemilik', 'ttk'])) {
+        // Cek role - hanya pemilik yang bisa hapus transaksi
+        if (session()->get('role') !== 'pemilik') {
             session()->setFlashdata('error', 'Anda tidak memiliki akses untuk menghapus transaksi');
             return redirect()->to(base_url('transaksi-pembelian'));
         }
 
-        // Ambil detail transaksi
-        $detail = $this->detailPembelianModel->where('pembelian_id', $id)->findAll();
+        try {
+            // Start transaction untuk memastikan konsistensi data
+            $this->transaksiPembelianModel->transStart();
 
-        // Kembalikan stok obat (kurangi stok)
-        foreach ($detail as $d) {
-            $obat = $this->obatModel->find($d['obat_id']);
-            $stok_baru = max(0, $obat['stok'] - $d['qty']); // Pastikan stok tidak negatif
-            $this->obatModel->update($d['obat_id'], ['stok' => $stok_baru]);
+            // Cek apakah transaksi ada
+            $transaksi = $this->transaksiPembelianModel->find($id);
+            if (!$transaksi) {
+                session()->setFlashdata('error', 'Transaksi tidak ditemukan');
+                return redirect()->to(base_url('transaksi-pembelian'));
+            }
+
+            // Ambil detail transaksi
+            $detail = $this->detailPembelianModel->where('pembelian_id', $id)->findAll();
+
+            if (empty($detail)) {
+                session()->setFlashdata('error', 'Detail transaksi tidak ditemukan');
+                return redirect()->to(base_url('transaksi-pembelian'));
+            }
+
+            // Kembalikan stok obat (kurangi stok karena pembatalan pembelian)
+            foreach ($detail as $d) {
+                $obat = $this->obatModel->find($d['obat_id']);
+                
+                if (!$obat) {
+                    log_message('warning', 'Obat dengan ID ' . $d['obat_id'] . ' tidak ditemukan saat menghapus transaksi ' . $id);
+                    continue; // Skip jika obat tidak ditemukan
+                }
+
+                // Kurangi stok karena pembatalan pembelian
+                $stok_baru = max(0, $obat['stok'] - $d['qty']); // Pastikan stok tidak negatif
+                
+                // PERBAIKI: Gunakan method yang benar untuk update stok
+                $updateResult = $this->obatModel->updateStok($d['obat_id'], $stok_baru);
+                
+                if (!$updateResult) {
+                    throw new \Exception('Gagal mengupdate stok obat: ' . $obat['nama_obat']);
+                }
+            }
+
+            // Hapus detail transaksi
+            $deleteDetailResult = $this->detailPembelianModel->where('pembelian_id', $id)->delete();
+            if (!$deleteDetailResult) {
+                throw new \Exception('Gagal menghapus detail transaksi');
+            }
+
+            // Hapus transaksi
+            $deleteTransaksiResult = $this->transaksiPembelianModel->delete($id);
+            if (!$deleteTransaksiResult) {
+                throw new \Exception('Gagal menghapus transaksi');
+            }
+
+            // Complete transaction
+            $this->transaksiPembelianModel->transComplete();
+
+            if ($this->transaksiPembelianModel->transStatus() === FALSE) {
+                throw new \Exception('Transaction failed');
+            }
+
+            session()->setFlashdata('pesan', 'Transaksi pembelian berhasil dihapus dan stok obat telah dikembalikan.');
+            return redirect()->to(base_url('transaksi-pembelian'));
+
+        } catch (\Exception $e) {
+            // Rollback transaction jika ada error
+            $this->transaksiPembelianModel->transRollback();
+            
+            log_message('error', 'Error deleting transaction: ' . $e->getMessage());
+            session()->setFlashdata('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
+            return redirect()->to(base_url('transaksi-pembelian'));
         }
-
-        // Hapus detail transaksi
-        $this->detailPembelianModel->where('pembelian_id', $id)->delete();
-
-        // Hapus transaksi
-        $this->transaksiPembelianModel->delete($id);
-
-        session()->setFlashdata('pesan', 'Transaksi pembelian berhasil dihapus.');
-        return redirect()->to(base_url('transaksi-pembelian'));
     }
 }

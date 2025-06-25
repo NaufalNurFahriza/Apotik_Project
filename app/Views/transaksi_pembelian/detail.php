@@ -23,7 +23,13 @@
                 <table class="table">
                     <tr>
                         <th>Nomor Faktur</th>
-                        <td>: <?= $transaksi['no_faktur_beli'] ?? 'PB-' . str_pad($transaksi['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                        <td>: 
+                            <?php if (!empty($transaksi['no_faktur_beli'])): ?>
+                                <strong class="text-primary"><?= $transaksi['no_faktur_beli']; ?></strong>
+                            <?php else: ?>
+                                <span class="text-muted">Tidak ada nomor faktur</span>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <tr>
                         <th>Tanggal</th>
