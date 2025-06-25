@@ -149,7 +149,7 @@
                         <tr>
                             <td><?= $i++; ?></td>
                             <td><?= date('d-m-Y H:i', strtotime($d['tanggal'])); ?></td>
-                            <td>PB-<?= str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                              <td><?= $d['no_faktur_beli'] ?? 'PB-' . str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
                             <td><?= $d['nama_user'] ?? '-'; ?></td>
                             <td><?= $d['nama_supplier']; ?></td>
                             <td>Rp <?= number_format($d['total'], 0, ',', '.'); ?></td>
