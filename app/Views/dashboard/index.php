@@ -195,19 +195,6 @@
                             <strong>Selamat datang, <?= session()->get('nama'); ?>!</strong> 
                             Anda masuk sebagai <span class="badge bg-primary"><?= ucfirst(session()->get('role')); ?></span>
                         </p>
-                        <p class="text-muted mb-2">
-                            🏥 <strong>Apotek Kita Farma</strong> - Solusi terdepan untuk manajemen apotek modern yang membantu Anda mengelola seluruh operasional dengan lebih efektif dan efisien.
-                        </p>
-                        <p class="text-muted mb-0">
-                            ✨ Kelola <strong>stok obat</strong>, proses <strong>transaksi penjualan & pembelian</strong>, pantau <strong>laporan keuangan</strong>, dan layani <strong>member</strong> dengan sistem terintegrasi yang user-friendly!
-                        </p>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <img src="<?= base_url('assets/img/logo_apotek_pic_only.png'); ?>" alt="Logo Apotek Kita Farma" class="img-fluid mb-2" style="max-height: 80px;">
-                        <p class="text-muted small mb-0">
-                            <i class="fas fa-shield-alt text-success"></i> Sistem Terpercaya<br>
-                            <i class="fas fa-clock text-info"></i> Akses 24/7
-                        </p>
                     </div>
                 </div>
             </div>
