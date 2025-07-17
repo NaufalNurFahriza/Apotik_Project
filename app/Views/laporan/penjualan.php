@@ -31,6 +31,9 @@
                         <div>
                             <button type="submit" class="btn btn-primary">Filter</button>
                             <button type="button" class="btn btn-secondary" onclick="resetFilter()">Reset</button>
+                            <button type="button" class="btn btn-success" onclick="printReport()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -157,6 +160,72 @@
         </div>
     </div>
 </div>
+
+<!-- Hidden Print Content -->
+<div id="printContent" style="display: none;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2>APOTEK KITA FARMA</h2>
+        <h3>LAPORAN PENJUALAN</h3>
+        <p>Periode: <?= date('d-m-Y', strtotime($start_date)); ?> s/d <?= date('d-m-Y', strtotime($end_date)); ?></p>
+    </div>
+
+    <!-- Summary Section -->
+    <div style="margin-bottom: 30px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px; background-color: #f8f9fa;"><strong>Total Transaksi</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><?= $summary['total_transaksi'] ?? 0; ?></td>
+                <td style="border: 1px solid #ddd; padding: 8px; background-color: #f8f9fa;"><strong>Total Penjualan</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Rp <?= number_format($summary['total_penjualan'] ?? 0, 0, ',', '.'); ?></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px; background-color: #f8f9fa;"><strong>Rata-rata per Transaksi</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">Rp <?= number_format($summary['rata_rata'] ?? 0, 0, ',', '.'); ?></td>
+                <td style="border: 1px solid #ddd; padding: 8px; background-color: #f8f9fa;"><strong>Total Item Terjual</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><?= $summary['total_item'] ?? 0; ?></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Detail Table -->
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f8f9fa;">
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">#</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Tanggal</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">No. Faktur</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">TTK</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Pembeli</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">Member</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php $i = 1; ?>
+            <?php foreach ($data as $d) : ?>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;"><?= $i++; ?></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><?= date('d-m-Y H:i', strtotime($d['tanggal_transaksi'])); ?></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><?= $d['no_faktur_jual'] ?? 'PJ-' . str_pad($d['id'], 5, '0', STR_PAD_LEFT); ?></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><?= $d['nama_user'] ?? '-'; ?></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><?= $d['nama_pembeli'] ?? '-'; ?></td>
+                    <td style="border: 1px solid #ddd; padding: 8px;"><?= $d['nama_member'] ?? '-'; ?></td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Rp <?= number_format($d['total'], 0, ',', '.'); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+        <tfoot>
+            <tr style="background-color: #f8f9fa; font-weight: bold;">
+                <td colspan="6" style="border: 1px solid #ddd; padding: 8px; text-align: right;"><strong>TOTAL</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: right;"><strong>Rp <?= number_format($summary['total_penjualan'] ?? 0, 0, ',', '.'); ?></strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div style="margin-top: 30px; text-align: right;">
+        <p>Dicetak pada: <?= date('d-m-Y H:i:s'); ?></p>
+    </div>
+</div>
 <?= $this->endSection(); ?>
 
 <?= $this->section('scripts'); ?>
@@ -180,5 +249,69 @@
         $('#end_date').val('<?= date('Y-m-d'); ?>');
     }
     
+    function printReport() {
+        // Get the print content
+        var printContent = document.getElementById('printContent').innerHTML;
+        
+        // Create a new window for printing
+        var printWindow = window.open('', '_blank', 'width=800,height=600');
+        
+        // Write the HTML content to the new window
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Laporan Penjualan - Apotek Kita Farma</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 20px;
+                        font-size: 12px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f8f9fa;
+                        font-weight: bold;
+                    }
+                    .text-center {
+                        text-align: center;
+                    }
+                    .text-right {
+                        text-align: right;
+                    }
+                    h2, h3 {
+                        margin: 10px 0;
+                    }
+                    @media print {
+                        body { margin: 0; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${printContent}
+            </body>
+            </html>
+        `);
+        
+        // Close the document and focus on the window
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // Wait for content to load then print
+        setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    }
 </script>
 <?= $this->endSection(); ?>
