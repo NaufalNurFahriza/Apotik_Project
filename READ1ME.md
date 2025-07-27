@@ -46,6 +46,6 @@ Sistem Informasi Apotek Kita Farma adalah aplikasi berbasis web yang dibangun me
    - Buka folder `C:\xampp\htdocs`
    - Buat folder baru dengan nama `apotek-kita-farma`
 
-2. **Download atau Clone Proyek**
+2. **Download Proyek**
    - Download file zip proyek dan ekstrak ke folder `C:\xampp\htdocs\apotek-kita-farma`
-   - Atau clone dari repository Git https://github.com/NaufalNurFahriza/Apotik_Project
+  
