@@ -48,4 +48,25 @@ Sistem Informasi Apotek Kita Farma adalah aplikasi berbasis web yang dibangun me
 
 2. **Download Proyek**
    - Download file zip proyek dan ekstrak ke folder `C:\xampp\htdocs\apotek-kita-farma`
-  
+
+### Login
+
+Setelah instalasi selesai dan server XAMPP aktif, ikuti langkah berikut untuk masuk ke sistem:
+
+1. Buka browser dan akses alamat:  
+   **`http://localhost:8080`**
+
+2. Anda akan diarahkan ke halaman login
+
+3. Gunakan data login berikut:
+
+   | Username   | Password  |
+   |------------|-----------|
+   | kevin_bimo | kevin123  |
+
+4. Klik tombol **Masuk**.
+
+5. Jika data benar, Anda akan diarahkan ke halaman **Dashboard** utama sistem Apotek Kita Farma.
+
+> 💡 **Catatan:** Data akun ini terdapat dalam tabel `user` pada database. Anda dapat menambahkan atau memodifikasi pengguna melalui phpMyAdmin.
+
